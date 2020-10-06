@@ -16,7 +16,7 @@
 
 ## Links
 Zakladni info - https://wis.fit.vutbr.cz/FIT/st/cfs.php.cs?file=/course/IFJ-IT/projects/ifj2020.pdf
-Pomucne info - https://www.fit.vutbr.cz/study/courses/IFJ/public/project/.cs
+Pomocne info - https://www.fit.vutbr.cz/study/courses/IFJ/public/project/.cs
 
   
   
