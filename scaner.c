@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include "str.h"
 #include "scaner.h"
-
+///testovanie gitu
 // promenna pro ulozeni vstupniho souboru
 FILE *source;
 
