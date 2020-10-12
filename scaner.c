@@ -1,119 +1,127 @@
+/*
+* autor:  Lubomír Závodský <xzavod14>									*
+* rok vytvoření: 2020		                            	*
+* projekt ifj 2020/2021                               *
+*/
+
 // lexikalni analyzator
+//library
 #include <stdio.h>
 #include <ctype.h>
-#include "str.h"
-#include "scaner.h"
-///testovanie gitu
-// promenna pro ulozeni vstupniho souboru
-FILE *source;
+#include "scan.h"
+char c; // variable for load chars from input
+
+int i = 1; // pocitadlo na zastavenie
+
 
 void setSourceFile(FILE *f)
 {
-  source = f;
-}
+	source = f;
 
-int getNextToken(string *attr)
+	printf("loading file\n" );
+
+	if (source == NULL)
+	{
+		printf("Null file\n");
+		return;
+	}
+} // funkce na citanie suboru
+
+
+
 // hlavni funkce lexikalniho analyzatoru
+int main()
 {
-   int state = 0;
-   int c;
-   // vymazeme obsah atributu a v pripade identifikatoru
-   // budeme postupne do nej vkladat jeho nazev
-   strClear(attr);
-   while (1)
-   {     
-     // nacteni dalsiho znaku
-     c = getc(source);
-           
-     switch (state)
-     {
-       case 0:
-       // zakladni stav automatu 
-         if (isspace(c))
-         // bila mista - ignorovat
-	    state = 0;
-	 else
-	 if (c == '<')
-	 // komentar
-	    state = 1;
-	 else
-	 if (isalpha(c))
-	 // identifikator nebo klicove slovo
-	 {    
-	    strAddChar(attr, c);
-	    state = 2;
-	 }
-	 else
-	 if (c == '+')
-	 // operator ++
-	    state = 3;
-	 else
-	 if (c == '-')
-	 // operator --
-	    state = 4;
-	 else
-	 if (c == '{') return LEFT_VINCULUM;
-	 else
-	 if (c == '}') return RIGHT_VINCULUM;
-	 else
-	 if (c == ';') return SEMICOLON;
-	 else
-	 if (c == EOF) return END_OF_FILE;
-	 else
-	 return LEX_ERROR;
-       break;
-	 
+	printf("1.analizing start\n");
+	printf("start load file\n");
 
-       case 1:
-       // komentar
-         if (c == '>') state = 0; 
-         else 
-         // komentar pokracuje libovolnymi znaky, zustan ve stavu 1,
-         // ale kontroluj, zda neprijde EOF (neukonceny komentar)
-         if (c == EOF) return LEX_ERROR;
-       break;
-       
-       
-       case 2:
-       // identifikator nebo klicove slovo
-         if (isalnum(c))
-	 // identifikator pokracuje
-	    strAddChar(attr, c);
-	 else
-	 // konec identifikatoru
-	 {
-       	    ungetc(c, source); // POZOR! Je potreba vratit posledni nacteny znak
-	    
-	    // kontrola, zda se nejedna o klicove slovo
-	    if (strCmpConstStr(attr, "setzero") == 0) return SETZERO;
-	    else 
-	    if (strCmpConstStr(attr, "read") == 0) return READ;
-	    else 
-	    if (strCmpConstStr(attr, "write") == 0) return WRITE;
-	    else 
-	    if (strCmpConstStr(attr, "while") == 0) return WHILE;
-	    else 
-	    // jednalo se skutecne o identifikator
-	       return ID;
-          }
-       break;   
-       
+	setSourceFile(stdin);// for testing must be delete
+	static T_state state = START; // stav v ktorom sa bude začinat
 
-       case 3:
-       // pokracovani operatoru ++
-         if (c == '+') return INC;
-         else
-         return LEX_ERROR;
-       break;
-       
-       
-       case 4:
-       // pokracovani operatoru --
-         if (c == '-') return DEC;
-         else
-         return LEX_ERROR;
-       break;
-       
-    }
-  }
+
+	while (i)
+	{
+
+		c = getc(source);
+		printf("%c\n",c);
+		switch (state)
+		{
+			case START:
+
+				if (c == '\n')
+				{
+					state = EOLINE;
+					printf("EOLINE\n");
+				}
+
+				else if (c == '_' || isalpha(c))
+				{
+					state = ID;
+
+				}
+								//ČISLO
+				else if (isdigit(c))
+					state = INT;
+
+									//operatory
+				else if (c == '-')
+					state = MINUS;
+				else if (c == '+')
+					state = PLUS;
+				else if (c == '*')
+					state = MULTIPLE;
+					// komentar dorobit / MOzE byt delenie
+
+				//logic operators
+				else if (c == '!')
+					state = NOT;
+				else if (c == '&')
+					state = AND;
+				else if (c == '|')
+					state = OR;
+				//others char
+
+				else if (c == '(')
+					state = LEFTBR;
+				else if (c == ')')
+					state = RIGHTBR;
+				else if (c == ':')
+					state = DOUBLEDOT;
+				else if (c == ',')
+					state = COMMA;
+				else if (c == '=')
+					state = ASSIGN;
+				// less MORE
+				else if (c == '<')
+					state = LESS;
+				else if (c == '>')
+					state = MORE;
+				// space
+				else if (isspace(c))
+					state = SPACE;
+					//end of file
+					else if (c == EOF)
+					{
+						printf("EOF\n");
+
+						//priradit typ tokenu
+
+						state = END;
+
+						break;
+					}
+					else
+					{
+						//poslat token
+						return 0;
+					}
+					break;
+//dalsie stavy
+
+
+
+
+		}//end of switch
+	}//end of while
+
 }
