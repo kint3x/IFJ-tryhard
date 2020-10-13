@@ -4,9 +4,9 @@
 - 4.tyden Ut 13. 10. 2020 - Lexikalni Analyzator Basic - @sonderius
 - 4.tyden Ut 13. 10. 2020 - Lexikalni Analyzator Pomocne Funkce - @all/@sonderius
 - 4.tyden Ut 13. 10. 2020 - Error Codes Library - @matej ✅
-- 5.tyden Ut 20. 10. 2020 -
-- 6.tyden Ut 20. 10. 2020 -
-- 7.tyden Ut 20. 10. 2020 -
+- 5.tyden Ut 20. 10. 2020 - Documentate ready funtions - @nwrzhan
+- 6.tyden Ut 20. 10. 2020 - Scanner Structure - @sonderius @kint3x
+- 7.tyden Ut 20. 10. 2020 - Parser - @matej
 - 8.tyden Ut 20. 10. 2020 -
 - 9.tyden Ut 20. 10. 2020 -
 - 10.tyden Ut 20. 10. 2020 -
