@@ -6,7 +6,7 @@
 - 4.tyden Ut 13. 10. 2020 - Error Codes Library - @matej ✅
 - 5.tyden Ut 20. 10. 2020 - Documentate ready funtions - @nwrzhan                       \n
                             Scanner Structure - @sonderius @kint3x                      \n
-                            Parser - @matej 
+                            Parser Basic- @matej 
                             
 - 6.tyden Ut 20. 10. 2020 - 
 - 7.tyden Ut 20. 10. 2020 - 
