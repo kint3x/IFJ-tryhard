@@ -3,7 +3,7 @@
 ## Deadline - Task - Owner
 - 4.tyden Ut 13. 10. 2020 - Lexikalni Analyzator Basic - @sonderius
 - 4.tyden Ut 13. 10. 2020 - Lexikalni Analyzator Pomocne Funkce - @all/@sonderius
-- 4.tyden Ut 13. 10. 2020 - Error Codes Library - @matej
+- 4.tyden Ut 13. 10. 2020 - Error Codes Library - @matej ✅
 - 5.tyden Ut 20. 10. 2020 -
 - 6.tyden Ut 20. 10. 2020 -
 - 7.tyden Ut 20. 10. 2020 -
