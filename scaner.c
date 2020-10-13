@@ -8,7 +8,7 @@
 //library
 #include <stdio.h>
 #include <ctype.h>
-#include "scan.h"
+#include "scaner.h"
 char c; // variable for load chars from input
 
 int i = 1; // pocitadlo na zastavenie
