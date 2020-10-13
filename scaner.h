@@ -39,7 +39,7 @@ typedef enum
   T_ASSIGN,   // =
   T_NOTEQUAL, // !=
   T_SPACE,    // medzera
-  T_DOUBLEDOT,
+  T_DOUBLEDOT, //:
   //porovnavanie
   T_LESS, //<
   T_LESS_EQ,
@@ -88,15 +88,19 @@ typedef enum
 
     dynstr_t *
         tData;
+*/
 // definice structury tokenu
 typedef struct Token
 {
   tType type;
-  tData data;
+//  tData data;
 
 } Token;
+
 Token *T_init();
-*/
+
 FILE *source;                // promenna pro ulozeni vstupniho souboru
+//funkce scaneru
 void setSourceFile(FILE *f); // funkce pre ulo6enie suboru na nacitanie
-int main();      // hlavna funkcia
+int main();
+Token *getNextToken();  // hlavna funkcia

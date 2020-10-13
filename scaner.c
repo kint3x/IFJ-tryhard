@@ -12,7 +12,14 @@
 char c; // variable for load chars from input
 
 int i = 1; // pocitadlo na zastavenie
+//inicializace tokenu
+Token *T_init()
+{
+	struct Token *token = malloc(sizeof(Token));
 
+
+	return token;
+}
 
 void setSourceFile(FILE *f)
 {
@@ -29,8 +36,8 @@ void setSourceFile(FILE *f)
 
 
 
-// hlavni funkce lexikalniho analyzatoru
-int main()
+// hlavni funkce lexikalniho analyzatoru //prerobit main na funkciu co vrati tokeny
+Token *getNextToken()
 {
 	printf("1.analizing start\n");
 	printf("start load file\n");
@@ -38,7 +45,8 @@ int main()
 	setSourceFile(stdin);// for testing must be delete
 	static T_state state = START; // stav v ktorom sa bude začinat
 
-
+	Token *token = T_init();
+		printf("token init\n");
 	while (i)
 	{
 
@@ -70,6 +78,8 @@ int main()
 					state = PLUS;
 				else if (c == '*')
 					state = MULTIPLE;
+				//	else if (c == '/')
+					//	state = TESTDIVIDE;
 					// komentar dorobit / MOzE byt delenie
 
 				//logic operators
@@ -105,6 +115,7 @@ int main()
 						printf("EOF\n");
 
 						//priradit typ tokenu
+						token->type = T_END_OF_FILE;
 
 						state = END;
 
@@ -112,11 +123,20 @@ int main()
 					}
 					else
 					{
-						//poslat token
-						return 0;
+						//poslat NULL
+
+						return NULL;
 					}
 					break;
 //dalsie stavy
+case EOLINE:
+
+		printf("STAV  EOLINE\n" );
+		ungetc(c, source);
+		token->type = T_EOL;
+		state = START;
+		return token;
+
 
 
 
@@ -125,3 +145,52 @@ int main()
 	}//end of while
 
 }
+int main() {
+	while (1) {
+
+	print_token(getNextToken());
+
+	}
+
+	return 0;
+}
+//funkce na vizualnu kontrolu tokenov
+void print_token(Token *token)
+{
+	static long counter = 1;
+
+	printf("\n--------------------\n");
+	printf("%ld. token\n", counter++);
+	printf("of type: ");
+
+	switch (token->type)
+	{
+	case T_UNKNOWN:
+		printf("UNKNOWN");
+		break;
+
+
+	case T_EOL:
+		printf("EOL");
+		break;
+
+	}
+
+	printf("\n");
+// tiskne na konci "\n"
+	printf("--------------------\n");
+}
+
+//testovanie
+/*int test()
+{
+	Token *token;
+	token = getNextToken();
+	while (token->type != T_END_OF_FILE)
+	{
+		token = getNextToken();
+		print_token(token);
+	}
+
+	return 1;
+}*/
