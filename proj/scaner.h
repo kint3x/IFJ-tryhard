@@ -61,7 +61,7 @@ typedef enum
   START,    // počiatočny stav ak nebolo odsadenie
   ID,       //identifikator
   KEYW,     // klučove slovo
-  INT,      // číslo
+  TINT,      // číslo
   DOUBLE,   // desatine čislo
   STRING,   // stav kontrolujuci retazec
   HEX,      //
