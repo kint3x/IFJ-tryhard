@@ -53,9 +53,32 @@ void nstring_clear(Nstring *s);
 *	
 *	@param s Pointer na štruktúru nafukovacieho stringu
 * 	@param c Znak ktorý sa má uložiť 
+*   @return Vráti true ak sa podarilo, false ak nie
 */
-void nstring_add_char(Nstring *s, char c);
+bool nstring_add_char(Nstring *s, char c);
 
+
+/**
+*	@brief Zapíše string do štruktúry
+*	
+*	@param s Pointer na štruktúru nafukovacieho stringu
+* 	@param str string ktorý sa zapíše do štruktúry
+*	@return Vráti true ak sa podarilo, false ak nie
+*/
+
+//#TODO --> Tuto funkciu implementujem ak ju bude treba
+bool nstring_add_str(Nstring *s, char *str);
+
+/**
+* 	@brief Porovná zadaný string s dynstringom
+*
+*	@param s Pointer na štruktúru nafukovacieho stringu
+* 	@param str string ktorý sa zapíše do štruktúry
+*
+*	@return Vráti 0 ak sa rovnajú, <0 ak je zadaný string kratší alebo >0 ak je zadaný string dlhší.
+*/
+
+int nstring_str_cmp(Nstring *s, const char *str);
 
 
 #endif
