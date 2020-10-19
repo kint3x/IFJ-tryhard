@@ -30,7 +30,7 @@ typedef struct{
 *
 *	@return Vráti true ak sa podarilo, inak false
 */
-bool nstring_init(Nstring *s);
+Nstring *nstring_init();
 
 /**
 *	@brief Uvoľnenie nafukovacieho stringu
