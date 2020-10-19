@@ -8,8 +8,13 @@
 #define PRE_STRING_ALLOC_SIZE 10 // kolko si má string predalokovať
 
 
-bool nstring_init(Nstring *s){
-	
+Nstring *nstring_init(){
+	Nstring *s;
+	s=(Nstring *)malloc(sizeof(Nstring));
+	if(s==NULL){
+		fprintf(stderr,"Nepodarilo sa allokovať štruktúru Nstring\n");
+		return NULL;
+	}
 	s->string=(char *)malloc(PRE_STRING_ALLOC_SIZE*sizeof(char));
 	if(s->string==NULL){
 		fprintf(stderr, "Nepodarilo sa allokovať string v štruktúre!\n");
