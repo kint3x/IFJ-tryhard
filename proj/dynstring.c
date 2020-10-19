@@ -18,19 +18,19 @@ Nstring *nstring_init(){
 	}
 	s->string=(char *)malloc(PRE_STRING_ALLOC_SIZE*sizeof(char));
 	if(s->string==NULL){
+		free(s);
 		fprintf(stderr, "Nepodarilo sa allokovať string v štruktúre!\n");
-		return false;
+		return NULL;
 	}
 	s->string_size=0;
 	s->allocated_size=PRE_STRING_ALLOC_SIZE;
 	nstring_clear(s);
-	return true;
+	return s;
 
 }
 
 void nstring_free(Nstring *s){
 	free(s->string);
-
 }
 
 void nstring_clear(Nstring *s){
