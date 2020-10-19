@@ -7,8 +7,10 @@
 // lexikalni analyzator
 //library
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include "scaner.h"
+
 char c; // variable for load chars from input
 
 int i = 1; // pocitadlo na zastavenie
@@ -45,7 +47,13 @@ Token *getNextToken()
 	setSourceFile(stdin);// for testing must be delete
 	static T_state state = START; // stav v ktorom sa bude začinat
 
-	Token *token = T_init();
+	Token *token = T_init();// inicializace struktury tokenu
+Nstring *pole;
+	printf("priradenie do data\n");
+	token->data = nstring_init();
+	printf("som tu jo\n");
+	;// inicializace nafukovacieho retazca
+
 		printf("token init\n");
 	while (i)
 	{
@@ -58,6 +66,9 @@ Token *getNextToken()
 
 				if (c == '\n')
 				{
+					printf("som tu\n");
+					printf("da%d\n",c);
+					nstring_add_char(token->data, c);
 					state = EOLINE;
 					printf("EOLINE\n");
 				}
@@ -69,7 +80,7 @@ Token *getNextToken()
 				}
 								//ČISLO
 				else if (isdigit(c))
-					state = INT;
+					state = TINT;
 
 									//operatory
 				else if (c == '-')

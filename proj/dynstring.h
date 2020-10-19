@@ -23,9 +23,9 @@ typedef struct{
 
 /**
 *	@brief Inicializácia nafukovacieho stringu
-*	
+*
 *	@param s Pointer na štruktúru nafukovacieho stringu
-* 
+*
 *	@result Ak sa nepodarilo, vypíše chybu na stderr
 *
 *	@return Vráti pointer na štruktúru Nstring alebo NULL ak sa nepodarilo allokovať
@@ -34,25 +34,25 @@ Nstring *nstring_init();
 
 /**
 *	@brief Uvoľnenie nafukovacieho stringu
-*	
+*
 *	@param s Pointer na štruktúru nafukovacieho stringu
-* 
+*
 */
 void nstring_free(Nstring *s);
 
 /**
 *	@brief Zmaže aktuálne uložené znaky zo stringu
-*	
+*
 *	@param s Pointer na štruktúru nafukovacieho stringu
-* 
+*
 */
 void nstring_clear(Nstring *s);
 
 /**
 *	@brief Pridá znak na koniec reťazca
-*	
+*
 *	@param s Pointer na štruktúru nafukovacieho stringu
-* 	@param c Znak ktorý sa má uložiť 
+* 	@param c Znak ktorý sa má uložiť
 *   @return Vráti true ak sa podarilo, false ak nie
 */
 bool nstring_add_char(Nstring *s, char c);
@@ -60,7 +60,7 @@ bool nstring_add_char(Nstring *s, char c);
 
 /**
 *	@brief Zapíše string do štruktúry
-*	
+*
 *	@param s Pointer na štruktúru nafukovacieho stringu
 * 	@param str string ktorý sa zapíše do štruktúry
 *	@return Vráti true ak sa podarilo, false ak nie

@@ -4,7 +4,7 @@
 #include "dynstring.h"
 #include <string.h>
 #include <stdlib.h>
- 
+ #include <stdio.h>
 #define PRE_STRING_ALLOC_SIZE 10 // kolko si má string predalokovať
 
 
@@ -43,7 +43,7 @@ bool nstring_add_char(Nstring *s, char c){
 		s->string=(char *)realloc(s->string,s->allocated_size+PRE_STRING_ALLOC_SIZE);
 		if(s->string == NULL){
 			fprintf(stderr, "Nepodarilo sa spraviť realloc pri funkcí nstring_add_char\n");
-			return false
+			return false;
 		}
 		s->allocated_size+=PRE_STRING_ALLOC_SIZE;
 

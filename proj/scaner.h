@@ -6,8 +6,8 @@
 //hlavicka pro lexikalni analyzator
 
 #include "err.h"
-// vytvorit knihovnu na kruhovy seznam
 
+#include "dynstring.h"
 //jednotlive typy
 typedef enum
 {
@@ -84,16 +84,16 @@ typedef enum
   DOUBLEDOT, //:
   END,        // koncový stav
 } T_state;
-/*typedef
+typedef
 
-    dynstr_t *
+    Nstring *
         tData;
-*/
+
 // definice structury tokenu
 typedef struct Token
 {
   tType type;
-//  tData data;
+ tData data;
 
 } Token;
 
@@ -104,3 +104,4 @@ FILE *source;                // promenna pro ulozeni vstupniho souboru
 void setSourceFile(FILE *f); // funkce pre ulo6enie suboru na nacitanie
 int main();
 Token *getNextToken();  // hlavna funkcia
+void print_token(Token *token); //testovanie
