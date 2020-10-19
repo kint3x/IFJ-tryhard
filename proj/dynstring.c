@@ -4,7 +4,8 @@
 #include "dynstring.h"
 #include <string.h>
 #include <stdlib.h>
- #include <stdio.h>
+#include <stdio.h>
+
 #define PRE_STRING_ALLOC_SIZE 10 // kolko si má string predalokovať
 
 
