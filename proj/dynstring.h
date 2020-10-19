@@ -28,7 +28,7 @@ typedef struct{
 * 
 *	@result Ak sa nepodarilo, vypíše chybu na stderr
 *
-*	@return Vráti true ak sa podarilo, inak false
+*	@return Vráti pointer na štruktúru Nstring alebo NULL ak sa nepodarilo allokovať
 */
 Nstring *nstring_init();
 
