@@ -45,13 +45,10 @@ typedef enum
   T_LESS_EQ,
   T_MORE, //>
   T_MORE_EQ,
-  //odsadenie
-  T_INDENT,
-  T_DEDENT,
+
   //
   T_EOL, //koniec riadku
   T_END_OF_FILE // koniec vstupneho suboru
-
 } tType;
 //stavy automatu
 typedef enum
@@ -82,7 +79,7 @@ typedef enum
   LESS,      //<
   MORE,      //>
   DOUBLEDOT, //:
-  END,        // koncový stav
+  END        // koncový stav
 } T_state;
 typedef
 

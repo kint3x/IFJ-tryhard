@@ -26,12 +26,9 @@ Token *T_init()
 void setSourceFile(FILE *f)
 {
 	source = f;
-
-	printf("loading file\n" );
-
 	if (source == NULL)
 	{
-		printf("Null file\n");
+		fprintf(stderr,"Null file\n");
 		return;
 	}
 } // funkce na citanie suboru
@@ -41,20 +38,19 @@ void setSourceFile(FILE *f)
 // hlavni funkce lexikalniho analyzatoru //prerobit main na funkciu co vrati tokeny
 Token *getNextToken()
 {
-	printf("1.analizing start\n");
-	printf("start load file\n");
+
 
 	setSourceFile(stdin);// for testing must be delete
 	static T_state state = START; // stav v ktorom sa bude začinat
 
 	Token *token = T_init();// inicializace struktury tokenu
 Nstring *pole;
-	printf("priradenie do data\n");
+
 	token->data = nstring_init();
-	printf("som tu jo\n");
+token->type = T_UNKNOWN;
 	;// inicializace nafukovacieho retazca
 
-		printf("token init\n");
+
 	while (i)
 	{
 
@@ -66,11 +62,10 @@ Nstring *pole;
 
 				if (c == '\n')
 				{
-					printf("som tu\n");
-					printf("da%d\n",c);
-					nstring_add_char(token->data, c);
+
+
 					state = EOLINE;
-					printf("EOLINE\n");
+
 				}
 
 				else if (c == '_' || isalpha(c))
@@ -138,16 +133,24 @@ Nstring *pole;
 
 						return NULL;
 					}
+					nstring_add_char(token->data, c);
 					break;
 //dalsie stavy
 case EOLINE:
-
-		printf("STAV  EOLINE\n" );
 		ungetc(c, source);
 		token->type = T_EOL;
 		state = START;
 		return token;
-
+case DOUBLEDOT:
+			token->type = T_DOUBLEDOT;
+			state = START;
+				ungetc(c, source);
+			return token;
+case PLUS:
+					ungetc(c, source);
+					token->type = T_PLUS;
+					state = START;
+					return token;
 
 
 
@@ -184,6 +187,90 @@ void print_token(Token *token)
 	case T_EOL:
 		printf("EOL");
 		break;
+		case T_ID:
+		printf("ID");
+		break;
+
+
+
+	case T_INT:
+		printf("INT");
+		break;
+	case T_DOUBLEDOT:
+		printf("DOUBLEDOT");
+		break;
+	case T_DOUBLE:
+		printf("DOUBLE");
+		break;
+	case T_COMENT:
+		printf("COMENT");
+		break;
+
+	case T_PLUS:
+		printf("PLUS");
+		break;
+	case T_MINUS:
+		printf("MINUS");
+		break;
+	case T_MUL:
+		printf("MUL");
+		break;
+	case T_DIV:
+		printf("DIV");
+		break;
+	case T_INTDIV:
+		printf("IDIV");
+		break;
+	case T_STRING:
+		printf("STRING");
+		break;
+
+	case T_NOT:
+		printf("NOT");
+		break;
+	case T_AND:
+		printf("AND");
+		break;
+	case T_OR:
+		printf("OR");
+		break;
+	case T_EQ_COMP:
+		printf("EQUAL");
+		break;
+
+	case T_LEFTBR:
+		printf("LEFT BRACKET");
+		break;
+	case T_RIGHTBR:
+		printf("RIGHT BRACKET");
+		break;
+	case T_COMMA:
+		printf("COMMA");
+		break;
+	case T_ASSIGN:
+		printf("ASSIGNMENT");
+		break;
+	case T_SPACE:
+		printf("SPACE");
+		break;
+
+	case T_LESS:
+		printf("LESS");
+		break;
+	case T_LESS_EQ:
+		printf("LESS/EQUAL");
+		break;
+	case T_MORE:
+		printf("MORE");
+		break;
+	case T_MORE_EQ:
+		printf("MORE/EQUAL");
+		break;
+	case T_NOTEQUAL:
+		printf("NOTEQUAL");
+		break;
+
+
 
 	}
 
@@ -191,7 +278,7 @@ void print_token(Token *token)
 	printf("with value: ");
 	nstring_print(token->data);
 // tiskne na konci "\n"
-	printf("--------------------\n");
+	printf("\n--------------------\n");
 }
 
 //testovanie
