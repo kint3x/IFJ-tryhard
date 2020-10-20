@@ -59,3 +59,13 @@ bool nstring_add_char(Nstring *s, char c){
 int nstring_str_cmp(Nstring *s, const char *str){
 	return strcmp(s->string,str);
 }
+
+
+
+void nstring_print(Nstring *s) {
+
+    nstring_add_char(s, '\0');
+    char *msg = s->string;
+    printf("%s", msg);
+    free(msg);
+}

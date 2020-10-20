@@ -59,7 +59,7 @@ Nstring *pole;
 	{
 
 		c = getc(source);
-		printf("%c\n",c);
+
 		switch (state)
 		{
 			case START:
@@ -188,6 +188,8 @@ void print_token(Token *token)
 	}
 
 	printf("\n");
+	printf("with value: ");
+	nstring_print(token->data);
 // tiskne na konci "\n"
 	printf("--------------------\n");
 }

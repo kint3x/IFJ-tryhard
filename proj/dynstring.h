@@ -79,6 +79,11 @@ bool nstring_add_str(Nstring *s, char *str);
 */
 
 int nstring_str_cmp(Nstring *s, const char *str);
+/**
+* 	@brief vytiskne obsah seznamu "s" na standardní výstup
 
+*
+*/
+void nstring_print(Nstring *s);
 
 #endif
