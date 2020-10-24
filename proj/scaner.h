@@ -14,11 +14,19 @@ typedef enum
 
   T_UNKNOWN, //Výchozí typ
   T_ID,      //identifikator
-             //klicova slova
-  T_ELSE,    // Keyword - ELSE
   T_INT,
   T_DOUBLE,
   T_COMENT, // //
+  //Keyword
+  T_WELSE,    // Keyword - ELSE
+  T_WFLOAT64,      // Keyword - FLOAT64
+  T_WFOR,    // Keyword - FOR
+  T_WFUNC,    // Keyword FUNC
+  T_WIF,  //Keyword IF
+  T_WINT,   //Keyword - INT
+  T_WPACKAGE,   //Keyword -PACKAGE
+  T_WRETURN,   //Keyword -RETURN
+  T_WSTRING,   //Keyword -STRING
   //operatory
   T_PLUS,   //+
   T_MINUS,  //-
@@ -33,6 +41,9 @@ typedef enum
   T_OR,
   T_EQ_COMP, //
   // others char
+  T_SEMI, //;
+  T_LEFTBRACET,
+  T_RIGHTBRACET,
   T_LEFTBR,   // (
   T_RIGHTBR,  // )
   T_COMMA,    //.
@@ -67,7 +78,7 @@ typedef enum
   MINUS,    //operatory
   PLUS,     // +
   MULTIPLE, // -
-  DIVIDE,   // delenie
+  TESTDIVIDE,   // delenie
   SPACE,    //space
   NOT,
   AND,
@@ -79,8 +90,12 @@ typedef enum
   LESS,      //<
   MORE,      //>
   DOUBLEDOT, //:
+  COMENT,   // komentar riadkovy
+  LEFTBRACET, // {
+  RIGHTBRACET, //}
+  SEMI, // ;
   END        // koncový stav
-} T_state;
+  } T_state;
 typedef
 
     Nstring *
