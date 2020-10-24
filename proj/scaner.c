@@ -59,7 +59,7 @@ token->type = T_UNKNOWN;
 		switch (state)
 		{
 			case START:
-			printf("start\n");
+		
 				if (c == '\n')
 				{
 
@@ -275,7 +275,6 @@ case PLUS:
 			} //DONE
 			break;
 		case ID:
-			printf("ID\n");
 			token->type = T_ID;
 			if ((isalpha(c) || (isdigit(c)) || (c == '_')) && (!(c == '(') || !(c == ':')))
 			{
@@ -298,8 +297,6 @@ case PLUS:
 
 if (!(nstring_str_cmp(token->data, "else")))
 	{
-		printf("else\n");
-		printf("%c\n", c);
 		token->type = T_WELSE;
 
 		state = START;
