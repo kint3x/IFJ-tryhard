@@ -20,4 +20,10 @@
 <stat_list>    -> <stat> <stat_list>
 <stat_list>    -> e
 
-<stat>         -> 
+<stat>         -> <expr> <EOL>
+<stat>         -> id := <expr> <EOL>
+<stat>         -> if <cond> {<EOL> <stat_list> } <EOL> 
+<stat>         -> if <cond> { <stat_list> } else { <EOL> <stat_list> } <EOL>
+<stat>         -> while <cond>
+<stat>         ->
+<stat>         ->
