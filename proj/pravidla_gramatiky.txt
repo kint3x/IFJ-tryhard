@@ -1,0 +1,23 @@
+<prog>         -> <package_list> <fun_list> <EOF>
+<fun_list>     -> <fun_all> <EOL> <fun_list>
+<fun_list>     -> e
+
+
+<fun_all>      -> <fun_def> { <stat_list> }
+<fun_def>      -> func ID <fun_stypes> <fun_rtypes>
+<fun_stypes>   -> ( <fun_stype> )
+<fun_rtypes>   -> ( <fun_rtype> )
+<fun_rtypes>   -> e
+
+<fun_stype>    -> ID <type> <fun_stype>
+<fun_stype>    -> , ID <type> <fun_stype>
+<fun_stype>    -> e
+
+<fun_rtype>    -> <type> <fun_stype>
+<fun_rtype>    -> , <type> <fun_stype>
+<fun_rtype>    -> e
+
+<stat_list>    -> <stat> <stat_list>
+<stat_list>    -> e
+
+<stat>         -> 
