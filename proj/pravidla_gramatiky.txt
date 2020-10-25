@@ -22,8 +22,36 @@
 
 <stat>         -> <expr> <EOL>
 <stat>         -> id := <expr> <EOL>
+<stat>         -> id = <expr> <EOL>
 <stat>         -> if <cond> {<EOL> <stat_list> } <EOL> 
 <stat>         -> if <cond> { <stat_list> } else { <EOL> <stat_list> } <EOL>
-<stat>         -> while <cond>
-<stat>         ->
-<stat>         ->
+<stat>         -> return <expr> <EOL>
+<stat>         -> return <cond> <EOL>
+
+#TODO -> STAT FOR CYKLUS
+
+<expr>         -> <term> <expr_sub>
+<expr_sub>     -> + <term> <expr_sub>
+<expr_sub>     -> - <term> <expr_sub>
+<expr_sub>     -> e
+
+<term>         -> <factor> <term_sub>
+<term_sub>     -> * <factor> <term_sub>
+<term_sub>     -> / <factor> <term_sub>
+<term_sub>     -> e
+
+<factor>       -> ( <expr> )
+<factor>       -> - <factor>
+<factor>       -> id
+
+<cond>         -> <factor> <relation> <factor>
+<cond>         -> <factor>
+<cond>         -> ( <cond> )
+
+<relation>     -> <
+<relation>     -> >
+<relation>     -> <=
+<relation>     -> >=
+<relation>     -> ==
+<relation>     -> !=
+<relation>     -> e
