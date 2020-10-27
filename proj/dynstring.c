@@ -69,3 +69,12 @@ void nstring_print(Nstring *s) {
     printf("%s", msg);
     free(msg);
 }
+
+void nstring_char_remove(Nstring *s){
+	if(s->string_size == 0){
+		return void;
+	}
+	s->string_size -= 1;
+	s->string[s->string_size]='\0';
+}
+
