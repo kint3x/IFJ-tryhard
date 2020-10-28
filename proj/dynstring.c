@@ -72,9 +72,8 @@ void nstring_print(Nstring *s) {
 
 void nstring_char_remove(Nstring *s){
 	if(s->string_size == 0){
-		return void;
+		return;
 	}
 	s->string_size -= 1;
 	s->string[s->string_size]='\0';
 }
-

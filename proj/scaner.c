@@ -464,11 +464,10 @@ token->type = T_UNKNOWN;
 
 					break;}
 			case SPACE:
-
-						ungetc(c, source);
-							token->type = T_SPACE;
-							state = START;
-					return token;
+					ungetc(c, source);
+					nstring_char_remove(token->data);
+					state = START;
+					break;
 			case LEFTBR:
 					ungetc(c, source);
 					token->type = T_LEFTBR;
