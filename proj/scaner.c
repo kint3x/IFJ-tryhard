@@ -235,7 +235,7 @@ token->type = T_UNKNOWN;
 				token->type = T_DOUBLE;
 				if (!(c == ':'))
 					nstring_add_char(token->data, c);
-				//printf("double\n");
+
 				if (!(c == '+' || c == '-'))
 				{
 
@@ -262,11 +262,17 @@ token->type = T_UNKNOWN;
 				else if (c == '.')
 				{
 					nstring_add_char(token->data, c);
+						c = getc(source);
+					if (!isdigit(c)) printf("chyba double\n");
 					state = DOUBLE;
+					ungetc(c, source);
 				}
 				else if ((c == 'E') || (c == 'e'))
 				{
 					nstring_add_char(token->data, c);
+					c = getc(source);
+					if (!isdigit(c)) printf("chyba double\n");
+					ungetc(c, source);
 					state = DOUBLE;
 				}
 				else
