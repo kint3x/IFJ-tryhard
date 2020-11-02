@@ -4,7 +4,7 @@ CC=gcc
 RM=rm -f
 
 ALL: scaner.o main.o dynstring.o
-	$(CC) $(CFLAGS) -o $(BIN)  scaner.o parser.o dynstring.o main.o 
+	$(CC) $(CFLAGS) -o $(BIN) scaner.o parser.o main.o 
 
 clean:
 	$(RM) *.o $(BIN)

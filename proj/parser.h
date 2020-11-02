@@ -6,7 +6,7 @@
 #include "scaner.h"
 #include "err.h"
 
-void p_getnexttoken(&Token t);
+void p_getnexttoken();
 int p_prog();
 int p_funclist();
 int p_func();
