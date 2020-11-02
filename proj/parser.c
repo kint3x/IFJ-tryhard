@@ -5,9 +5,8 @@ Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
 token.data=NULL;
 
 int p_getnexttoken(){
-	if(token.data!=NULL){               
-		nstring_free(token.data);
-	}
+              
+	nstring_free(token.data);  // odalokovanie predosleho dynstringu
 
 	Token *t=getNextToken();    // uloží si nový token
 	if(t==NULL){
