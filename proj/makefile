@@ -3,7 +3,7 @@ BIN=project
 CC=gcc
 RM=rm -f
 
-ALL: scaner.o main.o dynstring.o praser.o
+ALL: scaner.o main.o dynstring.o parser.o
 	$(CC) $(CFLAGS) -o $(BIN) scaner.o parser.o main.o dynstring.o
 
 clean:
