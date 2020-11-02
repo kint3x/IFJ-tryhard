@@ -15,7 +15,7 @@ void p_getnexttoken(){
 	
 	free(t);					//uvolní token (nafukovací string neuvolní)
 	
-	if(token.type==END){		// ak je token end uvolni aktualny dynstring pre END
+	if(token.type==T_END_OF_FILE){		// ak je token end uvolni aktualny dynstring pre END
 		nstring_free(token.data);     
 	}
 }
