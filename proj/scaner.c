@@ -1,9 +1,9 @@
 /*
 * autor:  Lubomír Závodský <xzavod14>									*
-* rok vytvoření: 2020		                            	*
+* rok vytvorené: 2020		                            	*
 * projekt ifj 2020/2021                               *
 */
-
+//
 // lexikalni analyzator
 //library
 #include <stdio.h>
@@ -41,14 +41,14 @@ Token *getNextToken()
 
 
 	setSourceFile(stdin);// for testing must be delete
-	static T_state state = START; // stav v ktorom sa bude začinat
+	static T_state state = START; // stav v ktorom sa bude za�inat
 
 	Token *token = T_init();// inicializace struktury tokenu
-Nstring *pole;
 
-	token->data = nstring_init();
+
+	token->data = nstring_init();// inicializace nafukovacieho retazca
 token->type = T_UNKNOWN;
-	;// inicializace nafukovacieho retazca
+
 
 
 	while (i)
@@ -59,7 +59,6 @@ token->type = T_UNKNOWN;
 		switch (state)
 		{
 			case START:
-		
 				if (c == '\n')
 				{
 
@@ -73,7 +72,7 @@ token->type = T_UNKNOWN;
 					state = ID;
 
 				}
-								//ČISLO
+								//�ISLO
 				else if (isdigit(c))
 					state = TINT;
 							//STRING
@@ -88,7 +87,7 @@ token->type = T_UNKNOWN;
 					state = MULTIPLE;
 					else if (c == '/')
 						state = TESTDIVIDE;
-					// komentar dorobit / MOzE byt delenie
+											// komentar dorobit / MOzE byt delenie
 
 				//logic operators
 				else if (c == '!')
@@ -125,7 +124,7 @@ token->type = T_UNKNOWN;
 					//end of file
 					else if (c == EOF)
 					{
-						printf("EOF\n");
+
 
 						//priradit typ tokenu
 						token->type = T_END_OF_FILE;
@@ -137,318 +136,435 @@ token->type = T_UNKNOWN;
 					else
 					{
 						//poslat NULL
-
-						return NULL;
+						fprintf(stderr,"lexikal error UNKNOWN char\n");
+						nstring_add_char(token->data, c);
+						i = 0;
+						return token;
 					}
 					nstring_add_char(token->data, c);
-					break;
-//dalsie stavy
-case MULTIPLE:
-	ungetc(c, source);
-	token->type = T_MUL;
-	state = START;
-	return token; //DONE
-case SEMI:
-					ungetc(c, source);
-					token->type = T_SEMI;
-					state = START;
-					return token;
-case ESC:
-	if ((c == 'n') || (c == 't') || (c == 's'))
-	{
-
-		nstring_add_char(token->data, c);
-		state = STRING;
-	}
-	else if (c == 'x')
-	{
-		nstring_add_char(token->data, c);
-		state = HEX;
-	}
-	else
-	{
-		state = START;
-		return token;
-	}
-	break;
-case MORE:
-	if (c == '=')
-	{
-		nstring_add_char(token->data, c);
-		token->type = T_MORE_EQ;
-		state = START;
-		return token;
-	}
-	else
-	{
-		ungetc(c, source);
-		token->type = T_MORE;
-		state = START;
-		return token;
-	}
-case MINUS:
-	ungetc(c, source);
-	token->type = T_MINUS;
-	state = START;
-	return token; //DONE
-case LESS:
-	if (c == '=')
-	{
-		nstring_add_char(token->data, c);
-		token->type = T_LESS_EQ;
-		state = START;
-		return token;
-	}
-	else
-	{
-		ungetc(c, source);
-		token->type = T_LESS;
-		state = START;
-		return token;
-	}
-case TINT:
-	token->type = T_INT;
-
-	if (isdigit(c))
-	{
-
-		nstring_add_char(token->data, c);
-		state = TINT;
-		break;
-	}
-	else if (c == '.')
-	{
-		nstring_add_char(token->data, c);
-		state = DOUBLE;
-	}
-	else if ((c == 'E') || (c == 'e'))
-	{
-		nstring_add_char(token->data, c);
-		state = DOUBLE;
-	}
-	else
-	{
-
-		if (!(isalpha(c)))
-		{
-			state = START;
-			ungetc(c, source);
-			return token;
-		}
-		else
-		{
-
-			return token;
-		}
-	}
-	break;
-case EOLINE:
-		ungetc(c, source);
-		token->type = T_EOL;
-		state = START;
-		return token;
-case DOUBLEDOT:
-			token->type = T_DOUBLEDOT;
-			state = START;
-				ungetc(c, source);
-			return token;
-case PLUS:
-					ungetc(c, source);
-					token->type = T_PLUS;
-					state = START;
-					return token;
-	case TESTDIVIDE:
-		if (c != '/')
-		{
-			token->type = T_INTDIV;
-
-			state = COMENT;
-
-			return token; //DONE
-		}
-		case COMENT:
-			// komentar
-			if (c == '\n')
-			{
-				ungetc(c, source);
-				state = START;
-			} //DONE
-			break;
-		case ID:
-			token->type = T_ID;
-			if ((isalpha(c) || (isdigit(c)) || (c == '_')) && (!(c == '(') || !(c == ':')))
-			{
-
-				//token->data = c;
-				state = KEYW;
+				break;
+			//dalsie stavy
+			case NOT:
+				if (c == '=')
+				{
+					token->type = T_NOTEQUAL;
 				nstring_add_char(token->data, c);
-			}
-			else
-			{
+					state = START;
+					return token;
+				}
 
 				ungetc(c, source);
-				state = START;
-
-				return token;
-			}
-					break;
-	case KEYW:
-//	printf("KEYWW\n");
-
-if (!(nstring_str_cmp(token->data, "else")))
-	{
-		token->type = T_WELSE;
-
-		state = START;
-		ungetc(c, source);
-		return token;
-	}
-	else if (!(nstring_str_cmp(token->data, "float64")))
-	{
-		token->type = T_WFLOAT64;
-
-		state = START;
-		ungetc(c, source);
-		return token;
-	}
-
-	else if (!(nstring_str_cmp(token->data, "for")))
-	{
-		token->type = T_WFOR;
-
-		state = START;
-		ungetc(c, source);
-		return token;
-	}
-	else if (!(nstring_str_cmp(token->data, "func")))
-	{
-		token->type = T_WFUNC;
-
-		state = START;
-		ungetc(c, source);
-		return token;
-	}
-	else if (!(nstring_str_cmp(token->data, "if")))
-	{
-		token->type = T_WIF;
-
-		state = START;
-		ungetc(c, source);
-		return token;
-	}
-	else if (!(nstring_str_cmp(token->data, "int")))
-	{
-		token->type = T_WINT;
-
-		state = START;
-		ungetc(c, source);
-		return token;
-	}
-	else if (!(nstring_str_cmp(token->data, "package")))
-	{
-		token->type = T_WPACKAGE;
-
-		state = START;
-		ungetc(c, source);
-		return token;
-	}
-	else if (!(nstring_str_cmp(token->data, "return")))
-	{
-		token->type = T_WRETURN;
-
-		state = START;
-		ungetc(c, source);
-		return token;
-	}
-	else if (!(nstring_str_cmp(token->data, "string")))
-	{
-		token->type = T_WSTRING;
-
-		state = START;
-		ungetc(c, source);
-		return token;
-	}
-else{
-ungetc(c, source);
-		state = ID; //DONE //done
-
-		break;}
-			case SPACE:
-		ungetc(c, source);
-			state = START;
-		break;
-	case LEFTBR:
-		ungetc(c, source);
-		token->type = T_LEFTBR;
-		state = START;
-		return token; //DONE
-		case COMMA:
-			ungetc(c, source);
-			token->type = T_COMMA;
-			state = START;
-			return token; //DONE
-
-		case RIGHTBR:
-			ungetc(c, source);
-			token->type = T_RIGHTBR;
-			state = START;
-			return token; //DONE
-			case LEFTBRACET:
-				ungetc(c, source);
-				token->type = T_LEFTBRACET;
+				token->type = T_NOT;
 				state = START;
 				return token; //DONE
-		case RIGHTBRACET:
-					ungetc(c, source);
-					token->type = T_RIGHTBRACET;
-					state = START;
-					return token; //DONE
-			case STRING:
-				//printf("retazec\n");
-
-				if (c == '\"')
+			case AND:
+				ungetc(c, source);
+				token->type = T_AND;
+				state = START;
+				return token; //DONE
+			case OR:
+				ungetc(c, source);
+				token->type = T_OR;
+				state = START;
+				return token; //DONE
+			case MULTIPLE:
+				ungetc(c, source);
+				token->type = T_MUL;
+				state = START;
+				return token; //DONE
+			case SEMI:
+								ungetc(c, source);
+								token->type = T_SEMI;
+								state = START;
+								return token;
+			case MORE:
+				if (c == '=')
 				{
-
 					nstring_add_char(token->data, c);
-					token->type = T_STRING;
+					token->type = T_MORE_EQ;
 					state = START;
 					return token;
 				}
-				else if (c == 92)
+				else
+				{
+					ungetc(c, source);
+					token->type = T_MORE;
+					state = START;
+					return token;
+				}
+			case MINUS:
+				ungetc(c, source);
+				nstring_add_char(token->data, c);
+				token->type = T_MINUS;
+				state = START;
+				return token; //DONE
+			case LESS:
+				if (c == '=')
+				{
+					nstring_add_char(token->data, c);
+					token->type = T_LESS_EQ;
+					state = START;
+					return token;
+				}
+				else
+				{
+					ungetc(c, source);
+					token->type = T_LESS;
+					state = START;
+					return token;
+				}
+				case HEX_CON:
+					if (((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')) || isdigit(c))
+					{
+						nstring_add_char(token->data, c);
+						state = STRING;
+					}
+					break;
+				case HEX:
+					if (((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')) || isdigit(c))
+					{
+						nstring_add_char(token->data, c);
+						state = HEX_CON;
+					}
+					else
+					{
+						return NULL;
+					}
+					break;
+				case DOUBLE:
+				token->type = T_DOUBLE;
+				if (!(c == ':'))
+					nstring_add_char(token->data, c);
+
+				if (!(c == '+' || c == '-'))
+				{
+
+					if (!isdigit(c))
+					{
+						ungetc(c, source);
+						state = START;
+						return token;
+					}
+
+					break;
+				}
+				break;
+			case TINT:
+				token->type = T_INT;
+
+				if (isdigit(c))
 				{
 
 					nstring_add_char(token->data, c);
-					state = ESC;
+					state = TINT;
+					break;
 				}
-				else if (c > 31)
+				else if (c == '.')
 				{
 					nstring_add_char(token->data, c);
-					state = STRING;
+						c = getc(source);
+					if (!isdigit(c)) printf("chyba double\n");
+					state = DOUBLE;
+					ungetc(c, source);
 				}
-				break;
-				case ASSIGN:
-					if (c == '=')
-					{
+				else if ((c == 'E') || (c == 'e'))
+				{
 					nstring_add_char(token->data, c);
-						token->type = T_EQ_COMP;
+					c = getc(source);
+					if (!isdigit(c)) printf("chyba double\n");
+					ungetc(c, source);
+					state = DOUBLE;
+				}
+				else
+				{
+
+					if (!(isalpha(c)))
+					{
 						state = START;
+						ungetc(c, source);
 						return token;
 					}
 					else
 					{
 
-						ungetc(c, source);
-						token->type = T_ASSIGN;
-						state = START;
 						return token;
 					}
+				}
+				break;
+			case EOLINE:
+					ungetc(c, source);
+					token->type = T_EOL;
+					state = START;
+					return token;
+			case DOUBLEDOT:
+						token->type = T_DOUBLEDOT;
+						state = START;
+							ungetc(c, source);
+						return token;
+			case PLUS:
+								ungetc(c, source);
+								token->type = T_PLUS;
+								state = START;
+								return token;
+			case TESTDIVIDE:
+						if (c == '/') {
+							ungetc(c, source);
+							state = COMENT;
+							break;
+						}
+						else if (c == '*') {
+							ungetc(c, source);
+							state = BLOCKCOMENT;
+							break;
+						}
+						else{
+							state = START;
+							ungetc(c, source);
+							token->type = T_DIV;
+						return token;}
+			case COMENT:
+					if (c == '\n') {
+						state = START;
+						token->type = T_COMENT;
+						return token;
+					}
+					else if (c == EOF)
+						{
+							ungetc(c, source);
+							state = START;
+							break;
+						}
+					else {
+						nstring_add_char(token->data, c);
+						break;
+					}
+			case BLOCKCOMENT:
+						if (c == '*') {
+							nstring_add_char(token->data, c);
+							c = getc(source);
+							if (c == '/') {
+								token->type = T_COMENT;
+								nstring_add_char(token->data, c);
+								state = START;
+								return token;
+							}else if (c == EOF)
+								{printf("neukončený blokový komentar\n");
+									state = START;
+								return token;
+							}
+
+							else
+							{
+								ungetc(c, source);
+								 break;
+						 }}
+						 else if (c == EOF)
+							 {printf("neukončený blokový komentar\n");
+								 state = START;
+							 return token;}
+						else {
+						nstring_add_char(token->data, c);
+						break;
+					 }
+			case ID:
+						token->type = T_ID;
+						if ((isalpha(c) || (isdigit(c)) || (c == '_')) && (!(c == '(') || !(c == ':')))
+						{
+
+							//token->data = c;
+							state = KEYW;
+							nstring_add_char(token->data, c);
+						}
+						else
+						{
+
+							ungetc(c, source);
+							state = START;
+
+							return token;
+						}
+				break;
+			case KEYW:
+			//	printf("KEYWW\n");
+
+			if (!(nstring_str_cmp(token->data, "else")))
+				{
+					token->type = T_WELSE;
+
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
+				else if (!(nstring_str_cmp(token->data, "float64")))
+				{
+					token->type = T_WFLOAT64;
+
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
+
+				else if (!(nstring_str_cmp(token->data, "for")))
+				{
+					token->type = T_WFOR;
+
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
+				else if (!(nstring_str_cmp(token->data, "func")))
+				{
+					token->type = T_WFUNC;
+
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
+				else if (!(nstring_str_cmp(token->data, "if")))
+				{
+					token->type = T_WIF;
+
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
+				else if (!(nstring_str_cmp(token->data, "int")))
+				{
+					token->type = T_WINT;
+
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
+				else if (!(nstring_str_cmp(token->data, "package")))
+				{
+					token->type = T_WPACKAGE;
+
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
+				else if (!(nstring_str_cmp(token->data, "return")))
+				{
+					token->type = T_WRETURN;
+
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
+				else if (!(nstring_str_cmp(token->data, "string")))
+				{
+					token->type = T_WSTRING;
+
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
+			else{
+			ungetc(c, source);
+					state = ID; //DONE //done
+
+					break;}
+			case SPACE:
+					ungetc(c, source);
+					nstring_char_remove(token->data);
+					state = START;
 					break;
+			case LEFTBR:
+					ungetc(c, source);
+					token->type = T_LEFTBR;
+					state = START;
+					return token; //DONE
+			case COMMA:
+						ungetc(c, source);
+						token->type = T_COMMA;
+						state = START;
+						return token; //DONE
+
+			case RIGHTBR:
+						ungetc(c, source);
+						token->type = T_RIGHTBR;
+						state = START;
+						return token; //DONE
+			case LEFTBRACET:
+							ungetc(c, source);
+							token->type = T_LEFTBRACET;
+							state = START;
+							return token; //DONE
+			case RIGHTBRACET:
+								ungetc(c, source);
+								token->type = T_RIGHTBRACET;
+								state = START;
+								return token; //DONE
+			case STRING:
+							//printf("retazec\n");
+
+							if (c == '\"')
+							{
+
+								nstring_add_char(token->data, c);
+								token->type = T_STRING;
+								state = START;
+								return token;
+							}
+							else if (c == 92)
+							{
+
+								nstring_add_char(token->data, c);
+								state = ESC;
+							}
+							else if (c > 31)
+							{
+								nstring_add_char(token->data, c);
+								state = STRING;
+							}
+				break;
+			case ESC:
+				if ((c == 'n') || (c == 't') || (c == 's'))
+				{
+
+					nstring_add_char(token->data, c);
+					state = STRING;
+				}
+				else if (c == 'x')
+				{
+					nstring_add_char(token->data, c);
+					state = HEX;
+				}
+				else
+				{
+					state = START;
+					return token;
+				}
+				break;
+			case ASSIGN:
+								if (c == '=')
+								{
+								nstring_add_char(token->data, c);
+									token->type = T_EQ_COMP;
+									state = START;
+									return token;
+								}
+								else
+								{
+
+									ungetc(c, source);
+									token->type = T_ASSIGN;
+									state = START;
+									return token;
+								}
+				break;
+			case END:
+		token->type = T_END_OF_FILE;
+
+			i = 0;
+					return token;
 		}//end of switch
 	}//end of while
-
+	return NULL;
 }
 int main() {
-	while (1) {
+	while (i) {
 
 	print_token(getNextToken());
 
@@ -478,7 +594,42 @@ void print_token(Token *token)
 		case T_ID:
 		printf("ID");
 		break;
-
+	case T_END_OF_FILE:
+		printf("EOF");
+		break;
+	case T_WELSE:
+		printf("ELSE");
+		break;
+	case T_WFLOAT64:
+		printf("WFLOAT64");
+		break;
+		case T_WFOR:
+			printf("WFOR");
+			break;
+		case T_WFUNC:
+			printf("WFUNC");
+			break;
+		case T_WINT:
+			printf("WINT");
+			break;
+		case T_WIF:
+		printf("WIF");
+		break;
+		case T_WSTRING:
+		printf("WSTRING");
+		break;
+		case T_SEMI:
+		printf("SEMI");
+		break;
+		case T_LEFTBRACET:
+		printf("LEFTBRACET");
+		break;
+		case T_RIGHTBRACET:
+		printf("RIGHTBRACET");
+		break;
+		case T_WRETURN:
+		printf("WRETURN");
+		break;
 
 
 	case T_INT:
@@ -505,9 +656,6 @@ void print_token(Token *token)
 		break;
 	case T_DIV:
 		printf("DIV");
-		break;
-	case T_INTDIV:
-		printf("IDIV");
 		break;
 	case T_STRING:
 		printf("STRING");

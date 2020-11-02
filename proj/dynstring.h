@@ -86,4 +86,11 @@ int nstring_str_cmp(Nstring *s, const char *str);
 */
 void nstring_print(Nstring *s);
 
+/**
+* 	@brief Vymaže znak z nafukovacého stringu
+
+*
+*/
+void nstring_char_remove(Nstring *s);
+
 #endif

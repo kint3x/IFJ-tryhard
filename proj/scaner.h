@@ -32,7 +32,6 @@ typedef enum
   T_MINUS,  //-
   T_MUL,    // *
   T_DIV,    // /
-  T_INTDIV, // //
   T_STRING, // retazec
 
   // logic operators
@@ -64,7 +63,6 @@ typedef enum
 //stavy automatu
 typedef enum
 {
-  BEGLINE,  //stav začiatok riadku kontrola odsadenia
   EOLINE,   // END OF line
   START,    // počiatočny stav ak nebolo odsadenie
   ID,       //identifikator
@@ -90,6 +88,7 @@ typedef enum
   LESS,      //<
   MORE,      //>
   DOUBLEDOT, //:
+  BLOCKCOMENT, // /* komentar blokovy
   COMENT,   // komentar riadkovy
   LEFTBRACET, // {
   RIGHTBRACET, //}
