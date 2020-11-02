@@ -356,9 +356,7 @@ token->type = T_UNKNOWN;
 							else
 							{
 								ungetc(c, source);
-								printf("konie\n");
-
-							 break;
+								 break;
 						 }}
 						 else if (c == EOF)
 							 {printf("neukončený blokový komentar\n");
@@ -391,8 +389,6 @@ token->type = T_UNKNOWN;
 
 			if (!(nstring_str_cmp(token->data, "else")))
 				{
-					printf("else\n");
-					printf("%c\n", c);
 					token->type = T_WELSE;
 
 					state = START;
