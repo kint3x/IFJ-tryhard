@@ -9,11 +9,6 @@ void p_getnexttoken(){
 		nstring_free(token.data);
 	}
 
-	
-	if(token.type==END){		// ak je token end rovno uvolni predosly dynstring
-		nstring_free(token.data);     
-	}
-
 	Token *t=getNextToken();    // uloží si nový token
 	token.type=t->type;         // vloží ho do globálnej premennej
 	token.data=t->data;
