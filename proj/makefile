@@ -3,8 +3,8 @@ BIN=project
 CC=gcc
 RM=rm -f
 
-ALL: scaner.o main.o dynstring.o
-	$(CC) $(CFLAGS) -o $(BIN) scaner.o parser.o main.o 
+ALL: scaner.o main.o dynstring.o praser.o
+	$(CC) $(CFLAGS) -o $(BIN) scaner.o parser.o main.o dynstring.o
 
 clean:
 	$(RM) *.o $(BIN)

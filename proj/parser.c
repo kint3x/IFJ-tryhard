@@ -1,15 +1,18 @@
 
 #include <stdio.h>
 
-Token token=NULL; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
+Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
+token.data=NULL;
 
-
-void p_getnexttoken(){
-	if(token!=NULL){               //Ak token nie je null tak na začiatku uvolní predošlý nafukovací string
+int p_getnexttoken(){
+	if(token.data!=NULL){               
 		nstring_free(token.data);
 	}
 
 	Token *t=getNextToken();    // uloží si nový token
+	if(t==NULL){
+		return ERR_INTERNAL;
+	}
 	token.type=t->type;         // vloží ho do globálnej premennej
 	token.data=t->data;
 	
