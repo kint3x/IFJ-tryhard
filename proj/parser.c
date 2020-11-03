@@ -10,9 +10,7 @@ Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
 //token.data=NULL;
 
 void p_getnexttoken(){
-              
-	nstring_free(token.data);  // odalokovanie predosleho dynstringu
-
+	//nstring_free(token.data);  // odalokovanie predosleho dynstringu
 	Token *t=getNextToken();    // uloží si nový token
 	if(t==NULL){
 		token.type=ERR_INTERNAL;
@@ -20,11 +18,10 @@ void p_getnexttoken(){
 	}
 	token.type=t->type;         // vloží ho do globálnej premennej
 	token.data=t->data;
-	
-	free(t);					//uvolní token (nafukovací string neuvolní)
-	
+	print_token(&token);
+	//free(t);					//uvolní token (nafukovací string neuvolní)
 	if(token.type==T_END_OF_FILE){		// ak je token end uvolni aktualny dynstring pre END
-		nstring_free(token.data);     
+		//nstring_free(token.data);     
 	}
 }
 
@@ -35,7 +32,7 @@ int p_prog() {
 	GET_TOKEN();
 
 	if (token.type == T_WPACKAGE || token.type == T_EOL) {
-		if (p_opteol()) {
+		if (!p_opteol()) {
 			if (token.type == T_WPACKAGE) {
 				GET_TOKEN();
 				if (token.type == T_ID) {
@@ -291,7 +288,7 @@ int p_statlist() {
 			VALUE_CHECK();
 			break;
 
-		case T_RIGHTBR:
+		case T_RIGHTBRACET:
 			GET_TOKEN();
 
 			ret_value = ERR_RIGHT;
@@ -304,11 +301,13 @@ int p_statlist() {
 }
 
 int p_stat() {
+	// #TODO
 	int ret_value=ERR_SYNAN;
 	return ret_value;
 }
 
 int p_defstat() {
+	// #TODO
 	int ret_value=ERR_SYNAN;
 	return ret_value;
 }
@@ -476,11 +475,13 @@ int p_term() {
 }
 
 int p_idstat() {
+	// #TODO
 	int ret_value=ERR_SYNAN;
 	return ret_value;
 }
 
 int p_exprorid() {
+	// #TODO
 	int ret_value=ERR_SYNAN;
 	return ret_value;
 }
