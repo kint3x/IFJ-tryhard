@@ -563,6 +563,7 @@ token->type = T_UNKNOWN;
 	}//end of while
 	return NULL;
 }
+/*
 int main() {
 	while (i) {
 
@@ -571,7 +572,7 @@ int main() {
 	}
 
 	return 0;
-}
+}*/
 //funkce na vizualnu kontrolu tokenov
 void print_token(Token *token)
 {
