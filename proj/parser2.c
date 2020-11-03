@@ -2,8 +2,8 @@
 #include "scaner.c"
 #include "scaner2.c"
 
-#define VALUE_CHECK() if (ret_value != ERR_RIGHT) return ret_value
-#define GET_TOKEN() p_getnexttoken(); if (token.type == T_UNKNOWN) return ERR_LEXSCAN 
+#define VALUE_CHECK() if (ret_value != ERR_RIGHT) return ret_value;
+#define GET_TOKEN() p_getnexttoken(); if (token.type == T_UNKNOWN) return ERR_LEXSCAN; 
 
 Token token;
 
