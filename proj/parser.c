@@ -1,20 +1,22 @@
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "parser.h"
 
 #define VALUE_CHECK() if (ret_value != ERR_RIGHT) return ret_value;
 #define GET_TOKEN() p_getnexttoken(); if (token.type == T_UNKNOWN) return ERR_LEXSCAN; 
 
 Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
-token.data=NULL;
+//token.data=NULL;
 
-int p_getnexttoken(){
+void p_getnexttoken(){
               
 	nstring_free(token.data);  // odalokovanie predosleho dynstringu
 
 	Token *t=getNextToken();    // uloží si nový token
 	if(t==NULL){
-		return ERR_INTERNAL;
+		token.type=ERR_INTERNAL;
+		return;
 	}
 	token.type=t->type;         // vloží ho do globálnej premennej
 	token.data=t->data;
@@ -73,6 +75,8 @@ int p_funclist() {
 
 			ret_value = ERR_RIGHT;
 			break;
+		default:
+			break;
 	}
 
 	return ret_value;
@@ -128,6 +132,8 @@ int p_paramlist() {
 
 			ret_value = ERR_RIGHT;
 			break;
+		default:
+			break;
 	}
 
 	return ret_value;
@@ -157,6 +163,8 @@ int p_paramnext() {
 
 		ret_value = ERR_RIGHT;
 		break;
+	default:
+			break;
 	}
 
 	return ret_value;
@@ -187,6 +195,8 @@ int p_datatypelist() {
 		ret_value = p_opteol();
 		VALUE_CHECK();
 		break;
+	default:
+			break;
 	}
 
 	return ret_value;
@@ -222,6 +232,8 @@ int p_datatypenext() {
 		ret_value = p_opteol();
 		VALUE_CHECK();
 		break;
+	default:
+			break;
 	}
 
 	return ret_value;
@@ -248,6 +260,8 @@ int p_datatype() {
 			GET_TOKEN();
 
 			ret_value = ERR_RIGHT;
+			break;
+		default:
 			break;
 	}
 
@@ -282,17 +296,21 @@ int p_statlist() {
 
 			ret_value = ERR_RIGHT;
 			break;
+		default:
+			break;
 	}
 
 	return ret_value;
 }
 
 int p_stat() {
-
+	int ret_value=ERR_SYNAN;
+	return ret_value;
 }
 
 int p_defstat() {
-
+	int ret_value=ERR_SYNAN;
+	return ret_value;
 }
 
 int p_assignstat() {
@@ -309,6 +327,8 @@ int p_assignstat() {
 
 		case T_LEFTBRACET:
 			ret_value = ERR_RIGHT;
+			break;
+		default:
 			break;
 	}
 
@@ -351,17 +371,21 @@ int p_idnext() {
 
 			ret_value = ERR_RIGHT;
 			break;
+		default:
+			break;
 	}
 
 	return ret_value;
 }
 
 int p_expressionlist() {
-
+	int ret_value=ERR_SYNAN;
+	return ret_value;
 }
 
 int p_expressionnext() {
-
+	int ret_value=ERR_SYNAN;
+	return ret_value;
 }
 
 int p_termlist() {
@@ -383,6 +407,8 @@ int p_termlist() {
 			GET_TOKEN();
 
 			ret_value = ERR_RIGHT;
+			break;
+		default:
 			break;
 	}
 
@@ -407,6 +433,8 @@ int p_termnext() {
 			GET_TOKEN();
 
 			ret_value = ERR_RIGHT;
+			break;
+		default:
 			break;
 	}
 
@@ -440,17 +468,21 @@ int p_term() {
 
 		ret_value = ERR_RIGHT;
 		break;
+	default:
+			break;
 	}
 
 	return ret_value;
 }
 
 int p_idstat() {
-
+	int ret_value=ERR_SYNAN;
+	return ret_value;
 }
 
 int p_exprorid() {
-
+	int ret_value=ERR_SYNAN;
+	return ret_value;
 }
 
 int p_opteol() {
@@ -474,6 +506,8 @@ int p_opteol() {
 		case T_WRETURN:
 		case T_RIGHTBRACET:
 			ret_value = ERR_RIGHT;
+			break;
+		default:
 			break;
 	}
 
