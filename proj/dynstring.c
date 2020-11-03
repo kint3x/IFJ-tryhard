@@ -30,6 +30,7 @@ Nstring *nstring_init(){
 }
 
 void nstring_free(Nstring *s){
+	if(s==NULL) return;
 	free(s->string);
 }
 

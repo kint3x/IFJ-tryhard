@@ -41,8 +41,8 @@ typedef enum
   T_EQ_COMP, //
   // others char
   T_SEMI, //;
-  T_LEFTBRACET,
-  T_RIGHTBRACET,
+  T_LEFTBRACET, //{ 
+  T_RIGHTBRACET, // }
   T_LEFTBR,   // (
   T_RIGHTBR,  // )
   T_COMMA,    //.
