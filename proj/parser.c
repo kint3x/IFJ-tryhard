@@ -25,6 +25,9 @@ void p_getnexttoken(){
 	}
 }
 
+int expr_or_cond(){
+	//TATO FUNKCIA BUDE HANDLOVAT CI JE TO EXPRESSION ALEBO CONDITION
+}
 
 int p_prog() {
 	
@@ -301,14 +304,90 @@ int p_statlist() {
 }
 
 int p_stat() {
-	// #TODO
+	// #TODO Kebabova implementacia zatial
 	int ret_value=ERR_SYNAN;
+		switch(token.type){
+			case T_WIF:
+				GET_TOKEN();
+				ret_value=expr_or_cond();
+				VALUE_CHECK();
+				if(token.type!=T_LEFTBRACET) return ERR_SYNAN;
+				GET_TOKEN();
+				if(token.type!=T_EOL) return ERR_SYNAN;
+				GET_TOKEN();
+				ret_value=p_opteol();
+				VALUE_CHECK();
+				ret_value=p_statlist();
+				VALUE_CHECK();
+				if(token.type!=T_WELSE) return ERR_SYNAN;
+				GET_TOKEN();
+				if(token.type!=T_LEFTBRACET) return ERR_SYNAN;
+				GET_TOKEN();
+				if(token.type!=T_EOL) return ERR_SYNAN;
+				GET_TOKEN();
+				ret_value=p_opteol();
+				VALUE_CHECK();
+				ret_value=p_statlist();
+				VALUE_CHECK();		
+				ret_value=ERR_RIGHT;		
+				break;
+			case T_WFOR:
+				GET_TOKEN();
+				ret_value=p_defstat();
+				VALUE_CHECK();
+				if(token.type!=T_SEMI) return ERR_SYNAN;
+				GET_TOKEN();
+				ret_value=expr_or_cond();
+				VALUE_CHECK();
+				if(token.type!=T_SEMI) return ERR_SYNAN;
+				GET_TOKEN();
+				ret_value=p_assignstat();
+				VALUE_CHECK();
+				if(token.type!=T_LEFTBRACET) return ERR_SYNAN;
+				GET_TOKEN();
+				if(token.type!=T_EOL) return ERR_SYNAN;
+				GET_TOKEN();
+				ret_value=p_statlist();
+				VALUE_CHECK();
+				ret_value=ERR_RIGHT;
+				break;
+			case T_WRETURN:
+				GET_TOKEN();
+				ret_value=p_expressionlist();
+				VALUE_CHECK();
+				ret_value=ERR_RIGHT;
+				break;
+			case T_ID:
+				GET_TOKEN();
+				ret_value=p_idstat();
+				VALUE_CHECK();
+				ret_value=ERR_RIGHT;
+			default:
+				break;
+		}
 	return ret_value;
 }
 
 int p_defstat() {
-	// #TODO
+	// #TODO Kebabova implementacia zatial
 	int ret_value=ERR_SYNAN;
+		switch(toke.type){
+			case T_ID:
+				GET_TOKEN();
+				if(token.type!=T_DOUBLEDOT) return ERR_SYNAN;
+				GET_TOKEN();
+				if(token.type!=T_ASSIGN) return ERR_SYNAN;
+				GET_TOKEN();
+				ret_value=expr_or_cond();
+				VALUE_CHECK();
+				ret_value=ERR_RIGHT;	
+				break;
+			case T_SEMI:
+				ret_value=ERR_RIGHT;
+				break;
+			default:
+				break;
+		}
 	return ret_value;
 }
 
@@ -378,7 +457,9 @@ int p_idnext() {
 }
 
 int p_expressionlist() {
+	//#TODO ZATIAL KEBABOVA IMPLEMENTACIA
 	int ret_value=ERR_SYNAN;
+
 	return ret_value;
 }
 
