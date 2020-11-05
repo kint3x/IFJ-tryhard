@@ -136,6 +136,9 @@ token->type = T_UNKNOWN;
 					else
 					{
 						//poslat NULL
+
+						token->type = T_ERR;
+
 						fprintf(stderr,"lexikal error UNKNOWN char\n");
 						nstring_add_char(token->data, c);
 						i = 0;
@@ -263,15 +266,20 @@ token->type = T_UNKNOWN;
 				{
 					nstring_add_char(token->data, c);
 						c = getc(source);
-					if (!isdigit(c)) printf("chyba double\n");
-					state = DOUBLE;
+					if (!isdigit(c)) {printf("chyba double\n");
+					token->type = T_ERR;
+					return token;
+				 }state = DOUBLE;
 					ungetc(c, source);
 				}
 				else if ((c == 'E') || (c == 'e'))
 				{
 					nstring_add_char(token->data, c);
 					c = getc(source);
-					if (!isdigit(c)) printf("chyba double\n");
+					if (!isdigit(c)) {printf("chyba double\n");
+					token->type = T_ERR;
+					return token;
+				 }
 					ungetc(c, source);
 					state = DOUBLE;
 				}
@@ -297,10 +305,17 @@ token->type = T_UNKNOWN;
 					state = START;
 					return token;
 			case DOUBLEDOT:
+					if (c == '=') {
 						token->type = T_DOUBLEDOT;
 						state = START;
-							ungetc(c, source);
+							nstring_add_char(token->data, c);
 						return token;
+						 }
+					else{
+						token->type = T_ERR;
+						i=0;
+						printf("nepoznam token\n");
+						return token;}
 			case PLUS:
 								ungetc(c, source);
 								token->type = T_PLUS;
@@ -348,7 +363,9 @@ token->type = T_UNKNOWN;
 								state = START;
 								return token;
 							}else if (c == EOF)
-								{printf("neukončený blokový komentar\n");
+								{
+									token->type = T_ERR;
+									printf("neukončený blokový komentar\n");
 									state = START;
 								return token;
 							}
@@ -359,7 +376,9 @@ token->type = T_UNKNOWN;
 								 break;
 						 }}
 						 else if (c == EOF)
-							 {printf("neukončený blokový komentar\n");
+							 {
+								 token->type = T_ERR;
+								 printf("neukončený blokový komentar\n");
 								 state = START;
 							 return token;}
 						else {

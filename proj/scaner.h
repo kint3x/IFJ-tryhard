@@ -11,11 +11,11 @@
 //jednotlive typy
 typedef enum
 {
-
+  T_ERR, // token pre parser  o tom že nastala chyba v lexikalke
   T_UNKNOWN, //Výchozí typ
   T_ID,      //identifikator
-  T_INT,
-  T_DOUBLE,
+  T_INT,  // čislo typu int
+  T_DOUBLE, // číslo typu double
   T_COMENT, // //
   //Keyword
   T_WELSE,    // Keyword - ELSE
@@ -35,14 +35,14 @@ typedef enum
   T_STRING, // retazec
 
   // logic operators
-  T_NOT,
-  T_AND,
-  T_OR,
+  T_NOT,  //logic not
+  T_AND,  // logic and
+  T_OR, // logic or
   T_EQ_COMP, //
   // others char
   T_SEMI, //;
-  T_LEFTBRACET,
-  T_RIGHTBRACET,
+  T_LEFTBRACET, //{
+  T_RIGHTBRACET, // }
   T_LEFTBR,   // (
   T_RIGHTBR,  // )
   T_COMMA,    //.
@@ -52,9 +52,9 @@ typedef enum
   T_DOUBLEDOT, //:
   //porovnavanie
   T_LESS, //<
-  T_LESS_EQ,
+  T_LESS_EQ, // <=
   T_MORE, //>
-  T_MORE_EQ,
+  T_MORE_EQ,// >=
 
   //
   T_EOL, //koniec riadku
