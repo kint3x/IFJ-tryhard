@@ -4,7 +4,7 @@
 #include "parser.h"
 
 #define VALUE_CHECK() if (ret_value != ERR_RIGHT) return ret_value;
-#define GET_TOKEN() p_getnexttoken(); if (token.type == T_UNKNOWN) return ERR_LEXSCAN; 
+#define GET_TOKEN() p_getnexttoken(); if ((token.type == T_UNKNOWN) || (token.type == T_ERR)) return ERR_LEXSCAN; 
 
 Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
 //token.data=NULL;
@@ -26,7 +26,7 @@ void p_getnexttoken(){
 }
 
 int expr_or_cond(){
-	//TATO FUNKCIA BUDE HANDLOVAT CI JE TO EXPRESSION ALEBO CONDITION
+	return 0;//TATO FUNKCIA BUDE HANDLOVAT CI JE TO EXPRESSION ALEBO CONDITION
 }
 
 int p_prog() {
@@ -47,6 +47,9 @@ int p_prog() {
 
 						ret_value = p_funclist();
 						VALUE_CHECK();
+					}
+					else if(token.type== T_END_OF_FILE){
+						ret_value=ERR_RIGHT;
 					}
 				}
 			}
@@ -104,6 +107,9 @@ int p_func() {
 				
 				if (token.type == T_EOL) {
 					GET_TOKEN();
+				}
+				else if(token.type==T_END_OF_FILE){
+					ret_value=ERR_RIGHT;
 				}
 				else ret_value = ERR_SYNAN;
 			}
@@ -371,7 +377,7 @@ int p_stat() {
 int p_defstat() {
 	// #TODO Kebabova implementacia zatial
 	int ret_value=ERR_SYNAN;
-		switch(toke.type){
+		switch(token.type){
 			case T_ID:
 				GET_TOKEN();
 				if(token.type!=T_DOUBLEDOT) return ERR_SYNAN;
