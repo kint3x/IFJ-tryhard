@@ -728,7 +728,9 @@ void print_token(Token *token)
 		case T_WPACKAGE:
 			printf("PACKAGE");
 			break;
-
+	case T_ERR:
+		printf("T_ERR");
+		break;
 
 	}
 
