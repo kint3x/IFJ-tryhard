@@ -32,6 +32,8 @@ Nstring *nstring_init(){
 void nstring_free(Nstring *s){
 	if(s==NULL) return;
 	free(s->string);
+	free(s);
+	s=NULL;
 }
 
 void nstring_clear(Nstring *s){
@@ -66,9 +68,7 @@ int nstring_str_cmp(Nstring *s, const char *str){
 void nstring_print(Nstring *s) {
 
     nstring_add_char(s, '\0');
-    char *msg = s->string;
-    printf("%s", msg);
-    free(msg);
+    printf("%s", s->string);
 }
 
 void nstring_char_remove(Nstring *s){
