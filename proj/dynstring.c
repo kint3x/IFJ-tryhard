@@ -66,8 +66,6 @@ int nstring_str_cmp(Nstring *s, const char *str){
 
 
 void nstring_print(Nstring *s) {
-
-    nstring_add_char(s, '\0');
     printf("%s", s->string);
 }
 
