@@ -7,22 +7,21 @@
 #define GET_TOKEN() p_getnexttoken(); if ((token.type == T_UNKNOWN) || (token.type == T_ERR)) return ERR_LEXSCAN; 
 
 Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
-//token.data=NULL;
 
 void p_getnexttoken(){
-	//nstring_free(token.data);  // odalokovanie predosleho dynstringu
-	Token *t=getNextToken();    // uloží si nový token
-	if(t==NULL){
-		token.type=ERR_INTERNAL;
+	if(token.type==T_END_OF_FILE){  //ROBILO TO MEMORY LEAK AK TU TATO PODMIENKA NEBOLA, Z NEJAKOHO DOVODU
+		nstring_free(token.data);       // SI TO PYTALO DALSI TOKEN PO EOF
 		return;
 	}
-	token.type=t->type;         // vloží ho do globálnej premennej
+	nstring_free(token.data);  // VYMAZE SA POVODY NSTRING
+	token.data=NULL;
+
+	Token *t = getNextToken();   // NACITAME NOVY TOKEN
+	print_token(t);
+	token.type=t->type;
 	token.data=t->data;
-	print_token(&token);
-	//free(t);					//uvolní token (nafukovací string neuvolní)
-	if(token.type==T_END_OF_FILE){		// ak je token end uvolni aktualny dynstring pre END
-		//nstring_free(token.data);     
-	}
+	free(t);					// UVOLNIME STRUKTURU 
+	t=NULL;
 }
 
 int expr_or_cond(){
@@ -30,7 +29,10 @@ int expr_or_cond(){
 }
 
 int p_prog() {
-	
+	printf("SET token.data to null\n");
+	token.type=T_UNKNOWN; // Inicializacia 
+	token.data=NULL; // Nastavi dynstring na NULL
+
 	int ret_value = ERR_SYNAN;
 	GET_TOKEN();
 
