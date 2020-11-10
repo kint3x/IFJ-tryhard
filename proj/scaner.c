@@ -31,64 +31,46 @@ void setSourceFile(FILE *f)
 		fprintf(stderr,"Null file\n");
 		return;
 	}
-} // funkce na citanie suboru
-
-
-
+}
+// funkce na citanie suboru
 // hlavni funkce lexikalniho analyzatoru //prerobit main na funkciu co vrati tokeny
 Token *getNextToken()
 {
-
-
 	setSourceFile(stdin);// for testing must be delete
 	static T_state state = START; // stav v ktorom sa bude za�inat
-
 	Token *token = T_init();// inicializace struktury tokenu
-
-
 	token->data = nstring_init();// inicializace nafukovacieho retazca
-token->type = T_UNKNOWN;
-
-
-
+	token->type = T_UNKNOWN; // defaultne určeny typ tokenu
 	while (i)
 	{
-
-
 		c = getc(source);
 		switch (state)
 		{
 			case START:
-				if (c == '\n')
+				if (c == '\n')// if eol
 				{
-
-
 					state = EOLINE;
-
 				}
-
+				//identifikator
 				else if (c == '_' || isalpha(c))
 				{
 					state = ID;
-
 				}
-								//�ISLO
+				//cISLO
 				else if (isdigit(c))
 					state = TINT;
-							//STRING
-					else if (c == '\"')
-						state = STRING;
-									//operatory
+				//STRING
+				else if (c == '\"')
+					state = STRING;
+				//operatory
 				else if (c == '-')
 					state = MINUS;
 				else if (c == '+')
 					state = PLUS;
 				else if (c == '*')
 					state = MULTIPLE;
-					else if (c == '/')
-						state = TESTDIVIDE;
-											// komentar dorobit / MOzE byt delenie
-
+				else if (c == '/')
+					state = TESTDIVIDE;
 				//logic operators
 				else if (c == '!')
 					state = NOT;
@@ -121,37 +103,32 @@ token->type = T_UNKNOWN;
 				// space
 				else if (isspace(c))
 					state = SPACE;
-					//end of file
-					else if (c == EOF)
+				//end of file
+				else if (c == EOF)
 					{
+				//priradit typ tokenu
+				token->type = T_END_OF_FILE;
+				state = END;
+				break;
+				}
+				else
+				{
+					//poslat NULL
+					token->type = T_ERR;
 
-
-						//priradit typ tokenu
-						token->type = T_END_OF_FILE;
-
-						state = END;
-
-						break;
-					}
-					else
-					{
-						//poslat NULL
-
-						token->type = T_ERR;
-
-						fprintf(stderr,"lexikal error UNKNOWN char\n");
-						nstring_add_char(token->data, c);
-						i = 0;
-						return token;
-					}
+					fprintf(stderr,"lexikal error UNKNOWN char\n");
 					nstring_add_char(token->data, c);
+					i = 0;
+					return token;
+				}
+				nstring_add_char(token->data, c);
 				break;
 			//dalsie stavy
 			case NOT:
 				if (c == '=')
 				{
 					token->type = T_NOTEQUAL;
-				nstring_add_char(token->data, c);
+					nstring_add_char(token->data, c);
 					state = START;
 					return token;
 				}
@@ -179,7 +156,7 @@ token->type = T_UNKNOWN;
 								ungetc(c, source);
 								token->type = T_SEMI;
 								state = START;
-								return token;
+								return token;//done
 			case MORE:
 				if (c == '=')
 				{
@@ -194,7 +171,7 @@ token->type = T_UNKNOWN;
 					token->type = T_MORE;
 					state = START;
 					return token;
-				}
+				}//done
 			case MINUS:
 				ungetc(c, source);
 				nstring_add_char(token->data, c);
@@ -215,26 +192,36 @@ token->type = T_UNKNOWN;
 					token->type = T_LESS;
 					state = START;
 					return token;
+				}//done
+			case HEX_CON:
+				if (((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')) || isdigit(c))
+				{
+					nstring_add_char(token->data, c);
+					state = STRING;
 				}
-				case HEX_CON:
-					if (((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')) || isdigit(c))
-					{
-						nstring_add_char(token->data, c);
-						state = STRING;
-					}
+				else
+				{
+					token->type = T_ERR;
+					state = START;
+					return token;
+				}
+
+				break;
+			case HEX:
+
+				if (((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')) || isdigit(c))
+				{
+					nstring_add_char(token->data, c);
+					state = HEX_CON;
 					break;
-				case HEX:
-					if (((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')) || isdigit(c))
-					{
-						nstring_add_char(token->data, c);
-						state = HEX_CON;
-					}
-					else
-					{
-						return NULL;
-					}
-					break;
-				case DOUBLE:
+				}
+				else
+				{
+					token->type = T_ERR;
+					state = START;
+					return token;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				}
+			case DOUBLE:
 				token->type = T_DOUBLE;
 				if (!(c == ':'))
 					nstring_add_char(token->data, c);
@@ -254,10 +241,8 @@ token->type = T_UNKNOWN;
 				break;
 			case TINT:
 				token->type = T_INT;
-
 				if (isdigit(c))
 				{
-
 					nstring_add_char(token->data, c);
 					state = TINT;
 					break;
@@ -266,7 +251,7 @@ token->type = T_UNKNOWN;
 				{
 					nstring_add_char(token->data, c);
 						c = getc(source);
-					if (!isdigit(c)) {printf("chyba double\n");
+					if (!isdigit(c)) {fprintf(stderr,"chyba double\n");
 					token->type = T_ERR;
 					return token;
 				 }state = DOUBLE;
@@ -314,13 +299,13 @@ token->type = T_UNKNOWN;
 					else{
 						token->type = T_ERR;
 						i=0;
-						printf("nepoznam token\n");
+						fprintf(stderr,"UNKNOWN token :\n");
 						return token;}
 			case PLUS:
-								ungetc(c, source);
-								token->type = T_PLUS;
-								state = START;
-								return token;
+					ungetc(c, source);
+					token->type = T_PLUS;
+					state = START;
+					return token;
 			case TESTDIVIDE:
 						if (c == '/') {
 							ungetc(c, source);
@@ -338,10 +323,13 @@ token->type = T_UNKNOWN;
 							token->type = T_DIV;
 						return token;}
 			case COMENT:
+
 					if (c == '\n') {
+						nstring_char_remove(token->data);
 						state = START;
-						token->type = T_COMENT;
-						return token;
+						//token->type = T_COMENT;
+
+						break;
 					}
 					else if (c == EOF)
 						{
@@ -350,26 +338,28 @@ token->type = T_UNKNOWN;
 							break;
 						}
 					else {
-						nstring_add_char(token->data, c);
+						//nstring_add_char(token->data, c);
 						break;
 					}
 			case BLOCKCOMENT:
+						nstring_char_remove(token->data);
 						if (c == '*') {
 							nstring_add_char(token->data, c);
 							c = getc(source);
 							if (c == '/') {
-								token->type = T_COMENT;
-								nstring_add_char(token->data, c);
+								//token->type = T_COMENT;
+								//nstring_add_char(token->data, c);
+								nstring_char_remove(token->data);
 								state = START;
-								return token;
+								break;
+								//return token;
 							}else if (c == EOF)
 								{
 									token->type = T_ERR;
-									printf("neukončený blokový komentar\n");
+									fprintf(stderr,"neukončený blokový komentar\n");
 									state = START;
 								return token;
 							}
-
 							else
 							{
 								ungetc(c, source);
@@ -378,11 +368,12 @@ token->type = T_UNKNOWN;
 						 else if (c == EOF)
 							 {
 								 token->type = T_ERR;
-								 printf("neukončený blokový komentar\n");
+								 fprintf(stderr,"neukončený blokový komentar\n");
 								 state = START;
 							 return token;}
 						else {
-						nstring_add_char(token->data, c);
+
+						//nstring_add_char(token->data, c);
 						break;
 					 }
 			case ID:
@@ -486,7 +477,7 @@ token->type = T_UNKNOWN;
 					break;}
 			case SPACE:
 					ungetc(c, source);
-					nstring_char_remove(token->data);
+					nstring_char_remove(token->data);//white space discard
 					state = START;
 					break;
 			case LEFTBR:
@@ -536,6 +527,12 @@ token->type = T_UNKNOWN;
 							{
 								nstring_add_char(token->data, c);
 								state = STRING;
+							}
+							else if (c == EOF)
+							{
+								fprintf(stderr,"error noend of string /n");
+								token->type = T_ERR;
+								return token;
 							}
 				break;
 			case ESC:
