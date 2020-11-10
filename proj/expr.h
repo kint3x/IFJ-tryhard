@@ -25,3 +25,5 @@ typedef enum {
 	ERR				// pre T_ERR
 
 } expr_lexem;
+
+#endif
