@@ -536,7 +536,7 @@ Token *getNextToken()
 							}
 				break;
 			case ESC:
-				if ((c == 'n') || (c == 't') || (c == 's'))
+				if ((c == 'n') || (c == 't') || (c == '"')|| (c == '\\'))
 				{
 
 					nstring_add_char(token->data, c);
