@@ -10,18 +10,18 @@ typedef enum {
 	DIV,			// /
 	LEFT_BR,		// (
 	RIGHT_BR,		// )
+	ID,				// i
 	LESS,			// <
 	MORE,			// >
 	LESS_EQ,		// <=
 	MORE_EQ,		// >=
 	EQUAL,			// ==
 	NOT_EQUAL,		// !=
-	ID,				// i
+	DOLLAR,			// $
 	INT,			// int
 	STRING,			// str
 	FLOAT,			// float
 	NON_TERMINAL,	// E
-	DOLLAR,			// $
 	ERR				// pre T_ERR
 
 } expr_lexem;
