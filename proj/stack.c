@@ -1,41 +1,31 @@
-#include "stack.h"
 #include <stdlib.h>
+#include "parser.h"
+#include "scaner.h"
+#include "expr.h"
+#include "stack.h"
+#include "err.h"
+#include "dynstring.h"
 
-char prec_table[14][14]={
-	//+   -   *   /   (   )   i   <   >  <=  >=   ==  !=  $
-	{'>','>','<','<','<','>','<','>','>','>','>','>','>','>'}, //+
-	{'>','>','<','<','<','>','<','>','>','>','>','>','>','>'}, //-
-	{'>','>','>','>','<','>','<','>','>','>','>','>','>','>'}, //*
-	{'>','>','>','>','<','>','<','>','>','>','>','>','>','>'}, ///
-	{'<','<','<','<','<','=','<','<','<','<','<','<','<',' '}, //(
-	{'>','>','>','>',' ','>',' ','>','>','>','>','>','>','>'}, //)
-	{'>','>','>','>',' ','>',' ','>','>','>','>','>','>','>'}, //i
-	{'<','<','<','<','<','>','<',' ',' ',' ',' ',' ',' ','>'}, //<
-	{'<','<','<','<','<','>','<',' ',' ',' ',' ',' ',' ','>'}, //>
-	{'<','<','<','<','<','>','<',' ',' ',' ',' ',' ',' ','>'}, //<=
-	{'<','<','<','<','<','>','<',' ',' ',' ',' ',' ',' ','>'}, //>=
-	{'<','<','<','<','<','>','<',' ',' ',' ',' ',' ',' ','>'}, //==
-	{'<','<','<','<','<','>','<',' ',' ',' ',' ',' ',' ','>'}, //!=
-	{'<','<','<','<','<',' ','<','<','<','<','<','<','<',' '}  //$
-	};
+extern stack s;
 
-void init_stack(stack *s) {
+void init_stack() {
 
-	s->top = NULL;
+	s.top = NULL;
+	push(L_DOLLAR);
 }
 
-void delete_stack(stack *s) {
-	
+void delete_stack() {
+
 	item *tmp;
-	while (s->top != NULL) {
-		tmp = s->top;
-		s->top = s->top->next;
+	while (s.top != NULL) {
+		tmp = s.top;
+		s.top = s.top->next;
 		free(tmp);
 	}
 }
 
-void push(stack *s, expr_lexem l) {
-	
+void push(expr_lexem l) {
+
 	item *i = malloc(sizeof(item));
 	if (i == NULL) {
 		//error
@@ -43,16 +33,30 @@ void push(stack *s, expr_lexem l) {
 	}
 
 	i->lex = l;
-	i->next = s->top;
-	s->top = i;
+	i->handle = false;
+	i->next = s.top;
+	s.top = i;
 }
 
-void pop(stack *s) {
-	if (s->top == NULL) {
-		return;
+void pop(int count) {
+	for (int i = 0; i < count; i++) {
+		item *tmp;
+		if (s.top == NULL) {
+			return;
+		}
+		tmp = s.top;
+		s.top = s.top->next;
+		free(tmp);
 	}
-	item *tmp;
-	tmp = s->top;
-	s->top = s->top->next;
-	free(tmp);
+}
+
+item *top_terminal() {
+	
+	item *tmp = s.top;
+	
+	while (tmp->lex == L_NON_TERMINAL) {
+		tmp = tmp->next;
+	}
+
+	return tmp;
 }
