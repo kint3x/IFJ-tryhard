@@ -77,7 +77,14 @@ int p_prog() {
 		if (token.type == T_EOL) {
 			GET_TOKEN();
 		}
-		else ret_value = ERR_SYNAN;
+		else if(token.type== T_END_OF_FILE){
+			ret_value = ERR_SEMAN_NOT_DEFINED;
+			VALUE_CHECK();
+		}
+		else {
+			ret_value = ERR_SYNAN;
+			VALUE_CHECK();
+		}
 
 		ret_value = p_opteol();
 		VALUE_CHECK();
