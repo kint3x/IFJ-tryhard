@@ -1,0 +1,16 @@
+package main
+
+func kolkomakebabrokov()(int){
+	return 20
+}
+
+func kolko_ma_roko_rokov()(int){
+	
+	return 5
+}
+
+func main(){
+	a := 0
+	a = kolko_ma_roko_rokov() + 10
+	return roko
+}
