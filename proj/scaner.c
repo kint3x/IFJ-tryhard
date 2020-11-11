@@ -22,7 +22,7 @@ Token *T_init()
 
 	return token;
 }
-
+// funkce na citanie suborus
 void setSourceFile(FILE *f)
 {
 	source = f;
@@ -32,7 +32,7 @@ void setSourceFile(FILE *f)
 		return;
 	}
 }
-// funkce na citanie suboru
+
 // hlavni funkce lexikalniho analyzatoru //prerobit main na funkciu co vrati tokeny
 Token *getNextToken()
 {
@@ -46,6 +46,7 @@ Token *getNextToken()
 		c = getc(source);
 		switch (state)
 		{
+			//start
 			case START:
 				if (c == '\n')// if eol
 				{
@@ -113,17 +114,18 @@ Token *getNextToken()
 				}
 				else
 				{
-					//poslat NULL
+					//lexikalna chyba token sa nerozpoznal
 					token->type = T_ERR;
 
 					fprintf(stderr,"lexikal error UNKNOWN char\n");
 					nstring_add_char(token->data, c);
-					i = 0;
+					i = 0;//ukončený while
 					return token;
 				}
 				nstring_add_char(token->data, c);
 				break;
 			//dalsie stavy
+			//koncove stavy:
 			case NOT:
 				if (c == '=')
 				{
@@ -131,9 +133,9 @@ Token *getNextToken()
 					nstring_add_char(token->data, c);
 					state = START;
 					return token;
-				}
+				}//vrati token !=
 
-				ungetc(c, source);
+				ungetc(c, source); // nasledujuci znak nieje =  znak sa vrati na spracovanie
 				token->type = T_NOT;
 				state = START;
 				return token; //DONE
@@ -206,7 +208,7 @@ Token *getNextToken()
 					return token;
 				}
 
-				break;
+				break;//done zapis znaku pomocov escape sekvencie kontrola lexikalneho rozsahu
 			case HEX:
 
 				if (((c >= 'A') && (c <= 'F')) || ((c >= 'a') && (c <= 'f')) || isdigit(c))
@@ -219,7 +221,7 @@ Token *getNextToken()
 				{
 					token->type = T_ERR;
 					state = START;
-					return token;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+					return token;// done zapis znaku pomocov escape sekvencie kontrola lexikalneho rozsahu
 				}
 			case DOUBLE:
 				token->type = T_DOUBLE;
@@ -247,11 +249,11 @@ Token *getNextToken()
 					state = TINT;
 					break;
 				}
-				else if (c == '.')
+				else if (c == '.')// ak sa nachadza bodka kontrolujem 10tine cislo
 				{
 					nstring_add_char(token->data, c);
 						c = getc(source);
-					if (!isdigit(c)) {fprintf(stderr,"chyba double\n");
+					if (!isdigit(c)) {fprintf(stderr,"chyba double .\n");
 					token->type = T_ERR;
 					return token;
 				 }state = DOUBLE;
@@ -261,7 +263,7 @@ Token *getNextToken()
 				{
 					nstring_add_char(token->data, c);
 					c = getc(source);
-					if (!isdigit(c)) {printf("chyba double\n");
+					if (!isdigit(c)) {fprintf(stderr,"chyba double po e nenasleduje číslo\n");
 					token->type = T_ERR;
 					return token;
 				 }
@@ -288,7 +290,7 @@ Token *getNextToken()
 					ungetc(c, source);
 					token->type = T_EOL;
 					state = START;
-					return token;
+					return token;// use in parser
 			case DOUBLEDOT:
 					if (c == '=') {
 						token->type = T_DOUBLEDOT;
@@ -296,6 +298,7 @@ Token *getNextToken()
 							nstring_add_char(token->data, c);
 						return token;
 						 }
+						 //ak sa nenachadza = za tým  neni to platny znak
 					else{
 						token->type = T_ERR;
 						i=0;
@@ -305,7 +308,7 @@ Token *getNextToken()
 					ungetc(c, source);
 					token->type = T_PLUS;
 					state = START;
-					return token;
+					return token;//done
 			case TESTDIVIDE:
 						if (c == '/') {
 							ungetc(c, source);
@@ -321,7 +324,7 @@ Token *getNextToken()
 							state = START;
 							ungetc(c, source);
 							token->type = T_DIV;
-						return token;}
+						return token;}// stav ktory kontroluje význam znaku /
 			case COMENT:
 
 					if (c == '\n') {
@@ -340,7 +343,7 @@ Token *getNextToken()
 					else {
 						//nstring_add_char(token->data, c);
 						break;
-					}
+					}//riadkový komentar
 			case BLOCKCOMENT:
 						nstring_char_remove(token->data);
 						if (c == '*') {
@@ -353,7 +356,7 @@ Token *getNextToken()
 								state = START;
 								break;
 								//return token;
-							}else if (c == EOF)
+							}else if (c == EOF)//do konca suboru nebol ukončený započatý blokový komentar
 								{
 									token->type = T_ERR;
 									fprintf(stderr,"neukončený blokový komentar\n");
@@ -365,7 +368,7 @@ Token *getNextToken()
 								ungetc(c, source);
 								 break;
 						 }}
-						 else if (c == EOF)
+						 else if (c == EOF)//do konca suboru nebol ukončený započatý blokový komentar
 							 {
 								 token->type = T_ERR;
 								 fprintf(stderr,"neukončený blokový komentar\n");
@@ -377,6 +380,7 @@ Token *getNextToken()
 						break;
 					 }
 			case ID:
+
 						token->type = T_ID;
 						if ((isalpha(c) || (isdigit(c)) || (c == '_')) && (!(c == '(') || !(c == ':')))
 						{
@@ -395,7 +399,7 @@ Token *getNextToken()
 						}
 				break;
 			case KEYW:
-			//	printf("KEYWW\n");
+
 
 			if (!(nstring_str_cmp(token->data, "else")))
 				{
@@ -471,6 +475,7 @@ Token *getNextToken()
 					return token;
 				}
 			else{
+
 			ungetc(c, source);
 					state = ID; //DONE //done
 
