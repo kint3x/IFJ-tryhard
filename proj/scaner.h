@@ -39,7 +39,7 @@ typedef enum
   T_NOT,  //logic not
   T_AND,  // logic and
   T_OR, // logic or
-  T_EQ_COMP, //
+  T_EQ_COMP, // ==
   // others char
   T_SEMI, //;
   T_LEFTBRACET, //{
@@ -71,15 +71,15 @@ typedef enum
   TINT,      // číslo
   DOUBLE,   // desatine čislo
   STRING,   // stav kontrolujuci retazec
-  HEX,      //
-  HEX_CON,  //
+  HEX,      //escape sekvencia
+  HEX_CON,  //escape con
   ESC,      //escape sekvencia
-  MINUS,    //operatory
+  MINUS,    //-
   PLUS,     // +
-  MULTIPLE, // -
-  TESTDIVIDE,   // delenie
+  MULTIPLE, // *
+  TESTDIVIDE,   // / delenie kontroluje či neni komentar
   SPACE,    //space
-  NOT,
+  NOT,// !
   AND,
   OR,
   LEFTBR,    //(
