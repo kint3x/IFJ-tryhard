@@ -224,8 +224,9 @@ Token *getNextToken()
 					return token;// done zapis znaku pomocov escape sekvencie kontrola lexikalneho rozsahu
 				}
 			case DOUBLE:
+			//printf("%c\n", c);
 				token->type = T_DOUBLE;
-				if (!(c == ':'))
+				if (!(c == ':'|| !isdigit(c) ))
 					nstring_add_char(token->data, c);
 
 				if (!(c == '+' || c == '-'))
@@ -251,11 +252,13 @@ Token *getNextToken()
 				}
 				else if (c == '.')// ak sa nachadza bodka kontrolujem 10tine cislo
 				{
+
 					nstring_add_char(token->data, c);
 						c = getc(source);
-					if (!isdigit(c)) {fprintf(stderr,"chyba double .\n");
-					token->type = T_ERR;
-					return token;
+						if (!isdigit(c)) {fprintf(stderr,"chyba double .\n");
+						token->type = T_ERR;
+						return token;
+
 				 }state = DOUBLE;
 					ungetc(c, source);
 				}
@@ -273,8 +276,6 @@ Token *getNextToken()
 				else
 				{
 
-
-						printf("%c\n", c);
 						state = START;
 						ungetc(c, source);
 						return token;
