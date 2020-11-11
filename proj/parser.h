@@ -6,6 +6,10 @@
 #include "scaner.h"
 #include "err.h"
 
+#define VALUE_CHECK() if (ret_value != ERR_RIGHT) return ret_value;
+#define GET_TOKEN() p_getnexttoken(); if ((token.type == T_UNKNOWN) || (token.type == T_ERR)) return ERR_LEXSCAN; 
+#define PEEK_TOKEN() peek_nexttoken(); if ((tokenp.type == T_UNKNOWN) || (tokenp.type == T_ERR)) return ERR_LEXSCAN; 
+
 void p_getnexttoken();
 int p_prog();
 int p_funclist();
