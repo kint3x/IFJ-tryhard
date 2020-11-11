@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "parser.h"
+#include "scaner.h"
+#include "expr.h"
+#include "stack.h"
+#include "err.h"
+#include "dynstring.h"
 
 Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
 Token tokenp; // pomocny token
@@ -52,28 +57,37 @@ int p_prog() {
 	int ret_value = ERR_SYNAN;
 	GET_TOKEN();
 
-	if (token.type == T_WPACKAGE || token.type == T_EOL) {
-		if (!p_opteol()) {
-			if (token.type == T_WPACKAGE) {
-				GET_TOKEN();
-				if (token.type == T_ID) {
-					GET_TOKEN();
-					if (token.type == T_EOL) {
-						GET_TOKEN();
-						ret_value = p_opteol();
-						VALUE_CHECK();
+	switch (token.type) {
+	case T_WPACKAGE:
+	case T_EOL:
+		
+		ret_value = p_opteol();
+		VALUE_CHECK();
 
-						ret_value = p_funclist();
-						VALUE_CHECK();
-					}
-					else if (token.type == T_END_OF_FILE) {
-						ret_value = ERR_RIGHT;
-					}
-				}
-			}
+		if (token.type == T_WPACKAGE) {
+			GET_TOKEN();
 		}
-	}
+		else ret_value = ERR_SYNAN;
 
+		if (token.type == T_ID) {
+			GET_TOKEN();
+		}
+		else ret_value = ERR_SYNAN;
+
+		if (token.type == T_EOL) {
+			GET_TOKEN();
+		}
+		else ret_value = ERR_SYNAN;
+
+		ret_value = p_opteol();
+		VALUE_CHECK();
+		ret_value = p_funclist();
+		VALUE_CHECK();
+
+		break;
+	default:
+		break;
+	}
 	return ret_value;
 }
 
@@ -340,33 +354,38 @@ int p_stat() {
 
 		if (token.type == T_LEFTBRACET) {
 			GET_TOKEN();
-
-			if (token.type == T_EOL) {
-				GET_TOKEN();
-
-				ret_value = p_opteol();
-				VALUE_CHECK();
-				ret_value = p_statlist();
-				VALUE_CHECK();
-
-				if (token.type == T_WELSE) {
-					GET_TOKEN();
-
-					if (token.type == T_LEFTBRACET) {
-						GET_TOKEN();
-
-						if (token.type == T_EOL) {
-							GET_TOKEN();
-
-							ret_value = p_opteol();
-							VALUE_CHECK();
-							ret_value = p_statlist();
-							VALUE_CHECK();
-						}
-					}
-				}
-			}
 		}
+		else ret_value = ERR_SYNAN;
+
+		if (token.type == T_EOL) {
+			GET_TOKEN();
+		}
+		else ret_value = ERR_SYNAN;
+
+		ret_value = p_opteol();
+		VALUE_CHECK();
+		ret_value = p_statlist();
+		VALUE_CHECK();
+
+		if (token.type == T_WELSE) {
+			GET_TOKEN();
+		} else ret_value = ERR_SYNAN;
+
+		if (token.type == T_LEFTBRACET) {
+			GET_TOKEN();
+		}
+		else ret_value = ERR_SYNAN;
+		
+		if (token.type == T_EOL) {
+			GET_TOKEN();
+		}
+		else ret_value = ERR_SYNAN;
+		
+		ret_value = p_opteol();
+		VALUE_CHECK();
+		ret_value = p_statlist();
+		VALUE_CHECK();
+		
 		break;
 	case T_WFOR:
 		GET_TOKEN();
@@ -376,28 +395,33 @@ int p_stat() {
 
 		if (token.type == T_SEMI) {
 			GET_TOKEN();
-
-			ret_value = expression();
-			VALUE_CHECK();
-
-			if (token.type == T_SEMI) {
-				GET_TOKEN();
-
-				ret_value = p_assignstat();
-				VALUE_CHECK();
-				
-				if (token.type == T_LEFTBRACET) {
-					GET_TOKEN();
-
-					if (token.type == T_EOL) {
-						GET_TOKEN();
-
-						ret_value = p_statlist();
-						VALUE_CHECK();
-					}
-				}
-			}
 		}
+		else ret_value = ERR_SYNAN;
+
+		ret_value = expression();
+		VALUE_CHECK();
+
+		if (token.type == T_SEMI) {
+			GET_TOKEN();
+		}
+		else ret_value = ERR_SYNAN;
+
+		ret_value = p_assignstat();
+		VALUE_CHECK();
+
+		if (token.type == T_LEFTBR) {
+			GET_TOKEN();
+		}
+		else ret_value = ERR_SYNAN;
+		printf("som za leftbr\n");
+		if (token.type == T_EOL) {
+			GET_TOKEN();
+		}
+		else ret_value = ERR_SYNAN;
+
+		ret_value = p_statlist();
+		VALUE_CHECK();
+
 		break;
 	case T_WRETURN:
 		GET_TOKEN();
@@ -513,6 +537,7 @@ int p_expressionlist() {
 
 	ret_value = expression();
 	VALUE_CHECK();
+
 	ret_value = p_expressionnext();
 	VALUE_CHECK();
 
