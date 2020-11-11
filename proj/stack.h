@@ -1,21 +1,25 @@
+
 #ifndef _STACK_H
 #define _STACK_H
 
 #include "expr.h"
+#include <stdbool.h>
 
-typedef struct item{
+typedef struct item {
 	struct item *next;
 	expr_lexem lex;
+	bool handle;
 }item;
 
-typedef struct stack{
+typedef struct stack {
 	item *top;
 } stack;
 
 
-void init_stack(stack *s);
-void delete_stack(stack *s);
-void push(stack *s, expr_lexem l);
-void pop(stack *s);
+void init_stack();
+void delete_stack();
+void push(expr_lexem l);
+void pop(int count);
+item *top_terminal();
 
 #endif
