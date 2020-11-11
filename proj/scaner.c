@@ -176,7 +176,7 @@ Token *getNextToken()
 				}//done
 			case MINUS:
 				ungetc(c, source);
-				nstring_add_char(token->data, c);
+				//nstring_add_char(token->data, c);
 				token->type = T_MINUS;
 				state = START;
 				return token; //DONE
@@ -583,7 +583,7 @@ Token *getNextToken()
 	}//end of while
 	return NULL;
 }
-/*
+
 int main() {
 	while (i) {
 
@@ -592,7 +592,7 @@ int main() {
 	}
 
 	return 0;
-}*/
+}
 //funkce na vizualnu kontrolu tokenov
 void print_token(Token *token)
 {
