@@ -273,17 +273,15 @@ Token *getNextToken()
 				else
 				{
 
-					if (!(isalpha(c)))
-					{
+
+						printf("%c\n", c);
 						state = START;
 						ungetc(c, source);
 						return token;
-					}
-					else
-					{
 
-						return token;
-					}
+
+
+
 				}
 				break;
 			case EOLINE:
