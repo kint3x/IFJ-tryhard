@@ -4,7 +4,8 @@
 * projekt ifj 2020/2021                             *
 */
 //hlavicka pro lexikalni analyzator
-
+#pragma once
+#include <stdio.h>
 #include "err.h"
 
 #include "dynstring.h"

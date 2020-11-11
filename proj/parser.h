@@ -5,6 +5,8 @@
 
 #include "scaner.h"
 #include "err.h"
+#include "expr.h"
+#include "stack.h"
 
 #define VALUE_CHECK() if (ret_value != ERR_RIGHT) return ret_value;
 #define GET_TOKEN() p_getnexttoken(); if ((token.type == T_UNKNOWN) || (token.type == T_ERR)) return ERR_LEXSCAN; 

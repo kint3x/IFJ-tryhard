@@ -2,11 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "parser.h"
-#include "scaner.h"
-#include "expr.h"
-#include "stack.h"
-#include "err.h"
-#include "dynstring.h"
 
 Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
 Token tokenp; // pomocny token
