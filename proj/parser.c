@@ -13,7 +13,7 @@ Token tokenp; // pomocny token
 
 void peek_nexttoken() {
 	Token *t = getNextToken();   // NACITAME NOVY TOKEN
-	print_token(t);
+	//print_token(t);
 	tokenp.type = t->type;
 	tokenp.data = t->data;
 	free(t);					// UVOLNIME STRUKTURU 
@@ -38,7 +38,7 @@ void p_getnexttoken() {
 		token.data = NULL;
 
 		Token *t = getNextToken();   // NACITAME NOVY TOKEN
-		print_token(t);
+		//print_token(t);
 		token.type = t->type;
 		token.data = t->data;
 		free(t);					// UVOLNIME STRUKTURU 

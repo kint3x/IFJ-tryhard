@@ -13,13 +13,13 @@ Nstring *nstring_init(){
 	Nstring *s;
 	s=(Nstring *)malloc(sizeof(Nstring));
 	if(s==NULL){
-		fprintf(stderr,"Nepodarilo sa allokovať štruktúru Nstring\n");
+		//fprintf(stderr,"Nepodarilo sa allokovať štruktúru Nstring\n");
 		return NULL;
 	}
 	s->string=(char *)malloc(PRE_STRING_ALLOC_SIZE*sizeof(char));
 	if(s->string==NULL){
 		free(s);
-		fprintf(stderr, "Nepodarilo sa allokovať string v štruktúre!\n");
+		//fprintf(stderr, "Nepodarilo sa allokovať string v štruktúre!\n");
 		return NULL;
 	}
 	s->string_size=0;
@@ -46,7 +46,7 @@ bool nstring_add_char(Nstring *s, char c){
 	if(s->allocated_size <= s->string_size + 1){
 		s->string=(char *)realloc(s->string,s->allocated_size+PRE_STRING_ALLOC_SIZE);
 		if(s->string == NULL){
-			fprintf(stderr, "Nepodarilo sa spraviť realloc pri funkcí nstring_add_char\n");
+			//fprintf(stderr, "Nepodarilo sa spraviť realloc pri funkcí nstring_add_char\n");
 			return false;
 		}
 		s->allocated_size+=PRE_STRING_ALLOC_SIZE;

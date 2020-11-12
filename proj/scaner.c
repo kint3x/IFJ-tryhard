@@ -28,7 +28,7 @@ void setSourceFile(FILE *f)
 	source = f;
 	if (source == NULL)
 	{
-		fprintf(stderr,"Null file\n");
+		//fprintf(stderr,"Null file\n");
 		return;
 	}
 }
@@ -117,7 +117,7 @@ Token *getNextToken()
 					//lexikalna chyba token sa nerozpoznal
 					token->type = T_ERR;
 
-					fprintf(stderr,"lexikal error UNKNOWN char\n");
+					//fprintf(stderr,"lexikal error UNKNOWN char\n");
 					nstring_add_char(token->data, c);
 					i = 0;//ukončený while
 					return token;
@@ -255,7 +255,7 @@ Token *getNextToken()
 
 					nstring_add_char(token->data, c);
 						c = getc(source);
-						if (!isdigit(c)) {fprintf(stderr,"chyba double .\n");
+						if (!isdigit(c)) {//fprintf(stderr,"chyba double .\n");
 						token->type = T_ERR;
 						return token;
 
@@ -266,7 +266,7 @@ Token *getNextToken()
 				{
 					nstring_add_char(token->data, c);
 					c = getc(source);
-					if (!isdigit(c)) {fprintf(stderr,"chyba double po e nenasleduje číslo\n");
+					if (!isdigit(c)) {//fprintf(stderr,"chyba double po e nenasleduje číslo\n");
 					token->type = T_ERR;
 					return token;
 				 }
@@ -301,7 +301,7 @@ Token *getNextToken()
 					else{
 						token->type = T_ERR;
 						i=0;
-						fprintf(stderr,"UNKNOWN token :\n");
+						//fprintf(stderr,"UNKNOWN token :\n");
 						return token;}
 			case PLUS:
 					ungetc(c, source);
@@ -358,7 +358,7 @@ Token *getNextToken()
 							}else if (c == EOF)//do konca suboru nebol ukončený započatý blokový komentar
 								{
 									token->type = T_ERR;
-									fprintf(stderr,"neukončený blokový komentar\n");
+									//fprintf(stderr,"neukončený blokový komentar\n");
 									state = START;
 								return token;
 							}
@@ -370,7 +370,7 @@ Token *getNextToken()
 						 else if (c == EOF)//do konca suboru nebol ukončený započatý blokový komentar
 							 {
 								 token->type = T_ERR;
-								 fprintf(stderr,"neukončený blokový komentar\n");
+								 //fprintf(stderr,"neukončený blokový komentar\n");
 								 state = START;
 							 return token;}
 						else {
@@ -534,7 +534,7 @@ Token *getNextToken()
 							}
 							else if (c == EOF)
 							{
-								fprintf(stderr,"error noend of string /n");
+								//fprintf(stderr,"error noend of string /n");
 								token->type = T_ERR;
 								return token;
 							}
