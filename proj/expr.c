@@ -153,6 +153,10 @@ int reduce_stack(bool *rel_flag) {
 			case L_MORE_EQ:
 			case L_EQUAL:
 			case L_NOT_EQUAL:
+
+				if (*rel_flag == true) {
+					return ERR_SYNAN;
+				}
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL);
@@ -201,9 +205,6 @@ int expression() {
 		}
 		top_term = top_terminal();
 		
-		if (relation_op_flag == true) {
-			break;
-		}
 	}
 
 	if (s.top->lex == L_NON_TERMINAL && s.top->next->lex == L_DOLLAR) {
