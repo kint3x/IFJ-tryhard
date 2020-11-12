@@ -332,7 +332,6 @@ int p_statlist() {
 	case T_ID:
 		ret_value = p_stat();
 		VALUE_CHECK();
-
 		if (token.type == T_EOL) {
 			GET_TOKEN();
 		}
@@ -493,7 +492,7 @@ int p_defstat() {
 	switch (token.type) {
 	case T_ID:
 		GET_TOKEN();
-		if (token.type != T_DOUBLEDOT) {     
+		if (token.type == T_DOUBLEDOT) {     
 			GET_TOKEN();
 
 			ret_value = expression();

@@ -330,7 +330,7 @@ Token *getNextToken()
 						nstring_char_remove(token->data);
 						state = START;
 						//token->type = T_COMENT;
-
+						ungetc(c, source);
 						break;
 					}
 					else if (c == EOF)
@@ -583,8 +583,8 @@ Token *getNextToken()
 	}//end of while
 	return NULL;
 }
-/*
-int main() {
+
+/*int main() {
 	while (i) {
 
 	print_token(getNextToken());
