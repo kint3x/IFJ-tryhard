@@ -1,3 +1,10 @@
+/**
+ * Projekt: Implementácia analyzy vyrazov pre jazyk IFJ20
+ *
+ * @brief Implementácia analyzy vyrazov.
+ *
+ * @author Matej Kocman <xkocma07@vutbr.cz>
+ */
 #ifndef _EXPR_H
 #define _EXPR_H
 #include <stdbool.h>

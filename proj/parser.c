@@ -1,3 +1,11 @@
+/**
+ * Projekt: Implementácia syntaktickej analýzy pre jazyk IFJ20
+ *
+ * @brief Implementácia stacku.
+ *
+ * @author Matej Kocman <xkocma07@vutbr.cz>
+ * @author Martin Matějka <xmatej55@vutbr.cz>
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

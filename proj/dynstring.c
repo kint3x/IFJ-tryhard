@@ -1,5 +1,10 @@
-
-
+/**
+ * Projekt: Implementácia prekladača pre jazyk IFJ20
+ *
+ * @brief Implementácia nafukovacieho stringu.
+ *
+ * @author Martin Matějka <xmatej55@vutbr.cz>
+ */
 
 #include "dynstring.h"
 #include <string.h>

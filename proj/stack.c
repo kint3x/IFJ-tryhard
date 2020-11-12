@@ -1,3 +1,11 @@
+/**
+ * Projekt: Implementácia stacku pre jazyk IFJ20
+ *
+ * @brief Implementácia stacku.
+ *
+ * @author Matej Kocman <xkocma07@vutbr.cz>
+ */
+
 #include <stdlib.h>
 #include "parser.h"
 #include "scaner.h"

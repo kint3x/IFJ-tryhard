@@ -1,3 +1,10 @@
+/**
+ * Projekt: Implementácia stacku pre jazyk IFJ20
+ *
+ * @brief Implementácia stacku.
+ *
+ * @author Matej Kocman <xkocma07@vutbr.cz>
+ */
 
 #ifndef _STACK_H
 #define _STACK_H
