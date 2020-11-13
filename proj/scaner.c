@@ -11,7 +11,7 @@
 #include <ctype.h>
 #include "scaner.h"
 
-char c; // variable for load chars from input
+unsigned char c; // variable for load chars from input
 
 int i = 1; // pocitadlo na zastavenie
 //inicializace tokenu
