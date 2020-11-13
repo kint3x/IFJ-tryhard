@@ -399,7 +399,7 @@ Token *getNextToken()
 				break;
 			case KEYW:
 
-
+			if (isspace(c)){
 			if (!(nstring_str_cmp(token->data, "else")))
 				{
 					token->type = T_WELSE;
@@ -477,8 +477,14 @@ Token *getNextToken()
 
 			ungetc(c, source);
 					state = ID; //DONE //done
-
+				}
 					break;}
+
+					else {
+						ungetc(c, source);
+						state = ID;
+						break;
+					}
 			case SPACE:
 					ungetc(c, source);
 					nstring_char_remove(token->data);//white space discard
@@ -583,8 +589,8 @@ Token *getNextToken()
 	}//end of while
 	return NULL;
 }
-
-/*int main() {
+/*
+int main() {
 	while (i) {
 
 	print_token(getNextToken());
