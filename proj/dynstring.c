@@ -46,6 +46,19 @@ void nstring_clear(Nstring *s){
 	s->string_size=0;
 }
 
+bool nstring_add_str(Nstring *s, char *str){
+	if(s->allocated_size <= strlen(str) ){
+		s->string=(char *)realloc(s->string,s->allocated_size+strlen(str)+1);
+		if(s->string == NULL){
+			//fprintf(stderr, "Nepodarilo sa spraviť realloc pri funkcí nstring_add_char\n");
+			return false;
+		}
+		s->allocated_size+=strlen(str)+1;
+	}
+	strcpy(s->string+s->string_size,str);
+	return true;
+}
+
 bool nstring_add_char(Nstring *s, char c){
 
 	if(s->allocated_size <= s->string_size + 1){
