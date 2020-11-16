@@ -43,7 +43,6 @@ Token *getNextToken()
 	token->type = T_UNKNOWN; // defaultne určeny typ tokenu
 	while (i)
 	{
-
 		c = getc(source);
 		switch (state)
 		{
@@ -60,21 +59,7 @@ Token *getNextToken()
 				}
 				//cISLO
 				else if (isdigit(c))
-					{if (c == '0'){
-							nstring_add_char(token->data, c);
-							c = getc(source);
-						if 	(isdigit(c)){
-
-						token->type = T_ERR;
-
-					//fprintf(stderr,"number of type 0xxxx\n");
-					nstring_add_char(token->data, c);
-
-					return token; }
-					//ungetc(c, source);
-				}
-										state = TINT;
-										 }
+					state = TINT;
 				//STRING
 				else if (c == '\"')
 					state = STRING;
