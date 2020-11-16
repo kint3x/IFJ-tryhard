@@ -20,6 +20,7 @@
 #define PEEK_TOKEN() peek_nexttoken(); if ((tokenp.type == T_UNKNOWN) || (tokenp.type == T_ERR)) return ERR_LEXSCAN; 
 
 void p_getnexttoken();
+int parse();
 int p_prog();
 int p_funclist();
 int p_func();

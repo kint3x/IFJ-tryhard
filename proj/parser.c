@@ -15,6 +15,12 @@
 #include "stack.h"
 #include "err.h"
 #include "dynstring.h"
+#include "symtable.h"
+
+#define SEM_GLOB_FUNC_ADD() int sem=BTree_newnode(&Global_Tree,T_WFUNC, token.data, &Actual_node); if(sem!=ERR_RIGHT) return sem;
+
+BTreePtr Global_Tree; // Premenna pre globalny strom
+BTreePtr Actual_node; // Premenna pre aktuálny list stromu s ktorým sa pracuje
 
 Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
 Token tokenp; // pomocny token
@@ -46,7 +52,7 @@ void p_getnexttoken() {
 		token.data = NULL;
 
 		Token *t = getNextToken();   // NACITAME NOVY TOKEN
-		//print_token(t);
+		print_token(t);
 		token.type = t->type;
 		token.data = t->data;
 		free(t);					// UVOLNIME STRUKTURU 
@@ -54,13 +60,20 @@ void p_getnexttoken() {
 	}
 }
 
-
-int p_prog() {
-	//printf("SET token.data to null\n");
+int parse(){
 	token.type = T_UNKNOWN; // Inicializacia 
 	token.data = NULL; // Nastavi dynstring na NULL
 	tokenp.data = NULL;
 	tokenp.type = -1;
+	BTree_init(&Global_Tree);
+	int ret_value;
+	ret_value=p_prog();
+
+	BTree_print(&Global_Tree);
+	return ret_value;
+}
+int p_prog() {
+	//printf("SET token.data to null\n");
 
 	int ret_value = ERR_SYNAN;
 	GET_TOKEN();
@@ -145,6 +158,7 @@ int p_func() {
 		GET_TOKEN();
 
 		if (token.type == T_ID) {
+			SEM_GLOB_FUNC_ADD(); //Prida novu funkciu s ID do stromu 
 			GET_TOKEN();
 
 			if (token.type == T_LEFTBR) {
@@ -152,6 +166,7 @@ int p_func() {
 
 				ret_value = p_paramlist();
 				VALUE_CHECK();
+				Actual_node -> AoR++ ;// Inkrementuje prepínaš medzi Argumentami alebo Returnami bre BTree
 				ret_value = p_datatypelist();
 				VALUE_CHECK();
 				ret_value = p_statlist();
@@ -181,7 +196,6 @@ int p_paramlist() {
 	switch (token.type) {
 	case T_ID:
 		GET_TOKEN();
-
 		ret_value = p_datatype();
 		VALUE_CHECK();
 		ret_value = p_paramnext();
@@ -306,18 +320,20 @@ int p_datatype() {
 
 	switch (token.type) {
 	case T_WINT:
+		BTree_insertAoR(Actual_node,T_WINT);
 		GET_TOKEN();
-
 		ret_value = ERR_RIGHT;
 		break;
 
 	case T_WFLOAT64:
+		BTree_insertAoR(Actual_node,T_WFLOAT64);
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
 		break;
 
 	case T_WSTRING:
+		BTree_insertAoR(Actual_node,T_WSTRING);
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
