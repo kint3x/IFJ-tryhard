@@ -59,7 +59,14 @@ Token *getNextToken()
 				}
 				//cISLO
 				else if (isdigit(c))
-					state = TINT;
+					{if (c == '0'){token->type = T_ERR;
+
+					//fprintf(stderr,"number of type 0xxxx\n");
+					nstring_add_char(token->data, c);
+
+					return token;}
+										state = TINT;
+										 }
 				//STRING
 				else if (c == '\"')
 					state = STRING;
