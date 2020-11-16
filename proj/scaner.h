@@ -94,6 +94,7 @@ typedef enum
   LEFTBRACET, // {
   RIGHTBRACET, //}
   SEMI, // ;
+  ZERO, // 0
   END        // koncový stav
   } T_state;
 typedef
