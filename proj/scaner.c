@@ -49,7 +49,8 @@ Token *getNextToken()
 		{
 			//start
 			case START:
-				if (c == '\n')// if eol
+
+				 if (c == '\n')// if eol
 				{
 					state = EOLINE;
 				}
@@ -59,23 +60,14 @@ Token *getNextToken()
 					state = ID;
 				}
 				//cISLO
-				else if (isdigit(c))
-					{if (c == '0'){
-							nstring_add_char(token->data, c);
-							c = getc(source);
-						if 	(isdigit(c)){
+				else if (isdigit(c) && (!(c == '0')))
 
-						token->type = T_ERR;
-
-					//fprintf(stderr,"number of type 0xxxx\n");
-					nstring_add_char(token->data, c);
-
-					return token; }
-					//ungetc(c, source);
-				}
 										state = TINT;
-										 }
+				else if (c == '0')
+
+				  state = ZERO;
 				//STRING
+
 				else if (c == '\"')
 					state = STRING;
 				//operatory
@@ -141,6 +133,25 @@ Token *getNextToken()
 				break;
 			//dalsie stavy
 			//koncove stavy:
+			case ZERO:
+
+				//c = getc(source);
+				if (isdigit(c))
+
+				{
+
+					token->type = T_ERR;
+
+					//fprintf(stderr,"lexikal error UNKNOWN char\n");
+					nstring_add_char(token->data, c);
+					ungetc(c, source);
+					return token;
+				}
+				else
+			{ 		state = TINT;
+					ungetc(c, source);
+					break;
+			 }
 			case NOT:
 				if (c == '=')
 				{
