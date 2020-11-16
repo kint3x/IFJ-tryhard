@@ -94,3 +94,8 @@ void nstring_char_remove(Nstring *s){
 	s->string_size -= 1;
 	s->string[s->string_size]='\0';
 }
+
+int nstring_cmp(Nstring *s, Nstring *d){
+	if(s==NULL || d==NULL) return -1;
+	return strcmp(s->string,d->string);
+}
