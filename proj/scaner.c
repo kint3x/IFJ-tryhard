@@ -399,7 +399,7 @@ Token *getNextToken()
 				break;
 			case KEYW:
 
-			if (isspace(c)){
+			if (isspace(c)||(c == ')' ) ){
 			if (!(nstring_str_cmp(token->data, "else")))
 				{
 					token->type = T_WELSE;
