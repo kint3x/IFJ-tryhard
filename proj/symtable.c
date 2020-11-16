@@ -7,107 +7,138 @@
  */
 #include "symtable.h"
 
-BT_symitemptr BTree_init(){
-	BT_symitemptr new = (BT_symitemptr)malloc(sizeof(struct BT_symitem));
-	if(new==NULL) return NULL;
-	new->name=nstring_init();
-	if(new->name==NULL) return NULL;
-
-	new -> item_type = NONE;
-	new -> var_type = UNDEF;
-	new -> scope = -1;
-	new -> num_arguments = 0;
-	new -> num_returns = 0;
-	new -> LPtr = NULL;
-	new -> RPtr = NULL;
-	return new;
+void BTree_init(BTreePtr *root){
+	(*root)=NULL;
+	return;
 }
 
-void BTree_dispose(BT_symitemptr root){
-	if(root!=NULL){
-		BTree_dispose(root->LPtr);
-		BTree_dispose(root->RPtr);
-		BTree_freeleaf(root);
+int BTree_getkey(Nstring *name){
+	if(name==NULL) return -1;
+	int count=0;
+	for(int i=0;i<strlen(name->string);i++){
+		count += name->string[i]; 
 	}
+	return count;
 }
 
-void BTree_freeleaf(BT_symitemptr ptr){
+void BTree_dispose(BTreePtr *root){
+	if((*root)!=NULL){
+		BTree_dispose(&((*root)->LPtr));
+		BTree_dispose(&((*root)->RPtr));
+		BTree_freeleaf((*root));
+	}
+	(*root)=NULL;
+}
+
+void BTree_freeleaf(BTreePtr ptr){
 	nstring_free(ptr->name);
+	nstring_free(ptr->args);
+	nstring_free(ptr->returns);
 	free(ptr);
 }
 
-void BTree_print(BT_symitemptr ptr){
-	if(ptr!=NULL){
-		BTree_print(ptr->LPtr);
-		BTree_print(ptr->RPtr);
-		printf("<<BTREE: it_type: %d, var_type: %d, name: %s, scope: %d>>\n",ptr->item_type,ptr->var_type,ptr->name->string, ptr->scope);
-	}
-}
+int BTree_newnode(BTreePtr *root, tType item, Nstring *n, BTreePtr *setptr){
+	int newkey=BTree_getkey(n);
+	if(newkey==-1) return false;
 
-BT_symitemptr BTree_additem(BT_symitemptr root,Titem_type item_type, char *name){
-	BT_symitemptr *ptr=(&root);
-	int newkey = BTree_getkeyvalue(name);
-	while((*ptr)!=NULL){
-		if((*ptr)->key>newkey){
-			(*ptr)=(*ptr)->LPtr;
+	while((*root)!=NULL){
+		if(newkey<(*root)->key){
+			root=&((*root)->LPtr);
 		}
-		else (*ptr) = (*ptr)->RPtr;
+		else if(newkey>(*root)->key){
+			root=&((*root)->RPtr);
+		}
+		else{
+			if(nstring_cmp(n,(*root)->name)==0){
+				if((*root)->item_type==item) return ERR_SEMAN_NOT_DEFINED;
+				root=&((*root)->RPtr);
+			}
+			else{
+				root=&((*root)->RPtr);
+			}
+		}
 	}
-	(*ptr)=BTree_init();
-	(*ptr)->key=newkey;
-	(*ptr)->item_type=item_type;
-	nstring_add_str((*ptr)->name,name);
-	return (*ptr);
+	(*root)=(BTreePtr)malloc(sizeof(struct BTree));
+	if((*root)==NULL) return ERR_INTERNAL;
+
+	(*root)->name=nstring_init();
+	if((*root)->name==NULL) return ERR_INTERNAL;
+
+	if(nstring_add_str((*root)->name,n->string)==false) return ERR_INTERNAL;
+	if(((*root)->args=nstring_init())==NULL) return ERR_INTERNAL;
+	if(((*root)->returns=nstring_init())==NULL) return ERR_INTERNAL;
+	(*root)->key=newkey;
+	(*root)->item_type=item;
+	(*root)->num_arguments=0;
+ 	(*root)->num_returns=0;
+ 	(*root)->LPtr=NULL;
+ 	(*root)->RPtr=NULL;
+
+ 	if(setptr!=NULL){
+ 		(*setptr)=(*root);
+ 	}
+	return ERR_RIGHT;
 }
 
-int BTree_getkeyvalue(char *string){
-	int i=0,val=0;
-	while(string[i++]!='\0'){
-		val +=string[i];
+void BTree_insertAoR(BTreePtr node,tType type){
+	if(node==NULL) return;
+
+	if(node->AoR==0){
+		if(type == T_WINT)
+		nstring_add_char(node->args,'i');
+		if(type == T_WFLOAT64)
+		nstring_add_char(node->args,'f');
+		if(type == T_WSTRING)
+		nstring_add_char(node->args,'s');
+		/*if(type == T_WBOOL)
+		nstring_add_char(node->args,'b');*/
+
+		node->num_arguments++;
 	}
-	return val;
+	if(node->AoR==1){
+		if(type == T_WINT)
+		nstring_add_char(node->returns,'i');
+		if(type == T_WFLOAT64)
+		nstring_add_char(node->returns,'f');
+		if(type == T_WSTRING)
+		nstring_add_char(node->returns,'s');
+		/*if(type == T_WBOOL)
+		nstring_add_char(node->returns,'b');*/
+
+		node->num_returns++;
+	}
+	return;
 }
 
-//BT_STACK FUNCTIONS
 
-Tree_stack * BTstack_init(){
-	Tree_stack *ptr;
-	ptr = (Tree_stack *) malloc(sizeof(Tree_stack));
-	if (ptr == NULL) return NULL;
-	ptr -> root = NULL;
-	ptr->prev = NULL;
-	ptr->next=NULL;
-	return ptr;
+BTreePtr BTree_findbyname(BTreePtr *root,Nstring *n){
+	int newkey=BTree_getkey(n);
+	if(newkey==-1) return NULL;
+
+	while((*root)!=NULL){
+		if(newkey<(*root)->key){
+			root=&((*root)->LPtr);
+		}
+		else if(newkey>(*root)->key){
+			root=&((*root)->RPtr);
+		}
+		else{
+			if(nstring_cmp(n,(*root)->name)==0){
+				return (*root);
+			}
+			else{
+				root=&((*root)->RPtr);
+			}
+		}
+	}
+	return NULL;
 }
-Tree_stack *BTstack_top(Tree_stack *root){
-	Tree_stack **ptr=(&root);
-	Tree_stack *prev=NULL;
 
-	while((*ptr)!=NULL){
-		prev = (*ptr);
-		(*ptr)=(*ptr)->next;
+void BTree_print(BTreePtr *root){
+	if((*root)!=NULL){
+		BTree_print(&((*root)->LPtr));
+		BTree_print(&((*root)->RPtr));
+		printf("<<BTREE NODE: type: %d, name: %s , args: %d:%s, returns: %d:%s>>\n",(*root)->item_type,(*root)->name->string,
+			(*root)->num_arguments,(*root)->args->string,(*root)->num_returns,(*root)->returns->string);
 	}
-	(*ptr)=BTstack_init();
-	if((*ptr)==NULL) return NULL;
-	(*ptr)->prev = prev;
-	return (*ptr);
-}
-Tree_stack *BTstack_pop(Tree_stack *root){
-	Tree_stack *ret=NULL;
-	if(root==NULL){
-		fprintf(stderr, "Tree_stack pop zly pop prazdneho stacku\n" );
-		return NULL;
-	}
-	while(root->next!=NULL){
-		ret=root->prev;
-		root=root->next;
-	}
-	
-	if(ret!=NULL){
-		ret->prev->next=NULL;
-	}
-
-	BTree_dispose(root->root);
-	free(root);
-	return ret;
 }

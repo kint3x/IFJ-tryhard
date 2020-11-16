@@ -11,59 +11,56 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "dynstring.h"
-
-typedef enum TiTem
-{
-	NONE,
-	VARIABILE,
-	FUNCTION
-	
-}Titem_type;
+#include "dynstring.h" 
+#include "scaner.h"
+#include <string.h>
 
 typedef enum var_type{
-	UNDEF,
-	INT,
-	FLOAT,
-	STRING,
-	BOOL
-}Var_type;
+	V_UNDEF,
+	V_INT,
+	V_FLOAT,
+	V_STRING,
+	V_BOOL
+}Variabile;
 
-typedef struct BT_symitem {
+
+typedef struct BTree {
 	int key;
 
-	Titem_type item_type;
-	Var_type var_type;
+	tType item_type; //Pre keyword
+	Variabile var_type;
 	Nstring *name;
-	unsigned short int scope;
+	unsigned short int AoR;
 	unsigned short int num_arguments;
 	unsigned short int num_returns;
+	Nstring *args;
+	Nstring *returns;
 
-	struct BT_symitem *LPtr;
-	struct BT_symitem *RPtr;
-}*BT_symitemptr;
+	struct BTree *LPtr;
+	struct BTree *RPtr;
+}*BTreePtr;
 
 typedef struct tree_stack{
 
-	BT_symitemptr root;
+	BTreePtr root;
 	struct tree_stack *prev;
 	struct tree_stack *next;
-}Tree_stack;
+}BTreeStack;
 
-// BT funkcie
-BT_symitemptr BTree_init();
-void BTree_set(BT_symitemptr ptr, Titem_type item_type, Var_type var_type, 
-	Nstring *name , unsigned short int scope, unsigned short int num_arguments,
-	unsigned short int num_returns);
-void BTree_removebyname(Nstring *name);
-void BTree_dispose();
-void BTree_freeleaf();
-void BTree_print();
-int BTree_getkeyvalue(char *name);
-BT_symitemptr BTree_additem(BT_symitemptr root,Titem_type item_type, char *name);
-// BT_Stack funkcie
+void BTree_init(BTreePtr *root);
 
-Tree_stack *BTstack_init();
-Tree_stack *BTstack_top();
-Tree_stack *BTstack_pop();
+int BTree_getkey(Nstring *name);
+
+void BTree_dispose(BTreePtr *root);
+
+void BTree_freeleaf(BTreePtr ptr);
+
+void BTree_print(BTreePtr *root);
+
+int BTree_newnode(BTreePtr *root, tType item, Nstring *n,BTreePtr *setptr);
+
+BTreePtr BTree_findbyname(BTreePtr *root,Nstring *n);
+
+void BTree_insertAoR(BTreePtr node,tType type);
+
 #endif
