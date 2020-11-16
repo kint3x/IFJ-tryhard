@@ -70,6 +70,7 @@ int parse(){
 	ret_value=p_prog();
 
 	BTree_print(&Global_Tree);
+	BTree_dispose(&Global_Tree);
 	return ret_value;
 }
 int p_prog() {
