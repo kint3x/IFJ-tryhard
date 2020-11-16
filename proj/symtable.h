@@ -45,7 +45,7 @@ typedef struct tree_stack{
 	BTreePtr root;
 	struct tree_stack *prev;
 	struct tree_stack *next;
-}BTreeStack;
+}*BTreeStackPtr;
 
 void BTree_init(BTreePtr *root);
 
@@ -62,5 +62,16 @@ int BTree_newnode(BTreePtr *root, tType item, Nstring *n,BTreePtr *setptr);
 BTreePtr BTree_findbyname(BTreePtr *root,Nstring *n);
 
 void BTree_insertAoR(BTreePtr node,tType type);
+
+
+void BTStack_init(BTreeStackPtr *root);
+
+void BTStack_top(BTreeStackPtr *root,BTreePtr *change);
+
+void BTStack_pop(BTreeStackPtr *root,BTreePtr *change);
+
+void BTStack_dispose(BTreeStackPtr *root);
+
+void BTStack_searchbyname(BTreeStackPtr *root);
 
 #endif

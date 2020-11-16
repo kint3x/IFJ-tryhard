@@ -142,3 +142,7 @@ void BTree_print(BTreePtr *root){
 			(*root)->num_arguments,(*root)->args->string,(*root)->num_returns,(*root)->returns->string);
 	}
 }
+
+void BTStack_init(BTreeStackPtr *root){
+	(*root)=NULL;
+}
