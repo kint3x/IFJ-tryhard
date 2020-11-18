@@ -67,6 +67,7 @@ typedef enum
   DOUBLECONTROL, //controla spravneho lexikalneho tvaru za .
   E,          //DOUBLE E
   EPLUSMINUS, //E+-NUMBER
+  EPLUSMINUZERO,// E+-0
   EOLINE,   // END OF line
   START,    // počiatočny stav ak nebolo odsadenie
   ID,       //identifikator

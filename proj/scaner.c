@@ -245,7 +245,21 @@ Token *getNextToken()
 								state = ID;
 								break;
 							}
+				case EPLUSMINUZERO: // E+-0
 
+				if (isdigit(c))
+				{
+					nstring_add_char(token->data, c);
+					token->type = T_ERR;
+					state = START;
+					return token;
+
+				}
+				else {
+					state = START;
+					ungetc(c, source);
+					return token;
+				}
 				case DOUBLECONTROL:	//za bodkov očakavaný číslo
 					if (!isdigit(c)) {//fprintf(stderr,"chyba double .\n");
 
@@ -254,7 +268,7 @@ Token *getNextToken()
 						return token;
 
 						}
-						printf("sem tu2\n");
+
 						state = DOUBLE;
 
 						ungetc(c, source);
@@ -275,10 +289,15 @@ Token *getNextToken()
 					break;
 
 				}
-				else if (isdigit(c)){
-				nstring_add_char(token->data, c);
+				else if (isdigit(c) && (!(c == '0')) ){
+					nstring_add_char(token->data, c);
 				state = EPLUSMINUS;
 				break; }
+				else if (c == '0') {
+					state = EPLUSMINUZERO;
+					nstring_add_char(token->data, c);
+					break;;
+				}
 				else{
 					token->type = T_ERR;
 					state = START;
