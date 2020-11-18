@@ -45,6 +45,7 @@ Token *getNextToken()
 	{
 
 		c = getc(source);
+	//	printf("%c\n", c);
 		switch (state)
 		{
 			//start
@@ -115,7 +116,6 @@ Token *getNextToken()
 				else if (c == EOF)
 					{
 				//priradit typ tokenu
-				token->type = T_END_OF_FILE;
 				state = END;
 				break;
 				}
@@ -123,7 +123,6 @@ Token *getNextToken()
 				{
 					//lexikalna chyba token sa nerozpoznal
 					token->type = T_ERR;
-
 					//fprintf(stderr,"lexikal error UNKNOWN char\n");
 					nstring_add_char(token->data, c);
 					i = 0;//ukončený while
@@ -132,7 +131,257 @@ Token *getNextToken()
 				nstring_add_char(token->data, c);
 				break;
 			//dalsie stavy
+			//prechodove stavy
 			//koncove stavy:
+
+			case EOLINE:
+					ungetc(c, source);
+					token->type = T_EOL;
+					state = START;
+					return token;// use in parser -> token T_EOL
+					case ID:
+
+								token->type = T_ID;
+								if ((isalpha(c) || (isdigit(c)) || (c == '_')))
+								{
+
+									//token->data = c;
+									state = KEYW;
+									nstring_add_char(token->data, c);//kontrola zda nenastalo klučové slovo
+								}
+								else
+								{
+									ungetc(c, source);//koniec id už neni žiaden vhodný znak na vstupe *vratíme na vstup
+									state = START;
+									return token;
+								}
+						break;
+					case KEYW:
+					//kontrola zda je skutočne načtený cely slovo
+					if (! ((isalpha(c) || (isdigit(c)) || (c == '_'))) ){
+						if (!(nstring_str_cmp(token->data, "else")))
+							{
+								token->type = T_WELSE;
+
+								state = START;
+								ungetc(c, source);
+								return token;
+							}
+							else if (!(nstring_str_cmp(token->data, "float64")))
+							{
+								token->type = T_WFLOAT64;
+
+								state = START;
+								ungetc(c, source);
+								return token;
+							}
+
+							else if (!(nstring_str_cmp(token->data, "for")))
+							{
+								token->type = T_WFOR;
+
+								state = START;
+								ungetc(c, source);
+								return token;
+							}
+							else if (!(nstring_str_cmp(token->data, "func")))
+							{
+								token->type = T_WFUNC;
+
+								state = START;
+								ungetc(c, source);
+								return token;
+							}
+							else if (!(nstring_str_cmp(token->data, "if")))
+							{
+								token->type = T_WIF;
+
+								state = START;
+								ungetc(c, source);
+								return token;
+							}
+							else if (!(nstring_str_cmp(token->data, "int")))
+							{
+								token->type = T_WINT;
+
+								state = START;
+								ungetc(c, source);
+								return token;
+							}
+							else if (!(nstring_str_cmp(token->data, "package")))
+							{
+								token->type = T_WPACKAGE;
+
+								state = START;
+								ungetc(c, source);
+								return token;
+							}
+							else if (!(nstring_str_cmp(token->data, "return")))
+							{
+								token->type = T_WRETURN;
+
+								state = START;
+								ungetc(c, source);
+								return token;
+							}
+							else if (!(nstring_str_cmp(token->data, "string")))
+							{
+								token->type = T_WSTRING;
+
+								state = START;
+								ungetc(c, source);
+								return token;
+							}
+						else{
+							// klučove slovo nerozpoznane
+						ungetc(c, source);
+								state = ID; //DONE //done
+							}
+								break;}
+
+							else {
+								// neprebehla kontrola keyword lebo niesme na konci slova
+								ungetc(c, source);
+								state = ID;
+								break;
+							}
+
+				case DOUBLECONTROL:	//za bodkov očakavaný číslo
+					if (!isdigit(c)) {//fprintf(stderr,"chyba double .\n");
+
+						token->type = T_ERR;
+						state = START;
+						return token;
+
+						}
+						printf("sem tu2\n");
+						state = DOUBLE;
+
+						ungetc(c, source);
+						break;
+				case EPLUSMINUS:
+				if (isdigit(c))nstring_add_char(token->data, c);
+				else {
+						ungetc(c, source);
+						state = START;
+						return token;
+
+				}
+				case E:
+				if ((c == '+') || (c == '-'))
+				{
+					nstring_add_char(token->data, c);
+					state = E;
+					break;
+
+				}
+				else if (isdigit(c)){
+				nstring_add_char(token->data, c);
+				state = EPLUSMINUS;
+				break; }
+				else{
+					token->type = T_ERR;
+					state = START;
+					return token;
+
+				}
+				case TINT:
+				token->type = T_INT;
+				if (isdigit(c))
+				{
+					nstring_add_char(token->data, c);
+					state = TINT;
+					break;
+				}
+				else if (c == '.')// ak sa nachadza bodka kontrolujem 10tine cislo
+				{
+					nstring_add_char(token->data, c);
+					state = DOUBLECONTROL;
+					break;
+					}
+					else if ((c == 'E') || (c == 'e'))
+					{
+						nstring_add_char(token->data, c);
+						state = E;
+						break;
+
+					 }
+					 else
+ 					{
+
+ 							state = START;
+ 							ungetc(c, source);
+ 							return token;
+ 					}
+
+
+					/*token->type = T_INT;
+					if (isdigit(c))
+					{
+						nstring_add_char(token->data, c);
+						state = TINT;
+						break;
+					}
+					else if (c == '.')// ak sa nachadza bodka kontrolujem 10tine cislo
+					{
+
+						nstring_add_char(token->data, c);
+							c = getc(source);
+							if (!isdigit(c)) {//fprintf(stderr,"chyba double .\n");
+							token->type = T_ERR;
+							return token;
+
+					 }state = DOUBLE;
+						ungetc(c, source);
+					}
+					else if ((c == 'E') || (c == 'e'))
+					{
+						nstring_add_char(token->data, c);
+						c = getc(source);
+						if (!isdigit(c)) {//fprintf(stderr,"chyba double po e nenasleduje číslo\n");
+						token->type = T_ERR;
+						return token;
+					 }
+						ungetc(c, source);
+						state = DOUBLE;
+					}
+					else
+					{
+
+							state = START;
+							ungetc(c, source);
+							return token;
+
+
+
+
+					}
+					break;*/
+				case DOUBLE:
+				//printf("%c\n", c);
+					token->type = T_DOUBLE;
+				if (isdigit(c))
+				{
+					nstring_add_char(token->data, c);
+					state = DOUBLE;
+					break;
+				}
+				else if ((c == 'E') || (c == 'e'))
+				{
+					nstring_add_char(token->data, c);
+					state = E;
+					break;
+
+				 }
+				 else
+				{
+
+						state = START;
+						ungetc(c, source);
+						return token;
+				}
+
+
 			case ZERO:
 
 				//c = getc(source);
@@ -249,73 +498,8 @@ Token *getNextToken()
 					state = START;
 					return token;// done zapis znaku pomocov escape sekvencie kontrola lexikalneho rozsahu
 				}
-			case DOUBLE:
-			//printf("%c\n", c);
-				token->type = T_DOUBLE;
-				if (!(c == ':'|| !isdigit(c) ))
-					nstring_add_char(token->data, c);
-
-				if (!(c == '+' || c == '-'))
-				{
-
-					if (!isdigit(c))
-					{
-						ungetc(c, source);
-						state = START;
-						return token;
-					}
-
-					break;
-				}
-				break;
-			case TINT:
-				token->type = T_INT;
-				if (isdigit(c))
-				{
-					nstring_add_char(token->data, c);
-					state = TINT;
-					break;
-				}
-				else if (c == '.')// ak sa nachadza bodka kontrolujem 10tine cislo
-				{
-
-					nstring_add_char(token->data, c);
-						c = getc(source);
-						if (!isdigit(c)) {//fprintf(stderr,"chyba double .\n");
-						token->type = T_ERR;
-						return token;
-
-				 }state = DOUBLE;
-					ungetc(c, source);
-				}
-				else if ((c == 'E') || (c == 'e'))
-				{
-					nstring_add_char(token->data, c);
-					c = getc(source);
-					if (!isdigit(c)) {//fprintf(stderr,"chyba double po e nenasleduje číslo\n");
-					token->type = T_ERR;
-					return token;
-				 }
-					ungetc(c, source);
-					state = DOUBLE;
-				}
-				else
-				{
-
-						state = START;
-						ungetc(c, source);
-						return token;
 
 
-
-
-				}
-				break;
-			case EOLINE:
-					ungetc(c, source);
-					token->type = T_EOL;
-					state = START;
-					return token;// use in parser
 			case DOUBLEDOT:
 					if (c == '=') {
 						token->type = T_DOUBLEDOT;
@@ -404,113 +588,7 @@ Token *getNextToken()
 						//nstring_add_char(token->data, c);
 						break;
 					 }
-			case ID:
 
-						token->type = T_ID;
-						if ((isalpha(c) || (isdigit(c)) || (c == '_')) && (!(c == '(') || !(c == ':')))
-						{
-
-							//token->data = c;
-							state = KEYW;
-							nstring_add_char(token->data, c);
-						}
-						else
-						{
-
-							ungetc(c, source);
-							state = START;
-
-							return token;
-						}
-				break;
-			case KEYW:
-
-			if (! ((isalpha(c) || (isdigit(c)) || (c == '_'))) ){
-			if (!(nstring_str_cmp(token->data, "else")))
-				{
-					token->type = T_WELSE;
-
-					state = START;
-					ungetc(c, source);
-					return token;
-				}
-				else if (!(nstring_str_cmp(token->data, "float64")))
-				{
-					token->type = T_WFLOAT64;
-
-					state = START;
-					ungetc(c, source);
-					return token;
-				}
-
-				else if (!(nstring_str_cmp(token->data, "for")))
-				{
-					token->type = T_WFOR;
-
-					state = START;
-					ungetc(c, source);
-					return token;
-				}
-				else if (!(nstring_str_cmp(token->data, "func")))
-				{
-					token->type = T_WFUNC;
-
-					state = START;
-					ungetc(c, source);
-					return token;
-				}
-				else if (!(nstring_str_cmp(token->data, "if")))
-				{
-					token->type = T_WIF;
-
-					state = START;
-					ungetc(c, source);
-					return token;
-				}
-				else if (!(nstring_str_cmp(token->data, "int")))
-				{
-					token->type = T_WINT;
-
-					state = START;
-					ungetc(c, source);
-					return token;
-				}
-				else if (!(nstring_str_cmp(token->data, "package")))
-				{
-					token->type = T_WPACKAGE;
-
-					state = START;
-					ungetc(c, source);
-					return token;
-				}
-				else if (!(nstring_str_cmp(token->data, "return")))
-				{
-					token->type = T_WRETURN;
-
-					state = START;
-					ungetc(c, source);
-					return token;
-				}
-				else if (!(nstring_str_cmp(token->data, "string")))
-				{
-					token->type = T_WSTRING;
-
-					state = START;
-					ungetc(c, source);
-					return token;
-				}
-			else{
-
-			ungetc(c, source);
-					state = ID; //DONE //done
-				}
-					break;}
-
-					else {
-						ungetc(c, source);
-						state = ID;
-						break;
-					}
 			case SPACE:
 					ungetc(c, source);
 					nstring_char_remove(token->data);//white space discard
@@ -615,7 +693,7 @@ Token *getNextToken()
 	}//end of while
 	return NULL;
 }
-/*
+
 int main() {
 	while (i) {
 
@@ -624,7 +702,7 @@ int main() {
 	}
 
 	return 0;
-}*/
+}
 //funkce na vizualnu kontrolu tokenov
 void print_token(Token *token)
 {
