@@ -162,7 +162,6 @@ Token *getNextToken()
 						if (!(nstring_str_cmp(token->data, "else")))
 							{
 								token->type = T_WELSE;
-
 								state = START;
 								ungetc(c, source);
 								return token;
@@ -245,9 +244,14 @@ Token *getNextToken()
 								state = ID;
 								break;
 							}
-				case EPLUSMINUZERO: // E+-0
 
-				if (isdigit(c))
+
+
+
+
+				case EPLUSMINUSZERO: // E+-0
+
+				if (isdigit(c)&& (!(c == '0')) )
 				{
 					nstring_add_char(token->data, c);
 					token->type = T_ERR;
@@ -255,6 +259,8 @@ Token *getNextToken()
 					return token;
 
 				}
+				else if (c == '0') {nstring_add_char(token->data, c);
+				break;}
 				else {
 					state = START;
 					ungetc(c, source);
@@ -273,10 +279,29 @@ Token *getNextToken()
 
 						ungetc(c, source);
 						break;
-				case EPLUSMINUS:
+				case EPLUSMINUSNUMBER:
 				if (isdigit(c)){nstring_add_char(token->data, c); break; }
+
 				else {
 						ungetc(c, source);
+						state = START;
+						return token;
+
+				}
+				case EPLUSMINUS:
+
+				if (isdigit(c) && (!(c == '0')) )
+				{
+					state = EPLUSMINUSNUMBER;
+					nstring_add_char(token->data, c); break; }
+				else if (c == '0') {
+						state = EPLUSMINUSZERO;
+						nstring_add_char(token->data, c);
+						break;
+					}
+				else {
+						ungetc(c, source);
+						token->type = T_ERR;
 						state = START;
 						return token;
 
@@ -285,16 +310,16 @@ Token *getNextToken()
 				if ((c == '+') || (c == '-'))
 				{
 					nstring_add_char(token->data, c);
-					state = E;
+					state = EPLUSMINUS;
 					break;
 
 				}
 				else if (isdigit(c) && (!(c == '0')) ){
 					nstring_add_char(token->data, c);
-				state = EPLUSMINUS;
+				state = EPLUSMINUSNUMBER;
 				break; }
 				else if (c == '0') {
-					state = EPLUSMINUZERO;
+					state = EPLUSMINUSZERO;
 					nstring_add_char(token->data, c);
 					break;;
 				}
@@ -318,20 +343,20 @@ Token *getNextToken()
 					state = DOUBLECONTROL;
 					break;
 					}
-					else if ((c == 'E') || (c == 'e'))
+				else if ((c == 'E') || (c == 'e'))
+				{
+					nstring_add_char(token->data, c);
+					state = E;
+					break;
+
+				 }
+				 else
 					{
-						nstring_add_char(token->data, c);
-						state = E;
-						break;
 
-					 }
-					 else
- 					{
-
- 							state = START;
- 							ungetc(c, source);
- 							return token;
- 					}
+							state = START;
+							ungetc(c, source);
+							return token;
+					}
 
 
 					/*token->type = T_INT;
@@ -409,16 +434,34 @@ Token *getNextToken()
 				{
 
 					token->type = T_ERR;
-
+					state =START;
 					//fprintf(stderr,"lexikal error UNKNOWN char\n");
 					nstring_add_char(token->data, c);
 					ungetc(c, source);
 					return token;
 				}
-				else
-			{ 		state = TINT;
-					ungetc(c, source);
+				else if (c == '.')// ak sa nachadza bodka kontrolujem 10tine cislo
+				{
+					nstring_add_char(token->data, c);
+					state = DOUBLECONTROL;
 					break;
+					}
+				else if ((c == 'E') || (c == 'e'))
+				{
+					nstring_add_char(token->data, c);
+					state = E;
+					break;
+
+				 }
+				else
+			{
+				token->type = T_INT;
+				state =START;
+				return token;
+
+
+
+
 			 }
 			case NOT:
 				if (c == '=')
@@ -644,7 +687,6 @@ Token *getNextToken()
 
 							if (c == '\"')
 							{
-
 								nstring_add_char(token->data, c);
 								token->type = T_STRING;
 								state = START;
@@ -665,11 +707,13 @@ Token *getNextToken()
 							{
 								//fprintf(stderr,"error noend of string /n");
 								token->type = T_ERR;
+								state = START;
 								return token;
 							}
 				break;
 			case ESC:
-				if ((c == 'n') || (c == 't') || (c == '"')|| (c == '\\'))
+
+				if ((c == 'n') || (c == 't') || (c == '"')|| (c == 92))
 				{
 
 					nstring_add_char(token->data, c);
@@ -682,6 +726,7 @@ Token *getNextToken()
 				}
 				else
 				{
+					token->type = T_ERR;
 					state = START;
 					return token;
 				}
@@ -691,6 +736,20 @@ Token *getNextToken()
 								{
 								nstring_add_char(token->data, c);
 									token->type = T_EQ_COMP;
+									state = START;
+									return token;
+								}
+								else if (c == '<')
+								{
+								nstring_add_char(token->data, c);
+									token->type = T_LESS_EQ;
+									state = START;
+									return token;
+								}
+								else if (c == '>')
+								{
+								nstring_add_char(token->data, c);
+									token->type = T_MORE_EQ;
 									state = START;
 									return token;
 								}
@@ -718,7 +777,7 @@ int main() {
 
 	print_token(getNextToken());
 
-	}
+}
 
 	return 0;
 }*/
