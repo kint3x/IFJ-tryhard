@@ -274,7 +274,7 @@ Token *getNextToken()
 						ungetc(c, source);
 						break;
 				case EPLUSMINUS:
-				if (isdigit(c))nstring_add_char(token->data, c);
+				if (isdigit(c)){nstring_add_char(token->data, c); break; }
 				else {
 						ungetc(c, source);
 						state = START;
