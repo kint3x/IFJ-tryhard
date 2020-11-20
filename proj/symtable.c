@@ -50,13 +50,7 @@ int BTree_newnode(BTreePtr *root, tType item, Nstring *n, BTreePtr *setptr){
 		}
 		else{
 			if(nstring_cmp(n,(*root)->name)==0){
-				if((*root)->item_type==item){
-					if(item==T_FUNC) return ERR_SEMAN_NOT_DEFINED;
-				}
-				else{
-					return ERR_SEMAN_NOT_DEFINED;
-				} 
-				root=&((*root)->RPtr);
+				return ERR_SEMAN_NOT_DEFINED; // Snazi sa redefinovat nazov
 			}
 			else{
 				root=&((*root)->RPtr);
@@ -78,7 +72,9 @@ int BTree_newnode(BTreePtr *root, tType item, Nstring *n, BTreePtr *setptr){
  	(*root)->num_returns=0;
  	(*root)->LPtr=NULL;
  	(*root)->RPtr=NULL;
-
+ 	(*root)->AoR = 0;
+ 	printf("<<Adding BTREE NODE: type: %d, name: %s , args: %d:%s, returns: %d:%s>>\n",(*root)->item_type,(*root)->name->string,
+			(*root)->num_arguments,(*root)->args->string,(*root)->num_returns,(*root)->returns->string);
  	if(setptr!=NULL){
  		(*setptr)=(*root);
  	}
@@ -179,25 +175,26 @@ int BTStack_top(BTreeStackPtr *root,BTreePtr *change){
 		prev->next=(*root);
 	}
 	(*change)=(*root)->root;
-	printf("---SCOPE----\n");
-	BTree_print(change);
-	printf("------------\n");
 	return ERR_RIGHT;
 }
 
 void BTStack_pop(BTreeStackPtr *root,BTreePtr *change){
+	BTreeStackPtr prev=NULL;
+
 	if((*root)==NULL){
 		fprintf(stderr, "SNazis sa popnut prazdny zasobnik BTree\n");
 		return;
 	}
 
 	while((*root)->next!=NULL){
+		prev = (*root);
 		root=&((*root)->next);
 	}
 
 	BTree_dispose(&((*root)->root));
 	free((*root));
 	(*root)=NULL;
+	if(prev!=NULL) (*change)=prev->root;
 
 }
 

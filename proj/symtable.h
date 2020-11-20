@@ -73,4 +73,6 @@ void BTStack_dispose(BTreeStackPtr *root);
 
 BTreePtr BTStack_searchbyname(BTreeStackPtr *root,Nstring *s);
 
+void BTStack_printall(BTreeStackPtr *root);
+
 #endif
