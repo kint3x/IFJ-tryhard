@@ -64,11 +64,6 @@ typedef enum
 //stavy automatu
 typedef enum
 {
-  DOUBLECONTROL, //controla spravneho lexikalneho tvaru za .
-  E,          //DOUBLE E
-  EPLUSMINUS, //E+-NUMBER
-  EPLUSMINUSZERO,// E+-0
-  EPLUSMINUSNUMBER, // E+-NUMBER
   EOLINE,   // END OF line
   START,    // počiatočny stav ak nebolo odsadenie
   ID,       //identifikator
@@ -99,7 +94,6 @@ typedef enum
   LEFTBRACET, // {
   RIGHTBRACET, //}
   SEMI, // ;
-  ZERO, // 0
   END        // koncový stav
   } T_state;
 typedef
