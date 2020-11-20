@@ -739,20 +739,7 @@ Token *getNextToken()
 									state = START;
 									return token;
 								}
-								else if (c == '<')
-								{
-								nstring_add_char(token->data, c);
-									token->type = T_LESS_EQ;
-									state = START;
-									return token;
-								}
-								else if (c == '>')
-								{
-								nstring_add_char(token->data, c);
-									token->type = T_MORE_EQ;
-									state = START;
-									return token;
-								}
+							
 								else
 								{
 
