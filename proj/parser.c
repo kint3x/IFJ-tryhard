@@ -19,6 +19,13 @@
 
 #define SEM_GLOB_FUNC_ADD() int sem=BTree_newnode(&Global_Tree,T_WFUNC, token.data, &Actual_node); if(sem!=ERR_RIGHT) return sem;
 
+#define SEM_ADD_VAR() int sem=BTree_newnode(&Act_scope,T_UNKNOWN, token.data, &Actual_node); if(sem!=ERR_RIGHT) return sem;
+
+
+BTreeStackPtr Local_Trees;
+BTreePtr Act_scope;   
+
+
 BTreePtr Global_Tree; // Premenna pre globalny strom
 BTreePtr Actual_node; // Premenna pre aktuálny list stromu s ktorým sa pracuje
 
@@ -65,10 +72,15 @@ int parse(){
 	token.data = NULL; // Nastavi dynstring na NULL
 	tokenp.data = NULL;
 	tokenp.type = -1;
+	Act_scope = NULL;
+
+	BTStack_init(&Local_Trees);
 	BTree_init(&Global_Tree);
+
 	int ret_value;
 	ret_value=p_prog();
 
+	BTStack_dispose(&Local_Trees);
 	BTree_print(&Global_Tree);
 	BTree_dispose(&Global_Tree);
 	return ret_value;
@@ -349,6 +361,9 @@ int p_datatype() {
 int p_statlist() {
 
 	int ret_value = ERR_SYNAN;
+	
+	ret_value=BTStack_top(&Local_Trees,&Act_scope);
+	VALUE_CHECK(); ret_value=ERR_SYNAN;
 
 	switch (token.type) {
 	case T_WIF:
@@ -373,7 +388,7 @@ int p_statlist() {
 
 	case T_RIGHTBRACET:
 		GET_TOKEN();
-
+		BTStack_pop(&Local_Trees,&Act_scope);
 		ret_value = ERR_RIGHT;
 		break;
 	default:

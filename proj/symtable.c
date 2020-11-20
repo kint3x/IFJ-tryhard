@@ -50,7 +50,12 @@ int BTree_newnode(BTreePtr *root, tType item, Nstring *n, BTreePtr *setptr){
 		}
 		else{
 			if(nstring_cmp(n,(*root)->name)==0){
-				if((*root)->item_type==item) return ERR_SEMAN_NOT_DEFINED;
+				if((*root)->item_type==item){
+					if(item==T_FUNC) return ERR_SEMAN_NOT_DEFINED;
+				}
+				else{
+					return ERR_SEMAN_NOT_DEFINED;
+				} 
 				root=&((*root)->RPtr);
 			}
 			else{
@@ -145,4 +150,73 @@ void BTree_print(BTreePtr *root){
 
 void BTStack_init(BTreeStackPtr *root){
 	(*root)=NULL;
+}
+
+void BTStack_dispose(BTreeStackPtr *root){
+	BTreeStackPtr del;
+
+	while((*root)!=NULL){
+		del = (*root);
+		BTree_dispose(&((*root)->root));
+		(*root)=(*root)->next;
+		free(del);
+	}
+
+}
+
+
+int BTStack_top(BTreeStackPtr *root,BTreePtr *change){
+	BTreeStackPtr prev=(*root);
+	while((*root)!=NULL){
+		prev=(*root);
+		root=&((*root)->next);
+	}
+	(*root)=(BTreeStackPtr)malloc(sizeof(struct tree_stack));
+	if((*root)==NULL) return ERR_INTERNAL;
+	(*root)->root=NULL;
+	(*root)->next=NULL;
+	if(prev!=NULL){
+		prev->next=(*root);
+	}
+	(*change)=(*root)->root;
+	printf("---SCOPE----\n");
+	BTree_print(change);
+	printf("------------\n");
+	return ERR_RIGHT;
+}
+
+void BTStack_pop(BTreeStackPtr *root,BTreePtr *change){
+	if((*root)==NULL){
+		fprintf(stderr, "SNazis sa popnut prazdny zasobnik BTree\n");
+		return;
+	}
+
+	while((*root)->next!=NULL){
+		root=&((*root)->next);
+	}
+
+	BTree_dispose(&((*root)->root));
+	free((*root));
+	(*root)=NULL;
+
+}
+
+
+BTreePtr BTStack_searchbyname(BTreeStackPtr *root,Nstring *s){
+	BTreePtr ret=NULL;
+	while((*root)!=NULL){
+		ret=BTree_findbyname(&((*root)->root),s);
+		if(ret!=NULL) break;
+		root=&((*root)->next);
+	}
+	return ret;
+}
+
+void BTStack_printall(BTreeStackPtr *root){
+	while((*root)!=NULL){
+		printf("---SCOPE----\n");
+		BTree_print(&((*root)->root));
+		printf("------------\n");
+		root=&((*root)->next);
+	}
 }
