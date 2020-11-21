@@ -457,6 +457,8 @@ Token *getNextToken()
 			{
 				token->type = T_INT;
 				state =START;
+				ungetc(c, source);
+
 				return token;
 
 
@@ -739,7 +741,7 @@ Token *getNextToken()
 									state = START;
 									return token;
 								}
-							
+
 								else
 								{
 
@@ -794,7 +796,7 @@ void print_token(Token *token)
 		printf("EOF");
 		break;
 	case T_WELSE:
-		printf("ELSE");
+		printf("wELSE");
 		break;
 	case T_WFLOAT64:
 		printf("WFLOAT64");
