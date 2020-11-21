@@ -9,12 +9,25 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "parser.h"
 #include "scaner.h"
 #include "expr.h"
-#include "stack.h"
-#include "err.h"
-#include "dynstring.h"
+#include "symtable.h"
+
+#define ADD_GLOBAL_FUNCTION() int res_add_gl= BTree_newnode(&Global_tree,T_WFUNC,token.data,&Act_func); if(res_add_gl!=ERR_RIGHT) return res_add_gl;
+#define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack;
+#define LOCAL_POP() BTStack_pop(&Local_trees,&Act_scope);
+
+bool BOOL_IN_FUNCTION;
+Nstring *saved_ID;
+
+BTreeStackPtr Local_trees;
+BTreeStackPtr Act_scope;
+
+BTreePtr Act_node;
+BTreePtr Act_func;
+BTreePtr Global_tree;
 
 Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
 Token tokenp; // pomocny token
@@ -46,7 +59,7 @@ void p_getnexttoken() {
 		token.data = NULL;
 
 		Token *t = getNextToken();   // NACITAME NOVY TOKEN
-		print_token(t);
+		//print_token(t);
 		token.type = t->type;
 		token.data = t->data;
 		free(t);					// UVOLNIME STRUKTURU 
@@ -54,13 +67,37 @@ void p_getnexttoken() {
 	}
 }
 
-
-int p_prog() {
-	//printf("SET token.data to null\n");
+void init_global_var(){
 	token.type = T_UNKNOWN; // Inicializacia 
 	token.data = NULL; // Nastavi dynstring na NULL
 	tokenp.data = NULL;
 	tokenp.type = -1;
+	Local_trees=NULL;
+	Act_node=NULL;
+	Act_func=NULL;
+	Act_scope=NULL;
+	Global_tree=NULL;
+	saved_ID=nstring_init();
+
+}
+
+int parse(){
+	int	ret_value=ERR_SYNAN;
+
+	init_global_var();
+
+
+	ret_value=p_prog();
+
+	BTree_print(&Global_tree);
+	BTree_dispose(&Global_tree);
+	BTStack_dispose(&Local_trees);
+	nstring_free(saved_ID);
+	if(token.type!=T_END_OF_FILE)nstring_free(token.data); // uvolnit nstring v token.data
+	return ret_value;
+}
+
+int p_prog() {
 
 	int ret_value = ERR_SYNAN;
 	GET_TOKEN();
@@ -142,9 +179,11 @@ int p_func() {
 	int ret_value = ERR_SYNAN;
 
 	if (token.type == T_WFUNC) {
+		;LOCAL_TOP();
 		GET_TOKEN();
 
 		if (token.type == T_ID) {
+			ADD_GLOBAL_FUNCTION(); // Pridanie Funkcie
 			GET_TOKEN();
 
 			if (token.type == T_LEFTBR) {
@@ -152,10 +191,13 @@ int p_func() {
 
 				ret_value = p_paramlist();
 				VALUE_CHECK();
+				Act_func->AoR=1; // prepnutie na return types
 				ret_value = p_datatypelist();
 				VALUE_CHECK();
+				BOOL_IN_FUNCTION=true;
 				ret_value = p_statlist();
 				VALUE_CHECK();
+				BOOL_IN_FUNCTION=false;
 
 				if (token.type == T_EOL) {
 					GET_TOKEN();
@@ -180,10 +222,11 @@ int p_paramlist() {
 
 	switch (token.type) {
 	case T_ID:
+		nstring_add_str(saved_ID,token.data->string);
 		GET_TOKEN();
-
 		ret_value = p_datatype();
 		VALUE_CHECK();
+		nstring_clear(saved_ID);
 		ret_value = p_paramnext();
 		VALUE_CHECK();
 		break;
@@ -209,12 +252,14 @@ int p_paramnext() {
 		GET_TOKEN();
 
 		if (token.type == T_ID) {
+			nstring_add_str(saved_ID,token.data->string);
 			GET_TOKEN();
 		}
 		else break;
 
 		ret_value = p_datatype();
 		VALUE_CHECK();
+		nstring_clear(saved_ID);
 		ret_value = p_paramnext();
 		VALUE_CHECK();
 		break;
@@ -307,19 +352,29 @@ int p_datatype() {
 	switch (token.type) {
 	case T_WINT:
 		GET_TOKEN();
+		if(!nstring_is_clear(saved_ID)){
+			BTStack_newnode(&Act_scope,T_INT, saved_ID);
+		}
+		BTree_insertAoR(Act_func,T_WINT);
 
 		ret_value = ERR_RIGHT;
 		break;
 
 	case T_WFLOAT64:
 		GET_TOKEN();
-
+		if(!nstring_is_clear(saved_ID)){
+			BTStack_newnode(&Act_scope,T_DOUBLE, saved_ID);
+		}
+		BTree_insertAoR(Act_func,T_WFLOAT64);
 		ret_value = ERR_RIGHT;
 		break;
 
 	case T_WSTRING:
 		GET_TOKEN();
-
+		if(!nstring_is_clear(saved_ID)){
+			BTStack_newnode(&Act_scope,T_STRING, saved_ID);
+		}
+		BTree_insertAoR(Act_func,T_WSTRING);
 		ret_value = ERR_RIGHT;
 		break;
 	default:
@@ -332,7 +387,6 @@ int p_datatype() {
 int p_statlist() {
 
 	int ret_value = ERR_SYNAN;
-
 	switch (token.type) {
 	case T_WIF:
 	case T_WFOR:
@@ -356,13 +410,12 @@ int p_statlist() {
 
 	case T_RIGHTBRACET:
 		GET_TOKEN();
-
+		LOCAL_POP();
 		ret_value = ERR_RIGHT;
 		break;
 	default:
 		break;
 	}
-
 	return ret_value;
 }
 
@@ -378,6 +431,7 @@ int p_stat() {
 		VALUE_CHECK();
 
 		if (token.type == T_LEFTBRACET) {
+			;LOCAL_TOP();
 			GET_TOKEN();
 		}
 		else {
@@ -399,6 +453,7 @@ int p_stat() {
 		VALUE_CHECK();
 
 		if (token.type == T_WELSE) {
+			LOCAL_TOP();
 			GET_TOKEN();
 		} 
 		else {
@@ -429,6 +484,7 @@ int p_stat() {
 		
 		break;
 	case T_WFOR:
+		;LOCAL_TOP();
 		GET_TOKEN();
 
 		ret_value = p_defstat();
@@ -482,10 +538,12 @@ int p_stat() {
 		VALUE_CHECK();
 		break;
 	case T_ID:
+		;bool ad_res=nstring_add_str(saved_ID,token.data->string); if(!ad_res) return ERR_INTERNAL;
 		GET_TOKEN();
 
 		ret_value = p_idstat();
 		VALUE_CHECK();
+		nstring_clear(saved_ID);
 		break;
 	default:
 		break;
@@ -713,6 +771,11 @@ int p_idstat() {
 	case T_DOUBLEDOT:
 		GET_TOKEN();
 		
+		if( (token.type==T_INT) || (token.type==T_STRING )||(token.type == T_DOUBLE)){ 
+			ret_value=BTStack_newnode(&Act_scope,token.type, saved_ID);
+			VALUE_CHECK();
+		}
+
 		ret_value = expression();
 		VALUE_CHECK();
 		break;
