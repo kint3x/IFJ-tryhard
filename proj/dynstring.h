@@ -102,4 +102,12 @@ void nstring_print(Nstring *s);
 */
 void nstring_char_remove(Nstring *s);
 
+
+/**
+* @brief Vráti či je string prázdny
+* @return bool
+**/
+
+bool nstring_is_clear(Nstring *s);
+
 #endif
