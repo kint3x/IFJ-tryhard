@@ -65,9 +65,9 @@ void BTree_insertAoR(BTreePtr node,tType type);
 
 void BTStack_init(BTreeStackPtr *root);
 
-int BTStack_top(BTreeStackPtr *root,BTreePtr *change);
+int BTStack_top(BTreeStackPtr *root,BTreeStackPtr *change);
 
-void BTStack_pop(BTreeStackPtr *root,BTreePtr *change);
+void BTStack_pop(BTreeStackPtr *root,BTreeStackPtr *change);
 
 void BTStack_dispose(BTreeStackPtr *root);
 
@@ -75,4 +75,8 @@ BTreePtr BTStack_searchbyname(BTreeStackPtr *root,Nstring *s);
 
 void BTStack_printall(BTreeStackPtr *root);
 
+int BTStack_newnode(BTreeStackPtr *actual_tree,tType item, Nstring *n);
 #endif
+/*#define ADD_GLOBAL_FUNCTION() int res_add_gl= BTree_newnode(&Global_tree,T_WFUNC,token.data,&Act_func); if(res_add_gl!=ERR_RIGHT) return res_add_gl;
+#define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack;
+#define LOCAL_POP() BTStack_top(&Local_trees,&Act_scope);*/

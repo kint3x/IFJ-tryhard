@@ -139,8 +139,8 @@ void BTree_print(BTreePtr *root){
 	if((*root)!=NULL){
 		BTree_print(&((*root)->LPtr));
 		BTree_print(&((*root)->RPtr));
-		printf("<<BTREE NODE: type: %d, name: %s , args: %d:%s, returns: %d:%s>>\n",(*root)->item_type,(*root)->name->string,
-			(*root)->num_arguments,(*root)->args->string,(*root)->num_returns,(*root)->returns->string);
+		/*printf("<<BTREE NODE: type: %d, name: %s , args: %d:%s, returns: %d:%s>>\n",(*root)->item_type,(*root)->name->string,
+			(*root)->num_arguments,(*root)->args->string,(*root)->num_returns,(*root)->returns->string);*/
 	}
 }
 
@@ -161,41 +161,48 @@ void BTStack_dispose(BTreeStackPtr *root){
 }
 
 
-int BTStack_top(BTreeStackPtr *root,BTreePtr *change){
-	BTreeStackPtr prev=(*root);
+int BTStack_top(BTreeStackPtr *root,BTreeStackPtr *change){
+	//printf("TOP\n");
 	while((*root)!=NULL){
-		prev=(*root);
 		root=&((*root)->next);
 	}
 	(*root)=(BTreeStackPtr)malloc(sizeof(struct tree_stack));
 	if((*root)==NULL) return ERR_INTERNAL;
 	(*root)->root=NULL;
 	(*root)->next=NULL;
-	if(prev!=NULL){
-		prev->next=(*root);
-	}
-	(*change)=(*root)->root;
+
+	(*change)=(*root);
 	return ERR_RIGHT;
 }
 
-void BTStack_pop(BTreeStackPtr *root,BTreePtr *change){
-	BTreeStackPtr prev=NULL;
+void BTStack_pop(BTreeStackPtr *root,BTreeStackPtr *change){
+	//printf("POP\n");
+	BTreeStackPtr prechod=(*root);
+	BTreeStackPtr prev;
 
 	if((*root)==NULL){
 		fprintf(stderr, "SNazis sa popnut prazdny zasobnik BTree\n");
 		return;
 	}
 
-	while((*root)->next!=NULL){
-		prev = (*root);
-		root=&((*root)->next);
+	if(prechod->next==NULL){
+		(*root)=NULL;
+		(*change)=NULL;
+		BTree_dispose(&(prechod->root));
+		free(prechod);
+		return;
 	}
+	while(prechod->next!=NULL){
+		prev=prechod;
+		prechod=prechod->next;
+	}
+	BTree_dispose(&(prechod->root));
+	free(prechod);
+	prev->next=NULL;
+	(*change)=prev;
+	return;
 
-	BTree_dispose(&((*root)->root));
-	free((*root));
-	(*root)=NULL;
-	if(prev!=NULL) (*change)=prev->root;
-
+	
 }
 
 
@@ -216,4 +223,13 @@ void BTStack_printall(BTreeStackPtr *root){
 		printf("------------\n");
 		root=&((*root)->next);
 	}
+}
+
+int BTStack_newnode(BTreeStackPtr *actual_tree,tType item, Nstring *n){
+	BTreePtr change;
+	if((*actual_tree)==NULL){
+		fprintf(stderr, "SNAZIS SA VLOZIT PREMENNU DO ZIADNEHO STROMU\n");
+		return ERR_INTERNAL;
+	}
+	return BTree_newnode(&((*actual_tree)->root),item, n,&change);
 }
