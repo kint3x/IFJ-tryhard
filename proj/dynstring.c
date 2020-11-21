@@ -99,3 +99,9 @@ int nstring_cmp(Nstring *s, Nstring *d){
 	if(s==NULL || d==NULL) return -1;
 	return strcmp(s->string,d->string);
 }
+
+bool nstring_is_clear(Nstring *s){
+	if(s==NULL) return false;
+	if(strlen(s->string)>0) return false;
+	else return true;
+}
