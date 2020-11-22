@@ -110,4 +110,9 @@ void nstring_char_remove(Nstring *s);
 
 bool nstring_is_clear(Nstring *s);
 
+/**
+* @brief Porovná návratové hodnoty v dynstringoch pre semanticku analyzu
+* @return bool
+**/
+bool nstring_ret_cmp(Nstring *left,Nstring *right);
 #endif

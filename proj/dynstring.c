@@ -105,3 +105,18 @@ bool nstring_is_clear(Nstring *s){
 	if(strlen(s->string)>0) return false;
 	else return true;
 }
+
+bool nstring_ret_cmp(Nstring *left,Nstring *right){
+	if(left==NULL) return false;
+	if(right==NULL) return false;
+
+	if(strlen(left->string)!=strlen(right->string)) return false;
+	for(int i=0;i<strlen(left->string);i++){
+		if((left->string)[i]!=(right->string)[i]){
+			if((left->string)[i] != 'n'){
+				if((right->string)[i]!='n') return false;
+			}
+		}
+	}
+	return true;
+}
