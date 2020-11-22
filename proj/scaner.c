@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "scaner.h"
-
+#include "generator.h"
 int c; // variable for load chars from input
 
 int i = 1; // pocitadlo na zastavenie
@@ -771,16 +771,16 @@ Token *getNextToken()
 	}//end of while
 	return NULL;
 }
-/*
+
 int main() {
 	while (i) {
 
-	print_token(getNextToken());
+generatecodefromtoken(getNextToken());
 
 }
 
 	return 0;
-}*/
+}
 //funkce na vizualnu kontrolu tokenov
 void print_token(Token *token)
 {

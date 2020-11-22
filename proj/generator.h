@@ -9,8 +9,11 @@
 //funkce generatoru
 #include <stdio.h>
 #include <string.h>
-#include "scanner.h"
-#include "stable.h"
+#include "scaner.h"
+#include "err.h"
+#include "expr.h"
+#include "stack.h"
+//#include "stable.h"
 /**
  * funkce vygenerjue kod (IFJCODE20) z aktualne načteneho tokenu
  * funkce je volana  v syntaktickej analýze po každom vyhodnotení tokenu
@@ -18,14 +21,4 @@
  * @param table Lokální tabulka proměnných aktuální funkce
 */
 
-void generatecodefromtoken(Token *token ,  tree table)
-static int parametrs =  1; //počet parametrov
-
-{
-switch (token->type)
-  {
-
-  }
-
-
-}
+void generatecodefromtoken(Token *token );
