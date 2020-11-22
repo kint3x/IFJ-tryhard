@@ -73,8 +73,8 @@ int BTree_newnode(BTreePtr *root, tType item, Nstring *n, BTreePtr *setptr){
  	(*root)->LPtr=NULL;
  	(*root)->RPtr=NULL;
  	(*root)->AoR = 0;
- 	printf("<<Adding BTREE NODE: type: %d, name: %s , args: %d:%s, returns: %d:%s>>\n",(*root)->item_type,(*root)->name->string,
-			(*root)->num_arguments,(*root)->args->string,(*root)->num_returns,(*root)->returns->string);
+ 	/*printf("<<Adding BTREE NODE: type: %d, name: %s , args: %d:%s, returns: %d:%s>>\n",(*root)->item_type,(*root)->name->string,
+			(*root)->num_arguments,(*root)->args->string,(*root)->num_returns,(*root)->returns->string);*/
  	if(setptr!=NULL){
  		(*setptr)=(*root);
  	}
@@ -139,8 +139,8 @@ void BTree_print(BTreePtr *root){
 	if((*root)!=NULL){
 		BTree_print(&((*root)->LPtr));
 		BTree_print(&((*root)->RPtr));
-		/*printf("<<BTREE NODE: type: %d, name: %s , args: %d:%s, returns: %d:%s>>\n",(*root)->item_type,(*root)->name->string,
-			(*root)->num_arguments,(*root)->args->string,(*root)->num_returns,(*root)->returns->string);*/
+		printf("<<BTREE NODE: type: %d, name: %s , args: %d:%s, returns: %d:%s>>\n",(*root)->item_type,(*root)->name->string,
+			(*root)->num_arguments,(*root)->args->string,(*root)->num_returns,(*root)->returns->string);
 	}
 }
 
