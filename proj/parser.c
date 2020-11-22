@@ -209,11 +209,17 @@ int parse(){
 
 	ret_value=p_prog();
 
-	//SKONTROLUJE CI SA NACHADZA MAIN
+	//SKONTROLUJE CI SA NACHADZA MAIN a ma urceny pocet typov a argumentov
 	Nstring *find_main=nstring_init();
 	nstring_add_str(find_main,"main");
-	if(BTree_findbyname(&Global_tree,find_main)==NULL){
-		if(ret_value==ERR_RIGHT) ret_value=ERR_SEMAN_NOT_DEFINED;
+	BTreePtr find=BTree_findbyname(&Global_tree,find_main);
+	if(ret_value==ERR_RIGHT){
+		if(find==NULL){
+			ret_value=ERR_SEMAN_NOT_DEFINED;
+		}
+		else{
+			if((find->num_arguments != 0) || (find->num_returns !=0 )) return ERR_SEMAN_PARAMETERS;
+		}
 	}
 	nstring_free(find_main);
 	// END KONTROLY
@@ -249,6 +255,7 @@ int p_prog() {
 			VALUE_CHECK();
 		}
 		if (token.type == T_ID) {
+			if(nstring_str_cmp(token.data,"main")!=0){return ERR_SYNAN;}
 			GET_TOKEN();
 		}
 		else {
@@ -677,6 +684,7 @@ int p_stat() {
 
 		ret_value = p_idstat();
 		VALUE_CHECK();
+		nstring_clear(stack_left);
 		nstring_clear(saved_ID);
 		break;
 	default:
@@ -755,6 +763,7 @@ int p_idnext() {
 		GET_TOKEN();
 
 		if (token.type == T_ID) {
+			nstring_clear(saved_ID); nstring_add_str(saved_ID,(token.data)->string); // UCHOVAM ID
 			GET_TOKEN();
 
 			ret_value = p_idnext();
@@ -829,7 +838,12 @@ int p_termlist() {
 		break;
 
 	case T_RIGHTBR:
-		if((func_args->string)[termcount]!='\0') return ERR_SEMAN_PARAMETERS;
+		;printf("'%s' '%s'\n",stack_left->string,(BTree_findbyname(&Global_tree,saved_ID))->returns->string);
+		if((func_args->string)[termcount]!='\0') return ERR_SEMAN_PARAMETERS; // Mala mať funkcia argumenty ale nemala? Chyba!
+		if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
+			if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
+		}
+
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -856,6 +870,10 @@ int p_termnext() {
 		break;
 
 	case T_RIGHTBR:
+		if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
+			if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
+		}
+
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -873,7 +891,7 @@ int p_term() {
 
 	switch (token.type) {
 	case T_ID:
-		;
+		; // Nájde či premmenna existuje, porovná ci typy sedia podla indexu  termcount, v func_args mám skopírované argumenty funkcie v hlavičke
 		BTreePtr search = BTStack_searchbyname(&Local_trees,token.data); // vyhlada premennu
 		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // ak nenajde neexistuje
 		if(!PRINT){
@@ -939,17 +957,18 @@ int p_idstat() {
 	switch (token.type) {
 	case T_DOUBLEDOT:
 		GET_TOKEN();
+		saved_type=token.type; // ZATIAL TESTOVACIE
 
 		ret_value = expression(); // > odtialto dostanem saved_type
 		VALUE_CHECK();
 
 		//expr &saved_type//expr
-		/*if( (saved_type==T_INT) || (saved_type==T_STRING )||(saved_type == T_DOUBLE)){  //Prida premennu do stromu, ak nie je ani jedneho typu zavola chybu
+		if( (saved_type==T_INT) || (saved_type==T_STRING )||(saved_type == T_DOUBLE)){  //Prida premennu do stromu, ak nie je ani jedneho typu zavola chybu
 			ret_value=BTStack_newnode(&Act_scope,saved_type, saved_ID);
 			VALUE_CHECK();
 		}
 		else return ERR_SEMAN_OTHERS;
-		*/
+		
 
 		break;
 
@@ -962,13 +981,14 @@ int p_idstat() {
 		VALUE_CHECK();
 		break;
 	case T_LEFTBR:
-		//SEMSOM
+		
+		if((BTStack_searchbyname(&Local_trees,saved_ID))!=NULL) return ERR_SEMAN_OTHERS;
 		if(nstring_str_cmp(saved_ID,"print")==0) PRINT=true;
 		else PRINT = false;
 
 		BTreePtr search = BTree_findbyname(&Global_tree,saved_ID); // pokusi sa najst funkciu v strome
 		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // funkcia neexistuje
-		nstring_clear(func_args); // vynuluje lavy zasobnik
+		nstring_clear(func_args); // vynuluje zasobnik pre argumenty funkcie
 		nstring_add_str(func_args,search->args->string); // prida argumenty funkcie do zasobníka
 
 		GET_TOKEN();
