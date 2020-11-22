@@ -28,7 +28,7 @@ typedef struct BTree {
 	int key;
 
 	tType item_type; //Pre keyword
-	Variabile var_type;
+	//Variabile var_type;
 	Nstring *name;
 	unsigned short int AoR;
 	unsigned short int num_arguments;
