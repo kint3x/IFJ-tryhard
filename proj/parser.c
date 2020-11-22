@@ -23,8 +23,33 @@
 #define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack;
 #define LOCAL_POP() BTStack_pop(&Local_trees,&Act_scope);
 
+#define SEARCH_AND_PUSH() ; if(1){\
+Nstring *tmp=nstring_init();\
+nstring_add_char(tmp,'_');\
+if(nstring_cmp(saved_ID,tmp)==0){\
+	nstring_add_char(stack_left,'n');\
+}\
+else{\
+	nstring_free(tmp);\
+	tmp=NULL;\
+	BTreePtr search = BTStack_searchbyname(&Local_trees,saved_ID);\
+	if(search==NULL) return ERR_SEMAN_NOT_DEFINED;\
+	if(search->item_type==T_INT) nstring_add_char(stack_left,'i');\
+	if(search->item_type==T_STRING) nstring_add_char(stack_left,'s');\
+	if(search->item_type==T_DOUBLE) nstring_add_char(stack_left,'i');\
+ }\
+ nstring_free(tmp);\
+}
+
 bool BOOL_IN_FUNCTION;
-Nstring *saved_ID;tType saved_type;
+bool PRINT;
+Nstring *saved_ID;
+tType saved_type;
+int termcount;
+
+Nstring *stack_left;
+Nstring *func_args;
+
 
 BTreeStackPtr Local_trees;
 BTreeStackPtr Act_scope;
@@ -63,7 +88,7 @@ void p_getnexttoken() {
 		token.data = NULL;
 
 		Token *t = getNextToken();   // NACITAME NOVY TOKEN
-		//print_token(t);
+		print_token(t);
 		token.type = t->type;
 		token.data = t->data;
 		free(t);					// UVOLNIME STRUKTURU 
@@ -168,7 +193,11 @@ void init_global_var(){
 	Act_func=NULL;
 	Act_scope=NULL;
 	Global_tree=NULL;
+	saved_type=T_UNKNOWN;
 	saved_ID=nstring_init();
+	stack_left=nstring_init();
+	func_args=nstring_init();
+	termcount=0;
 	Init_builtinfunct();
 
 }
@@ -189,10 +218,13 @@ int parse(){
 	nstring_free(find_main);
 	// END KONTROLY
 
-	BTree_print(&Global_tree);
+	//BTree_print(&Global_tree);
+	BTStack_printall(&Local_trees);
 	BTree_dispose(&Global_tree);
 	BTStack_dispose(&Local_trees);
 	nstring_free(saved_ID);
+	nstring_free(stack_left);
+	nstring_free(func_args);
 	if(token.type!=T_END_OF_FILE)nstring_free(token.data); // uvolnit nstring v token.data
 	return ret_value;
 }
@@ -639,6 +671,8 @@ int p_stat() {
 		break;
 	case T_ID:
 		;bool ad_res=nstring_add_str(saved_ID,token.data->string); if(!ad_res) return ERR_INTERNAL;
+		saved_type=token.type;
+
 		GET_TOKEN();
 
 		ret_value = p_idstat();
@@ -717,6 +751,7 @@ int p_idnext() {
 
 	switch (token.type) {
 	case T_COMMA:
+		SEARCH_AND_PUSH();
 		GET_TOKEN();
 
 		if (token.type == T_ID) {
@@ -729,6 +764,8 @@ int p_idnext() {
 		break;
 
 	case T_ASSIGN:
+		SEARCH_AND_PUSH();
+
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -792,6 +829,7 @@ int p_termlist() {
 		break;
 
 	case T_RIGHTBR:
+		if((func_args->string)[termcount]!='\0') return ERR_SEMAN_PARAMETERS;
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -835,23 +873,54 @@ int p_term() {
 
 	switch (token.type) {
 	case T_ID:
+		;
+		BTreePtr search = BTStack_searchbyname(&Local_trees,token.data); // vyhlada premennu
+		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // ak nenajde neexistuje
+		if(!PRINT){
+		char cmp;
+		if(search->item_type==T_INT){cmp = 'i';} if(search->item_type==T_DOUBLE){ cmp = 'f';} if(search->item_type==T_STRING){cmp = 's';}
+		if(cmp!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
+		termcount++;
+		}
+		else { 
+
+		//VOLA GENERATOR PRINT
+		}
+
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
 		break;
 
 	case T_INT:
+	   	;if(!PRINT){
+		if('i'!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
+		termcount++;
+	  	}
+	  	else { //VOLA GENERATOR PRINT
+		}
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
 		break;
 
 	case T_STRING:
+		;if(!PRINT){
+		if('s'!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
+		termcount++;}
+		else { //VOLA GENERATOR PRINT
+		}
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
 		break;
 	case T_DOUBLE:
+		;if(!PRINT){
+		if('f'!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
+		termcount++; }
+		else { //VOLA GENERATOR PRINT
+		}
+
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -870,14 +939,18 @@ int p_idstat() {
 	switch (token.type) {
 	case T_DOUBLEDOT:
 		GET_TOKEN();
-		
-		if( (token.type==T_INT) || (token.type==T_STRING )||(token.type == T_DOUBLE)){ 
-			ret_value=BTStack_newnode(&Act_scope,token.type, saved_ID);
+
+		ret_value = expression(); // > odtialto dostanem saved_type
+		VALUE_CHECK();
+
+		//expr &saved_type//expr
+		/*if( (saved_type==T_INT) || (saved_type==T_STRING )||(saved_type == T_DOUBLE)){  //Prida premennu do stromu, ak nie je ani jedneho typu zavola chybu
+			ret_value=BTStack_newnode(&Act_scope,saved_type, saved_ID);
 			VALUE_CHECK();
 		}
+		else return ERR_SEMAN_OTHERS;
+		*/
 
-		ret_value = expression();
-		VALUE_CHECK();
 		break;
 
 	case T_COMMA:
@@ -889,10 +962,21 @@ int p_idstat() {
 		VALUE_CHECK();
 		break;
 	case T_LEFTBR:
+		//SEMSOM
+		if(nstring_str_cmp(saved_ID,"print")==0) PRINT=true;
+		else PRINT = false;
+
+		BTreePtr search = BTree_findbyname(&Global_tree,saved_ID); // pokusi sa najst funkciu v strome
+		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // funkcia neexistuje
+		nstring_clear(func_args); // vynuluje lavy zasobnik
+		nstring_add_str(func_args,search->args->string); // prida argumenty funkcie do zasobníka
+
 		GET_TOKEN();
 
+		termcount=0;
 		ret_value = p_termlist();
 		VALUE_CHECK();
+		termcount=0;
 		break;
 	default:
 		break;
@@ -916,6 +1000,14 @@ int p_exprorid() {
 			PEEK_TOKEN();
 			
 			if (tokenp.type == T_LEFTBR) {
+				if(nstring_str_cmp(token.data,"print")==0) PRINT=true;
+				else PRINT = false;
+				nstring_clear(saved_ID); nstring_add_str(saved_ID,(token.data)->string); // uchova id
+				BTreePtr search = BTree_findbyname(&Global_tree,saved_ID); // pokusi sa najst funkciu v strome
+				if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // funkcia neexistuje
+				nstring_clear(func_args); // vynuluje lavy zasobnik
+				nstring_add_str(func_args,search->args->string); // prida argumenty funkcie do zasobníka
+
 				GET_TOKEN();
 				GET_TOKEN();
 
