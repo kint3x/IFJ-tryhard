@@ -19,6 +19,7 @@
 #define GET_TOKEN() p_getnexttoken(); if ((token.type == T_UNKNOWN) || (token.type == T_ERR)) return ERR_LEXSCAN; 
 #define PEEK_TOKEN() peek_nexttoken(); if ((tokenp.type == T_UNKNOWN) || (tokenp.type == T_ERR)) return ERR_LEXSCAN; 
 
+int Init_builtinfunct();
 void p_getnexttoken();
 int parse();
 int p_prog();

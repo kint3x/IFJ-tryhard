@@ -7,6 +7,9 @@
  * @author Martin Matějka <xmatej55@vutbr.cz>
  */
 
+// #TODO napchať do global tree dopredu definované funkcie 
+// #TODO vyhodnocovanie returnov 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -67,7 +70,94 @@ void p_getnexttoken() {
 	}
 }
 
+int Init_builtinfunct(){
+	BTreePtr new=NULL;
+	Nstring *news=nstring_init();
+
+	if(!nstring_add_str(news,"inputs")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(!nstring_add_str(new->returns,"si")) return ERR_INTERNAL;
+	new->num_returns = 2;
+
+	nstring_clear(news);
+
+	if(!nstring_add_str(news,"inputi")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(!nstring_add_str(new->returns,"ii")) return ERR_INTERNAL;
+	new->num_returns = 2;
+
+	nstring_clear(news);
+
+	if(!nstring_add_str(news,"inputf")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(!nstring_add_str(new->returns,"fi")) return ERR_INTERNAL;
+	new->num_returns = 2;
+
+	nstring_clear(news);
+
+	if(!nstring_add_str(news,"print")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+
+	nstring_clear(news);
+
+	if(!nstring_add_str(news,"int2float")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(!nstring_add_str(new->returns,"f")) return ERR_INTERNAL;
+	if(!nstring_add_str(new->args,"i")) return ERR_INTERNAL;
+	new->num_returns = 1;
+	new->num_arguments = 1;
+
+	nstring_clear(news);
+
+	if(!nstring_add_str(news,"float2int")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(!nstring_add_str(new->returns,"i")) return ERR_INTERNAL;
+	if(!nstring_add_str(new->args,"f")) return ERR_INTERNAL;
+	new->num_returns = 1;
+	new->num_arguments = 1;
+
+	nstring_clear(news);
+
+	if(!nstring_add_str(news,"len")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(!nstring_add_str(new->returns,"i")) return ERR_INTERNAL;
+	if(!nstring_add_str(new->args,"s")) return ERR_INTERNAL;
+	new->num_returns = 1;
+	new->num_arguments = 1;
+
+	nstring_clear(news);
+
+	if(!nstring_add_str(news,"substr")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(!nstring_add_str(new->returns,"si")) return ERR_INTERNAL;
+	if(!nstring_add_str(new->args,"sii")) return ERR_INTERNAL;
+	new->num_returns = 2;
+	new->num_arguments = 3;
+
+	nstring_clear(news);
+
+	if(!nstring_add_str(news,"ord")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(!nstring_add_str(new->returns,"ii")) return ERR_INTERNAL;
+	if(!nstring_add_str(new->args,"si")) return ERR_INTERNAL;
+	new->num_returns = 2;
+	new->num_arguments = 2;
+
+	nstring_clear(news);
+
+	if(!nstring_add_str(news,"chr")) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(!nstring_add_str(new->returns,"si")) return ERR_INTERNAL;
+	if(!nstring_add_str(new->args,"i")) return ERR_INTERNAL;
+	new->num_returns = 2;
+	new->num_arguments = 1;
+
+	nstring_free(news);
+	return ERR_RIGHT;
+}
+
 void init_global_var(){
+	
 	token.type = T_UNKNOWN; // Inicializacia 
 	token.data = NULL; // Nastavi dynstring na NULL
 	tokenp.data = NULL;
@@ -78,6 +168,7 @@ void init_global_var(){
 	Act_scope=NULL;
 	Global_tree=NULL;
 	saved_ID=nstring_init();
+	Init_builtinfunct();
 
 }
 
@@ -86,8 +177,16 @@ int parse(){
 
 	init_global_var();
 
-
 	ret_value=p_prog();
+
+	//SKONTROLUJE CI SA NACHADZA MAIN
+	Nstring *find_main=nstring_init();
+	nstring_add_str(find_main,"main");
+	if(BTree_findbyname(&Global_tree,find_main)==NULL){
+		if(ret_value==ERR_RIGHT) ret_value=ERR_SEMAN_NOT_DEFINED;
+	}
+	nstring_free(find_main);
+	// END KONTROLY
 
 	BTree_print(&Global_tree);
 	BTree_dispose(&Global_tree);
