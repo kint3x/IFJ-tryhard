@@ -5,6 +5,14 @@
  *
  * @author Matej Kocman <xkocma07@vutbr.cz>
  */
+// #TODO -> Najprv si uložiť pri prvom terminále akého typu bude celý výraz, ten potom vraciaš pomocou odkazu na tType
+// volanie funkcie bude vyzerať int expr(tType *change,BTreeStackPtr ptr)  na všetky scopy ) použiť funkciu na hladanie
+//BTreePtr BTStack_searchbyname(BTreeStackPtr *root,Nstring *s) 
+// search= BTStack_searchbyname(&ptr,token.data) -> vráti NULL ak neexistuje, inak vráti odkaz na v strome, search->item_type (T_INT,T_STRING,T_DOUBLE)
+
+//#TODO -> ak spájaš dva výrazy iného typu, vyhodíš chybu 5 ERR_SEMAN_TYPE_COMPATIBILITY
+//#TODO -> Delenie nulou ERR_ZERO_DIVIDING    
+
 #include <stdlib.h>
 #include "parser.h"
 #include "scaner.h"

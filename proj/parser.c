@@ -7,8 +7,9 @@
  * @author Martin Matějka <xmatej55@vutbr.cz>
  */
 
-// #TODO napchať do global tree dopredu definované funkcie 
-// #TODO vyhodnocovanie returnov 
+// #TODO vyhodnocovanie returnov -> expr
+// #TODO vyhodnotenie funkcii do premenny -> spolu s expr
+//#TODO err_stack  nstring "si" id func "kebab"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,7 +24,7 @@
 #define LOCAL_POP() BTStack_pop(&Local_trees,&Act_scope);
 
 bool BOOL_IN_FUNCTION;
-Nstring *saved_ID;
+Nstring *saved_ID;tType saved_type;
 
 BTreeStackPtr Local_trees;
 BTreeStackPtr Act_scope;
