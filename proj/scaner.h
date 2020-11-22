@@ -7,7 +7,6 @@
 #pragma once
 #include <stdio.h>
 #include "err.h"
-
 #include "dynstring.h"
 //jednotlive typy
 typedef enum
