@@ -81,3 +81,51 @@ void nstring_char_remove(Nstring *s){
 	s->string_size -= 1;
 	s->string[s->string_size]='\0';
 }
+
+int nstring_cmp(Nstring *s, Nstring *d){
+	if(s==NULL || d==NULL) return -1;
+	return strcmp(s->string,d->string);
+}
+
+bool nstring_is_clear(Nstring *s){
+	if(s==NULL) return false;
+	if(strlen(s->string)>0) return false;
+	else return true;
+}
+
+bool nstring_ret_cmp(Nstring *left,Nstring *right){
+	if(left==NULL) return false;
+	if(right==NULL) return false;
+
+	if(strlen(left->string)!=strlen(right->string)) return false;
+	for(int i=0;i<strlen(left->string);i++){
+		if((left->string)[i]!=(right->string)[i]){
+			if((left->string)[i] != 'n'){
+				if((right->string)[i]!='n') return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool nstring_cpy(Nstring *a, Nstring *b){
+	if(a==NULL) return false;
+	if(b==NULL) return false;
+
+	nstring_clear(b);
+	if(!nstring_add_str(b,a->string)) return false;
+	return true;
+}
+
+int nstring_len(Nstring *s){
+	return s->string_size;
+}
+
+int nstring_2int(Nstring *s){
+	return atoi(s->string);
+}
+
+
+double nstring_3float(Nstring *s){
+	return atof(s->string);
+}

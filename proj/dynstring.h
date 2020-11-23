@@ -93,4 +93,41 @@ void nstring_print(Nstring *s);
 */
 void nstring_char_remove(Nstring *s);
 
+
+/**
+* @brief Vráti či je string prázdny
+* @return bool
+**/
+
+bool nstring_is_clear(Nstring *s);
+
+/**
+* @brief Porovná návratové hodnoty v dynstringoch pre semanticku analyzu
+* @return bool
+**/
+bool nstring_ret_cmp(Nstring *left,Nstring *right);
+
+/**
+* @brief Kopíruje dynstring a do dynstringu b
+* @return bool
+**/
+bool nstring_cpy(Nstring *a, Nstring *b);
+
+/**
+* @brief Vráti dĺžku dynstringu
+* @return dĺžka
+**/
+int nstring_len(Nstring *s);
+
+/**
+* @brief Vráti obsah nstringu v int
+* @return int
+**/
+int nstring_2int(Nstring *s);
+
+/**
+* @brief Vráti obsah nstringu vo floate
+* @return float
+**/
+double nstring_3float(Nstring *s);
 #endif
