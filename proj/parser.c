@@ -8,8 +8,8 @@
  */
 
 // #TODO vyhodnocovanie returnov -> expr
+// #TODO conditions, for 
 // #TODO vyhodnotenie funkcii do premenny -> spolu s expr
-//#TODO err_stack  nstring "si" id func "kebab"
 
 #include <stdio.h>
 #include <stdlib.h>
