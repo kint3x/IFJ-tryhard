@@ -134,3 +134,12 @@ bool nstring_cpy(Nstring *a, Nstring *b){
 int nstring_len(Nstring *s){
 	return s->string_size;
 }
+
+int nstring_2int(Nstring *s){
+	return atoi(s->string);
+}
+
+
+double nstring_3float(Nstring *s){
+	return atof(s->string);
+}

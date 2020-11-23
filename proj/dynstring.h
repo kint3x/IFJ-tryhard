@@ -127,4 +127,16 @@ bool nstring_cpy(Nstring *a, Nstring *b);
 * @return dĺžka
 **/
 int nstring_len(Nstring *s);
+
+/**
+* @brief Vráti obsah nstringu v int
+* @return int
+**/
+int nstring_2int(Nstring *s);
+
+/**
+* @brief Vráti obsah nstringu vo floate
+* @return float
+**/
+double nstring_3float(Nstring *s);
 #endif
