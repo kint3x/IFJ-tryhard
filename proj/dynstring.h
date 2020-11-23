@@ -115,4 +115,16 @@ bool nstring_is_clear(Nstring *s);
 * @return bool
 **/
 bool nstring_ret_cmp(Nstring *left,Nstring *right);
+
+/**
+* @brief Kopíruje dynstring a do dynstringu b
+* @return bool
+**/
+bool nstring_cpy(Nstring *a, Nstring *b);
+
+/**
+* @brief Vráti dĺžku dynstringu
+* @return dĺžka
+**/
+int nstring_len(Nstring *s);
 #endif

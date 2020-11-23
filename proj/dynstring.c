@@ -56,6 +56,7 @@ bool nstring_add_str(Nstring *s, char *str){
 		s->allocated_size+=strlen(str)+1;
 	}
 	strcpy(s->string+s->string_size,str);
+	s->string_size+=strlen(str);
 	return true;
 }
 
@@ -119,4 +120,17 @@ bool nstring_ret_cmp(Nstring *left,Nstring *right){
 		}
 	}
 	return true;
+}
+
+bool nstring_cpy(Nstring *a, Nstring *b){
+	if(a==NULL) return false;
+	if(b==NULL) return false;
+
+	nstring_clear(b);
+	if(!nstring_add_str(b,a->string)) return false;
+	return true;
+}
+
+int nstring_len(Nstring *s){
+	return s->string_size;
 }
