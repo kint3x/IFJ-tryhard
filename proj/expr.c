@@ -190,10 +190,10 @@ int reduce_stack(bool *rel_flag) {
 }
 
 
-int expression() {
+int expression(tType *change,bool *cond,BTreeStackPtr Local_trees) {
 
 	int ret_value = ERR_SYNAN;
-
+	(*change)=T_UNKNOWN;
 	bool relation_op_flag = false;
 	init_stack();
 	item *top_term = top_terminal();
@@ -202,14 +202,25 @@ int expression() {
 		switch (prec_table[top_term->lex][token_convert()]) {
 		case '<':
 			top_term->handle = true;
+			if((ret_value=sem_check_var(change,Local_trees))!=ERR_RIGHT){
+				delete_stack();
+				return ret_value;
+			}
 			push(token_convert());
 			GET_TOKEN();
 			break;
 		case '>':
 			ret_value = reduce_stack(&relation_op_flag);
-			VALUE_CHECK();
+			if(ret_value!=ERR_RIGHT){
+				delete_stack();
+				return ret_value;
+			}
 			break;
 		case '=':
+			if((ret_value=sem_check_var(change,Local_trees))!=ERR_RIGHT){
+				delete_stack();
+				return ret_value;
+			}
 			push(token_convert());
 			GET_TOKEN();
 			break;
@@ -225,6 +236,51 @@ int expression() {
 		ret_value = ERR_RIGHT;
 	}
 
+	(*cond) = relation_op_flag;
 	delete_stack();
 	return ret_value;
+}
+
+int sem_check_var(tType *change,BTreeStackPtr Local_trees){
+
+	if(token.type==T_ID){
+		BTreePtr search = BTStack_searchbyname(&Local_trees,token.data); // vyhlada premennu
+		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // ak nenajde neexistuje
+		
+		if((*change)==T_UNKNOWN){
+			(*change)=search->item_type;
+		}else{
+			if(search->item_type!=(*change)){
+				return ERR_SEMAN_TYPE_COMPATIBILITY;
+			}
+		}
+	}
+	else if(token.type==T_INT){
+		if((*change)==T_UNKNOWN){
+			(*change)=T_INT;
+		}else{
+			if(T_INT!=(*change)){
+				return ERR_SEMAN_TYPE_COMPATIBILITY;
+			}
+		}
+	}
+	else if(token.type==T_STRING){
+		if((*change)==T_UNKNOWN){
+			(*change)=T_STRING;
+		}else{
+			if(T_STRING!=(*change)){
+				return ERR_SEMAN_TYPE_COMPATIBILITY;
+			}
+		}
+	}
+	else if(token.type==T_DOUBLE){
+		if((*change)==T_UNKNOWN){
+			(*change)=T_DOUBLE;
+		}else{
+			if(T_DOUBLE!=(*change)){
+				return ERR_SEMAN_TYPE_COMPATIBILITY;
+			}
+		}
+	}
+	return ERR_RIGHT;
 }
