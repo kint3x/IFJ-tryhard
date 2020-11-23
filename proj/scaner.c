@@ -932,3 +932,14 @@ void print_token(Token *token)
 
 	return 1;
 }*/
+void nstring_push_type(Nstring *s,tType type){
+	if(type==T_INT){
+		nstring_add_char(s,'i');
+	}
+	if(type==T_STRING){
+		nstring_add_char(s,'s');
+	}
+	if(type==T_DOUBLE){
+		nstring_add_char(s,'f');
+	}
+}
