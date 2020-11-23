@@ -242,7 +242,7 @@ int parse(){
 		}
 		else{
 			if((find->num_arguments != 0) || (find->num_returns !=0 )) {
-				return ERR_SEMAN_PARAMETERS;
+				ret_value= ERR_SEMAN_PARAMETERS;
 			}
 		}
 	}
