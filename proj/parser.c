@@ -426,7 +426,18 @@ int p_datatypelist() {
 	switch (token.type) {
 	case T_LEFTBR:
 		GET_TOKEN();
-
+		//CHANGED PARSER # Tento block som pridal aby podporovalo fun id()()
+		if(token.type==T_RIGHTBR){
+			GET_TOKEN();
+			if(token.type==T_LEFTBRACET){
+				GET_TOKEN();
+				if(token.type==T_EOL){
+					ret_value=p_opteol();
+					VALUE_CHECK();
+				}
+			}
+			break;
+		}
 		ret_value = p_datatype();
 		VALUE_CHECK();
 		ret_value = p_datatypenext();
