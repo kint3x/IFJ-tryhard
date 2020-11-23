@@ -22,6 +22,7 @@
 #define PEEK_TOKEN() peek_nexttoken(); if ((tokenp.type == T_UNKNOWN) || (tokenp.type == T_ERR)) return ERR_LEXSCAN; 
 
 int Init_builtinfunct();
+void stderr_print(int ret_value);
 void p_getnexttoken();
 int parse();
 int p_prog();

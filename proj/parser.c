@@ -8,13 +8,14 @@
  */
 
 // #TODO vyhodnocovanie returnov -> expr
-// #TODO conditions, for 
+// #TODO conditions, for 
 // #TODO vyhodnotenie funkcii do premenny -> spolu s expr
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include "parser.h"
+#include "scaner.h"
 
 #define ADD_GLOBAL_FUNCTION() int res_add_gl= BTree_newnode(&Global_tree,T_WFUNC,token.data,&Act_func); if(res_add_gl!=ERR_RIGHT) return res_add_gl;
 #define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack;
@@ -40,6 +41,9 @@ else{\
 
 bool BOOL_IN_FUNCTION;
 bool BOOL_DEFINED_FUN;
+bool BOOL_IN_RETURN;
+bool BOOL_IN_WFOR;
+
 bool PRINT;
 Nstring *saved_ID;
 tType saved_type;
@@ -47,6 +51,7 @@ int termcount;
 
 Nstring *stack_left;
 Nstring *func_args;
+Nstring *right_expr;
 
 EStackPtr Err_stack;
 
@@ -94,6 +99,23 @@ void p_getnexttoken() {
 		t = NULL;
 	}
 }
+ void stderr_print(int ret_value){
+ 	if(ret_value==ERR_SEMAN_NOT_DEFINED){
+ 		fprintf(stderr, "semantická chyba v programu – nedefinovaná funkce/promenna, pokus o redefi-nici funkce/promenne, atp\n");
+ 	}
+ 	if(ret_value==ERR_SEMAN_TYPE_COMPATIBILITY){
+ 		fprintf(stderr, "semanticka chyba typove kompatibility v aritmetickych, retezcovych a relacnich vyrazech\n");
+ 	}
+ 	if(ret_value==ERR_SEMAN_PARAMETERS){
+ 		fprintf(stderr, "semantická chyba v programu – spatny pocet/typ parametru ci navratovych hodnotu volani funkce ci navratu z funkce.\n");
+ 	}
+ 	if(ret_value==ERR_SEMAN_OTHERS){
+ 		fprintf(stderr, "ostatni semanticke chyby\n");
+ 	}
+ 	if(ret_value==ERR_ZERO_DIVIDING){
+ 		fprintf(stderr, "deleni nulou\n");
+ 	}
+ }
 
 int Init_builtinfunct(){
 	BTreePtr new=NULL;
@@ -197,6 +219,7 @@ void init_global_var(){
 	saved_ID=nstring_init();
 	stack_left=nstring_init();
 	func_args=nstring_init();
+	right_expr=nstring_init();
 	termcount=0;
 	Init_builtinfunct();
 
@@ -218,7 +241,9 @@ int parse(){
 			ret_value=ERR_SEMAN_NOT_DEFINED;
 		}
 		else{
-			if((find->num_arguments != 0) || (find->num_returns !=0 )) return ERR_SEMAN_PARAMETERS;
+			if((find->num_arguments != 0) || (find->num_returns !=0 )) {
+				return ERR_SEMAN_PARAMETERS;
+			}
 		}
 	}
 	nstring_free(find_main);
@@ -235,7 +260,10 @@ int parse(){
 	nstring_free(saved_ID);
 	nstring_free(stack_left);
 	nstring_free(func_args);
+	nstring_free(right_expr);
 	if(token.type!=T_END_OF_FILE)nstring_free(token.data); // uvolnit nstring v token.data
+
+	stderr_print(ret_value);
 	return ret_value;
 }
 
@@ -581,8 +609,11 @@ int p_stat() {
 	case T_WIF:
 		GET_TOKEN();
 		
-		ret_value = expression();
+		bool tmp_cond;  // semanticka kontrola či je podmienka v ife
+		tType tmp_check;
+		ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 		VALUE_CHECK();
+		if(!tmp_cond) return ERR_SEMAN_OTHERS; // semanticka chyba ak nie
 
 		if (token.type == T_LEFTBRACET) {
 			;LOCAL_TOP();
@@ -652,8 +683,9 @@ int p_stat() {
 			VALUE_CHECK();
 		}
 
-		ret_value = expression();
+		ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 		VALUE_CHECK();
+		if(!tmp_cond) return ERR_SEMAN_OTHERS; // semanticka chyba ak nie je podmienka
 
 		if (token.type == T_SEMI) {
 			GET_TOKEN();
@@ -697,8 +729,10 @@ int p_stat() {
 
 		GET_TOKEN();
 
+
 		ret_value = p_idstat();
 		VALUE_CHECK();
+
 		nstring_clear(stack_left);
 		nstring_clear(saved_ID);
 		break;
@@ -718,8 +752,11 @@ int p_defstat() {
 		if (token.type == T_DOUBLEDOT) {     
 			GET_TOKEN();
 
-			ret_value = expression();
+			bool tmp_cond;
+			tType tmp_check;
+			ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 			VALUE_CHECK();
+			if(tmp_cond) return ERR_SEMAN_OTHERS; // v definicii nemoze byt relacny operator
 		} 
 		break;
 
@@ -804,9 +841,12 @@ int p_idnext() {
 int p_expressionlist() {
 	
 	int ret_value = ERR_SYNAN;
-
-	ret_value = expression();
+	nstring_clear(right_expr);
+	bool tmp_cond;
+	tType tmp_check;
+	ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 	VALUE_CHECK();
+	nstring_push_type(right_expr,tmp_check);
 
 	ret_value = p_expressionnext();
 	VALUE_CHECK();
@@ -822,13 +862,27 @@ int p_expressionnext() {
 		case T_COMMA:
 			GET_TOKEN();
 
-			ret_value = expression();
+			bool tmp_cond;
+			tType tmp_check;
+			ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 			VALUE_CHECK();
+			nstring_push_type(right_expr,tmp_check);
+
 			ret_value = p_expressionnext();
 			VALUE_CHECK();
 			break;
 		case T_LEFTBRACET:
 		case T_EOL:
+			if(BOOL_IN_RETURN){
+
+			}
+			else if(BOOL_IN_WFOR){
+
+			}
+			else{
+				printf("SOM TU porovnavam %s s %s\n",stack_left->string,right_expr->string);
+				if(!nstring_ret_cmp(stack_left,right_expr)) return ERR_SEMAN_PARAMETERS;  //kontrola ci priradzovanie premmenny je spravny pocet/typ id,id2 = 5 , b
+			}
 			ret_value = ERR_RIGHT;
 			break;
 		default:
@@ -1013,12 +1067,12 @@ int p_idstat() {
 	switch (token.type) {
 	case T_DOUBLEDOT:
 		GET_TOKEN();
-		saved_type=token.type; // ZATIAL TESTOVACIE
-
-		ret_value = expression(); // > odtialto dostanem saved_type
+		
+		bool tmp_cond;
+		ret_value = expression(&saved_type,&tmp_cond,Local_trees); // > odtialto dostanem saved_type
 		VALUE_CHECK();
+		if(tmp_cond) return ERR_SEMAN_OTHERS; // Nemôžeme priradit bool operatory
 
-		//expr &saved_type//expr
 		if( (saved_type==T_INT) || (saved_type==T_STRING )||(saved_type == T_DOUBLE)){  //Prida premennu do stromu, ak nie je ani jedneho typu zavola chybu
 			ret_value=BTStack_newnode(&Act_scope,saved_type, saved_ID);
 			VALUE_CHECK();
