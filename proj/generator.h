@@ -13,6 +13,15 @@
 #include "err.h"
 #include "expr.h"
 #include "stack.h"
+#include "dynstring.h"
+
+
+typedef
+
+    Nstring *
+        Code;
+
+
 //#include "stable.h"
 /**
  * funkce vygenerjue kod (IFJCODE20) z aktualne načteneho tokenu
@@ -22,3 +31,4 @@
 */
 
 void generatecodefromtoken(Token *token );
+Nstring savecodetopoolchar (char str[], char str2[]);

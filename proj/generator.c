@@ -11,31 +11,64 @@
 void generatecodefromtoken(Token *token){
 //premenne
   //  static int parametrs =  1; //počet parametrov
-print_token(token);
+  //  print_token(token);
+ //= nstring_init();
+
+
+
+
+
+
+
+    static bool package = false; //bol package v uvode čakam až kym nepride eol
     static bool funcCall = false;  // volá sa funkce
+    static bool funcDEF = false;  // definuje sa funkce
+    static char *id;
 
 
 
-      	static long counter = 1;
-        	printf("\nGENERACE KODU Z TOKENU-\n");
+	static long counter = 1;
 
-      	printf("of type: ");
 
+
+  if (package){
+
+      switch (token->type)
+              {
+                  case T_EOL:
+                    package = false;
+                    break;
+                  }
+                }
+  else if (funcCall)
+{
+  switch (token->type)
+  {case T_ID:
+    *id = token->type;
+  break;
+  case T_EOL:
+  printf("JUMP $$");
+  nstring_print(*id);
+    printf("\n");
+
+  funcCall = false;
+  break;
+}
+}
+  else  {
       	switch (token->type)
       	{
-      	case T_UNKNOWN:
-      		printf("UNKNOWN");
-      		break;
-
 
       	case T_EOL:
       		printf("EOL");
       		break;
       		case T_ID:
+
+
       		printf("ID");
       		break;
       	case T_END_OF_FILE:
-      		printf("EOF");
+      		printf("EOF\n");
       		break;
       	case T_WELSE:
       		printf("ELSE");
@@ -47,7 +80,8 @@ print_token(token);
       			printf("WFOR");
       			break;
       		case T_WFUNC:
-      			printf("WFUNC");
+      			//definujem funkciu
+            funcCall = true;
       			break;
       		case T_WINT:
       			printf("WINT");
@@ -61,12 +95,7 @@ print_token(token);
       		case T_SEMI:
       		printf("SEMI");
       		break;
-      		case T_LEFTBRACET:
-      		printf("LEFTBRACET");
-      		break;
-      		case T_RIGHTBRACET:
-      		printf("RIGHTBRACET");
-      		break;
+
       		case T_WRETURN:
       		printf("WRETURN");
       		break;
@@ -145,15 +174,15 @@ print_token(token);
       	case T_NOTEQUAL:
       		printf("NOTEQUAL");
       		break;
-      		case T_WPACKAGE:
-      			printf("PACKAGE");
+      		case T_WPACKAGE://korektne začatý program generujem hlavičku
+      			printf(".IFJcode20\n");
+            package = true;
+            // bol package takže
       			break;
       	case T_ERR:
       		printf("T_ERR");
       		break;
 
-      	}
-      //	nstring_print(token->data);
-      // tiskne na konci "\n"
-      	printf("\n--------------------\n");
+      	}}
+
       }
