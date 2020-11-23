@@ -15,9 +15,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "parser.h"
-#include "scaner.h"
-#include "expr.h"
-#include "symtable.h"
 
 #define ADD_GLOBAL_FUNCTION() int res_add_gl= BTree_newnode(&Global_tree,T_WFUNC,token.data,&Act_func); if(res_add_gl!=ERR_RIGHT) return res_add_gl;
 #define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack;
@@ -42,6 +39,7 @@ else{\
 }
 
 bool BOOL_IN_FUNCTION;
+bool BOOL_DEFINED_FUN;
 bool PRINT;
 Nstring *saved_ID;
 tType saved_type;
@@ -50,6 +48,7 @@ int termcount;
 Nstring *stack_left;
 Nstring *func_args;
 
+EStackPtr Err_stack;
 
 BTreeStackPtr Local_trees;
 BTreeStackPtr Act_scope;
@@ -193,6 +192,7 @@ void init_global_var(){
 	Act_func=NULL;
 	Act_scope=NULL;
 	Global_tree=NULL;
+	Err_stack=NULL;
 	saved_type=T_UNKNOWN;
 	saved_ID=nstring_init();
 	stack_left=nstring_init();
@@ -223,11 +223,15 @@ int parse(){
 	}
 	nstring_free(find_main);
 	// END KONTROLY
-
+	// VYriešenie problémov na stacku
+	if(ret_value==ERR_RIGHT){
+		ret_value=EStack_solveproblems(&Err_stack,Global_tree);
+	}
 	//BTree_print(&Global_tree);
 	BTStack_printall(&Local_trees);
 	BTree_dispose(&Global_tree);
 	BTStack_dispose(&Local_trees);
+	EStack_dispose(&Err_stack);
 	nstring_free(saved_ID);
 	nstring_free(stack_left);
 	nstring_free(func_args);
@@ -838,10 +842,15 @@ int p_termlist() {
 		break;
 
 	case T_RIGHTBR:
-		;printf("'%s' '%s'\n",stack_left->string,(BTree_findbyname(&Global_tree,saved_ID))->returns->string);
-		if((func_args->string)[termcount]!='\0') return ERR_SEMAN_PARAMETERS; // Mala mať funkcia argumenty ale nemala? Chyba!
-		if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
-			if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
+		if(BOOL_DEFINED_FUN){ // ak bola funkcia definovaná zistíme, inak hádžeme na ERR Stack
+			;//printf("'%s' '%s'\n",stack_left->string,(BTree_findbyname(&Global_tree,saved_ID))->returns->string);
+			if((func_args->string)[termcount]!='\0') return ERR_SEMAN_PARAMETERS; // Mala mať funkcia argumenty ale nemala? Chyba!
+			if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
+				if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
+			}
+		}
+		else{
+			if(EStack_addcall(&Err_stack,saved_ID,stack_left,func_args)==ERR_INTERNAL) return ERR_INTERNAL; //hádžeme na stack
 		}
 
 		GET_TOKEN();
@@ -870,8 +879,13 @@ int p_termnext() {
 		break;
 
 	case T_RIGHTBR:
-		if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
-			if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
+		if(BOOL_DEFINED_FUN){ // ak bola funkcia definovaná zistíme, inak hádžeme na ERR Stack
+			if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
+				if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
+			}
+		}
+		else{
+			if(EStack_addcall(&Err_stack,saved_ID,stack_left,func_args)==ERR_INTERNAL) return ERR_INTERNAL; //hádžeme na stack
 		}
 
 		GET_TOKEN();
@@ -895,10 +909,15 @@ int p_term() {
 		BTreePtr search = BTStack_searchbyname(&Local_trees,token.data); // vyhlada premennu
 		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // ak nenajde neexistuje
 		if(!PRINT){
-		char cmp;
-		if(search->item_type==T_INT){cmp = 'i';} if(search->item_type==T_DOUBLE){ cmp = 'f';} if(search->item_type==T_STRING){cmp = 's';}
-		if(cmp!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
-		termcount++;
+			char cmp;
+			if(search->item_type==T_INT){cmp = 'i';} if(search->item_type==T_DOUBLE){ cmp = 'f';} if(search->item_type==T_STRING){cmp = 's';}
+			if(BOOL_DEFINED_FUN){ //Ak je už definovaná porovná, inak hádže typ do dynstringu
+				if(cmp!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
+				termcount++;
+			}else
+			{
+				nstring_add_char(func_args,cmp);
+			}
 		}
 		else { 
 
@@ -911,11 +930,19 @@ int p_term() {
 		break;
 
 	case T_INT:
-	   	;if(!PRINT){
-		if('i'!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
-		termcount++;
-	  	}
-	  	else { //VOLA GENERATOR PRINT
+	   	;
+	   	if(!PRINT){
+		   	if(BOOL_DEFINED_FUN){
+		   		if('i'!=(func_args->string)[termcount]){ 
+		   			return ERR_SEMAN_PARAMETERS;
+					termcount++;
+		  		}
+		   	}
+		   	else{
+					nstring_add_char(func_args,'i');
+				}
+		}
+		else { //VOLA GENERATOR PRINT
 		}
 		GET_TOKEN();
 
@@ -924,8 +951,17 @@ int p_term() {
 
 	case T_STRING:
 		;if(!PRINT){
-		if('s'!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
-		termcount++;}
+			if(BOOL_DEFINED_FUN){
+		   		if('s'!=(func_args->string)[termcount]){
+		   			return ERR_SEMAN_PARAMETERS;
+					termcount++;
+		  		}
+		   	}
+		   	else
+				{
+					nstring_add_char(func_args,'s');
+				}
+		}
 		else { //VOLA GENERATOR PRINT
 		}
 		GET_TOKEN();
@@ -934,8 +970,17 @@ int p_term() {
 		break;
 	case T_DOUBLE:
 		;if(!PRINT){
-		if('f'!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
-		termcount++; }
+			if(BOOL_DEFINED_FUN){
+		   		if('f'!=(func_args->string)[termcount]){ 
+		   			return ERR_SEMAN_PARAMETERS;
+					termcount++;
+		  		}
+		   	}
+		   	else
+				{
+					nstring_add_char(func_args,'f');
+				}
+		} 
 		else { //VOLA GENERATOR PRINT
 		}
 
@@ -981,15 +1026,20 @@ int p_idstat() {
 		VALUE_CHECK();
 		break;
 	case T_LEFTBR:
-		
-		if((BTStack_searchbyname(&Local_trees,saved_ID))!=NULL) return ERR_SEMAN_OTHERS;
-		if(nstring_str_cmp(saved_ID,"print")==0) PRINT=true;
+		if((BTStack_searchbyname(&Local_trees,saved_ID))!=NULL) return ERR_SEMAN_OTHERS; // skúšam či funkcia nie je prekrytá premennou
+		if(nstring_str_cmp(saved_ID,"print")==0) PRINT=true;      // Funkcia print má iné sem. pravidlá
 		else PRINT = false;
 
 		BTreePtr search = BTree_findbyname(&Global_tree,saved_ID); // pokusi sa najst funkciu v strome
-		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // funkcia neexistuje
-		nstring_clear(func_args); // vynuluje zasobnik pre argumenty funkcie
-		nstring_add_str(func_args,search->args->string); // prida argumenty funkcie do zasobníka
+		if(search != NULL){
+					BOOL_DEFINED_FUN=true; // funkcia existuje
+					nstring_clear(func_args); // vynuluje zasobnik pre argumenty funkcie
+					nstring_add_str(func_args,search->args->string); // prida argumenty funkcie do zasobníka
+		}
+		else {
+				BOOL_DEFINED_FUN=false; //existuje
+				nstring_clear(func_args);
+		}
 
 		GET_TOKEN();
 
@@ -1020,13 +1070,20 @@ int p_exprorid() {
 			PEEK_TOKEN();
 			
 			if (tokenp.type == T_LEFTBR) {
+
 				if(nstring_str_cmp(token.data,"print")==0) PRINT=true;
 				else PRINT = false;
 				nstring_clear(saved_ID); nstring_add_str(saved_ID,(token.data)->string); // uchova id
 				BTreePtr search = BTree_findbyname(&Global_tree,saved_ID); // pokusi sa najst funkciu v strome
-				if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // funkcia neexistuje
-				nstring_clear(func_args); // vynuluje lavy zasobnik
-				nstring_add_str(func_args,search->args->string); // prida argumenty funkcie do zasobníka
+				if(search != NULL){
+					BOOL_DEFINED_FUN=true; // funkcia existuje
+					nstring_clear(func_args); // vynuluje lavy zasobnik
+					nstring_add_str(func_args,search->args->string); // prida argumenty funkcie do zasobníka
+				}
+				else {
+				BOOL_DEFINED_FUN=false; //existuje
+				nstring_clear(func_args);
+				}
 
 				GET_TOKEN();
 				GET_TOKEN();
