@@ -162,6 +162,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 		if (op1 == L_NON_TERMINAL && op3 == L_NON_TERMINAL) {
 			switch (op2) {
 			case L_PLUS:
+				if((s.top->next->next->type==L_BOOL) || (s.top->type==L_BOOL)) return ERR_SEMAN_TYPE_COMPATIBILITY; //nemožno redukovat bool
 				if((s.top->next->next->type==L_ID) || (s.top->type==L_ID)){ // ak je jedno z nich ID, vysledok bude E typu T_ID
 					t_pomocny=L_ID;
 					d_pomocny=42; //magicka konštanta aby tam nebola 0
@@ -176,6 +177,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 				return ERR_RIGHT;
 				break;
 			case L_MINUS:
+				if((s.top->next->next->type==L_BOOL) || (s.top->type==L_BOOL)) return ERR_SEMAN_TYPE_COMPATIBILITY; //nemožno redukovat bool
 				if((s.top->next->next->type==L_ID) || (s.top->type==L_ID)){ // ak je jedno z nich ID, vysledok bude E typu T_ID
 					t_pomocny=L_ID;
 					d_pomocny=42; //magicka konštanta aby tam nebola 0
@@ -190,6 +192,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 				return ERR_RIGHT;
 				break;
 			case L_MUL:
+				if((s.top->next->next->type==L_BOOL) || (s.top->type==L_BOOL)) return ERR_SEMAN_TYPE_COMPATIBILITY; //nemožno redukovat bool
 				if((s.top->next->next->type==L_ID) || (s.top->type==L_ID)){ // ak je jedno z nich ID, vysledok bude E typu T_ID
 					t_pomocny=L_ID;
 					d_pomocny=42; //magicka konštanta aby tam nebola 0
@@ -204,6 +207,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 				return ERR_RIGHT;
 				break;
 			case L_DIV:
+				if((s.top->next->next->type==L_BOOL) || (s.top->type==L_BOOL)) return ERR_SEMAN_TYPE_COMPATIBILITY; //nemožno redukovat bool
 				if((s.top->next->next->type==L_ID) || (s.top->type==L_ID)){ // ak je jedno z nich ID, vysledok bude E typu T_ID
 					if(s.top->type != L_ID) {
 						if(s.top->val == 0) return ERR_ZERO_DIVIDING; // delime nulou zleje , vyhadzuje error
@@ -229,11 +233,11 @@ int reduce_stack(bool *rel_flag,tType *change) {
 			case L_NOT_EQUAL:
 
 				if (*rel_flag == true) {
-					return ERR_SYNAN;
+					return ERR_SEMAN_TYPE_COMPATIBILITY;
 				}
 				pop(3);
 				s.top->handle = false;
-				push(L_NON_TERMINAL,L_ID,42);
+				push(L_NON_TERMINAL,L_BOOL,42);
 				*rel_flag = true;
 				return ERR_RIGHT;
 				break;
@@ -304,6 +308,7 @@ int expression(tType *change,bool *cond,BTreeStackPtr Local_trees) {
 int sem_check_var(tType *change,BTreeStackPtr Local_trees){
 
 	if(token.type==T_ID){
+		if(strcmp(token.data->string,"_")==0) return ERR_SEMAN_OTHERS;
 		BTreePtr search = BTStack_searchbyname(&Local_trees,token.data); // vyhlada premennu
 		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // ak nenajde neexistuje
 		

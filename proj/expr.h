@@ -31,7 +31,8 @@ typedef enum {
 	L_STRING,		// str
 	L_FLOAT,		// float
 	L_NON_TERMINAL,	// E
-	L_ERR			// pre T_ERR alebo T_UNKNOWN
+	L_ERR,			// pre T_ERR alebo T_UNKNOWN
+	L_BOOL			// pre bool
 
 } expr_lexem;
 
