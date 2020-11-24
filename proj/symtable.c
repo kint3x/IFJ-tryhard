@@ -40,7 +40,7 @@ void BTree_freeleaf(BTreePtr ptr){
 int BTree_newnode(BTreePtr *root, tType item, Nstring *n, BTreePtr *setptr){
 	int newkey=BTree_getkey(n);
 	if(newkey==-1) return false;
-
+	if(strcmp(n->string,"_")==0) return ERR_SEMAN_PARAMETERS; //premenna sa nemôže definovať ak ma nazov _
 	while((*root)!=NULL){
 		if(newkey<(*root)->key){
 			root=&((*root)->LPtr);
