@@ -18,7 +18,7 @@
 #include "scaner.h"
 
 #define ADD_GLOBAL_FUNCTION() int res_add_gl= BTree_newnode(&Global_tree,T_WFUNC,token.data,&Act_func); if(res_add_gl!=ERR_RIGHT) return res_add_gl;
-#define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack;
+#define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack; 
 #define LOCAL_POP() BTStack_pop(&Local_trees,&Act_scope);
 
 #define SEARCH_AND_PUSH() ; if(1){\
@@ -34,7 +34,7 @@ else{\
 	if(search==NULL) return ERR_SEMAN_NOT_DEFINED;\
 	if(search->item_type==T_INT) nstring_add_char(stack_left,'i');\
 	if(search->item_type==T_STRING) nstring_add_char(stack_left,'s');\
-	if(search->item_type==T_DOUBLE) nstring_add_char(stack_left,'i');\
+	if(search->item_type==T_DOUBLE) nstring_add_char(stack_left,'f');\
  }\
  nstring_free(tmp);\
 }
@@ -43,6 +43,7 @@ bool BOOL_IN_FUNCTION;
 bool BOOL_DEFINED_FUN;
 bool BOOL_IN_RETURN;
 bool BOOL_IN_WFOR;
+bool BOOL_FOUND_RETURN;
 
 bool PRINT;
 Nstring *saved_ID;
@@ -92,7 +93,7 @@ void p_getnexttoken() {
 		token.data = NULL;
 
 		Token *t = getNextToken();   // NACITAME NOVY TOKEN
-		print_token(t);
+		//print_token(t);
 		token.type = t->type;
 		token.data = t->data;
 		free(t);					// UVOLNIME STRUKTURU 
@@ -253,7 +254,7 @@ int parse(){
 		ret_value=EStack_solveproblems(&Err_stack,Global_tree);
 	}
 	//BTree_print(&Global_tree);
-	BTStack_printall(&Local_trees);
+	//BTStack_printall(&Local_trees);
 	BTree_dispose(&Global_tree);
 	BTStack_dispose(&Local_trees);
 	EStack_dispose(&Err_stack);
@@ -263,7 +264,7 @@ int parse(){
 	nstring_free(right_expr);
 	if(token.type!=T_END_OF_FILE)nstring_free(token.data); // uvolnit nstring v token.data
 
-	stderr_print(ret_value);
+	//stderr_print(ret_value);
 	return ret_value;
 }
 
@@ -287,7 +288,7 @@ int p_prog() {
 			VALUE_CHECK();
 		}
 		if (token.type == T_ID) {
-			if(nstring_str_cmp(token.data,"main")!=0){return ERR_SYNAN;}
+			nstring_cpy(token.data,saved_ID);
 			GET_TOKEN();
 		}
 		else {
@@ -296,6 +297,8 @@ int p_prog() {
 		}
 
 		if (token.type == T_EOL) {
+			if(nstring_str_cmp(saved_ID,"main")!=0){return ERR_SEMAN_OTHERS;}
+			nstring_clear(saved_ID);
 			GET_TOKEN();
 		}
 		else if(token.type== T_END_OF_FILE){
@@ -348,7 +351,7 @@ int p_funclist() {
 int p_func() {
 
 	int ret_value = ERR_SYNAN;
-
+	BOOL_FOUND_RETURN = false; // incializacia ci najde return
 	if (token.type == T_WFUNC) {
 		;LOCAL_TOP();
 		GET_TOKEN();
@@ -369,6 +372,11 @@ int p_func() {
 				ret_value = p_statlist();
 				VALUE_CHECK();
 				BOOL_IN_FUNCTION=false;
+
+				// kontrola ci naslo return ak tam mal byť
+				if(!BOOL_FOUND_RETURN){
+					if(Act_func->returns->string[0]!='\0') return ERR_SEMAN_PARAMETERS; // Ak nenašiel return ale funkcia má return values tak err
+				}
 
 				if (token.type == T_EOL) {
 					GET_TOKEN();
@@ -611,9 +619,11 @@ int p_stat() {
 		
 		bool tmp_cond;  // semanticka kontrola či je podmienka v ife
 		tType tmp_check;
+
 		ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 		VALUE_CHECK();
-		if(!tmp_cond) return ERR_SEMAN_OTHERS; // semanticka chyba ak nie
+
+		if(!tmp_cond) return ERR_SEMAN_TYPE_COMPATIBILITY; // semanticka chyba ak nie
 
 		if (token.type == T_LEFTBRACET) {
 			;LOCAL_TOP();
@@ -671,10 +681,9 @@ int p_stat() {
 	case T_WFOR:
 		;LOCAL_TOP();
 		GET_TOKEN();
-
+		BOOL_IN_WFOR=true;
 		ret_value = p_defstat();
 		VALUE_CHECK();
-
 		if (token.type == T_SEMI) {
 			GET_TOKEN();
 		}
@@ -682,10 +691,10 @@ int p_stat() {
 			ret_value = ERR_SYNAN;
 			VALUE_CHECK();
 		}
-
 		ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 		VALUE_CHECK();
-		if(!tmp_cond) return ERR_SEMAN_OTHERS; // semanticka chyba ak nie je podmienka
+
+		if(!tmp_cond) return ERR_SEMAN_TYPE_COMPATIBILITY; // semanticka chyba ak nie je podmienka
 
 		if (token.type == T_SEMI) {
 			GET_TOKEN();
@@ -712,16 +721,26 @@ int p_stat() {
 			ret_value = ERR_SYNAN;
 			VALUE_CHECK();
 		}
+		BOOL_IN_WFOR=false;
+
+		top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack; // LOCAL TOP() bez int=
 
 		ret_value = p_statlist();
 		VALUE_CHECK();
+		;LOCAL_POP();
 
 		break;
 	case T_WRETURN:
 		GET_TOKEN();
-
+		BOOL_FOUND_RETURN=true;
+		BOOL_IN_RETURN = true; // definujem že kontrolujem return
+		if(token.type==T_EOL) return ERR_RIGHT; //hotfix return epsilon pravidlo
 		ret_value = p_expressionlist();
 		VALUE_CHECK();
+		BOOL_IN_RETURN = false; // definujem že kontrolujem return
+		
+		if(strcmp(Act_func->returns->string,right_expr->string)!=0) return ERR_SEMAN_PARAMETERS; // Vracia zle typy
+
 		break;
 	case T_ID:
 		;bool ad_res=nstring_add_str(saved_ID,token.data->string); if(!ad_res) return ERR_INTERNAL;
@@ -748,6 +767,7 @@ int p_defstat() {
 
 	switch (token.type) {
 	case T_ID:
+		nstring_clear(saved_ID); nstring_add_str(saved_ID,(token.data)->string); // UCHOVAM ID
 		GET_TOKEN();
 		if (token.type == T_DOUBLEDOT) {     
 			GET_TOKEN();
@@ -756,7 +776,14 @@ int p_defstat() {
 			tType tmp_check;
 			ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 			VALUE_CHECK();
+
 			if(tmp_cond) return ERR_SEMAN_OTHERS; // v definicii nemoze byt relacny operator
+			if( (tmp_check==T_INT) || (tmp_check==T_STRING )||(tmp_check == T_DOUBLE)){  //Prida premennu do stromu, ak nie je ani jedneho typu zavola chybu
+				ret_value=BTStack_newnode(&Act_scope,tmp_check, saved_ID);
+				VALUE_CHECK();
+			}
+			else return ERR_SEMAN_OTHERS;
+			nstring_clear(saved_ID);
 		} 
 		break;
 
@@ -775,10 +802,12 @@ int p_assignstat() {
 
 	switch (token.type) {
 	case T_ID:
+		nstring_clear(saved_ID);nstring_cpy(token.data,saved_ID);
 		ret_value = p_idlist();
 		VALUE_CHECK();
 		ret_value = p_expressionlist();
 		VALUE_CHECK();
+		nstring_clear(saved_ID);
 		break;
 
 	case T_LEFTBRACET:
@@ -825,8 +854,10 @@ int p_idnext() {
 		break;
 
 	case T_ASSIGN:
+		//printf("ROBIM SEARCH AND PUSH %s",saved_ID->string);
+		//printf("PRED SEARCH A PUSH: %s \n",stack_left->string);
 		SEARCH_AND_PUSH();
-
+		//printf("PO SEARCH A PUSH: %s \n",stack_left->string);
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -874,15 +905,16 @@ int p_expressionnext() {
 		case T_LEFTBRACET:
 		case T_EOL:
 			if(BOOL_IN_RETURN){
-
+					//return neporovnava parametre
 			}
 			else if(BOOL_IN_WFOR){
-
+				if(!nstring_ret_cmp(stack_left,right_expr)) return ERR_SEMAN_PARAMETERS;  //kontrola ci priradzovanie premmenny
 			}
 			else{
-				printf("SOM TU porovnavam %s s %s\n",stack_left->string,right_expr->string);
-				if(!nstring_ret_cmp(stack_left,right_expr)) return ERR_SEMAN_PARAMETERS;  //kontrola ci priradzovanie premmenny je spravny pocet/typ id,id2 = 5 , b
+				//printf("POROVNAVAM CI %s a %s su rovnake\n",stack_left->string, right_expr->string);	
+				if(!nstring_ret_cmp(stack_left,right_expr)) return ERR_SEMAN_OTHERS;  //kontrola ci priradzovanie premmenny je spravny pocet/typ id,id2 = 5 , b
 			}
+			nstring_clear(stack_left);
 			ret_value = ERR_RIGHT;
 			break;
 		default:
@@ -912,6 +944,8 @@ int p_termlist() {
 			if((func_args->string)[termcount]!='\0') return ERR_SEMAN_PARAMETERS; // Mala mať funkcia argumenty ale nemala? Chyba!
 			if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
 				if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
+			}else{ //ak na lavo nemáme premenné, musíme zistiť, či funkcia má návratové hodnoty, inak vráti chybu
+				if(BTree_findbyname(&Global_tree,saved_ID)->num_returns>0) return ERR_SEMAN_PARAMETERS;
 			}
 		}
 		else{
@@ -936,7 +970,6 @@ int p_termnext() {
 	switch (token.type) {
 	case T_COMMA:
 		GET_TOKEN();
-
 		ret_value = p_term();
 		VALUE_CHECK();
 		ret_value = p_termnext();
@@ -945,8 +978,11 @@ int p_termnext() {
 
 	case T_RIGHTBR:
 		if(BOOL_DEFINED_FUN){ // ak bola funkcia definovaná zistíme, inak hádžeme na ERR Stack
+			//printf("'%s' '%s'\n",stack_left->string,(BTree_findbyname(&Global_tree,saved_ID))->returns->string);
 			if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
 				if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
+			}else {//ak na lavo nemáme premenné, musíme zistiť, či funkcia má návratové hodnoty, inak vráti chybu
+				if(BTree_findbyname(&Global_tree,saved_ID)->num_returns>0) return ERR_SEMAN_PARAMETERS;
 			}
 		}
 		else{
@@ -967,10 +1003,10 @@ int p_termnext() {
 int p_term() {
 
 	int ret_value = ERR_SYNAN;
-
 	switch (token.type) {
 	case T_ID:
 		; // Nájde či premmenna existuje, porovná ci typy sedia podla indexu  termcount, v func_args mám skopírované argumenty funkcie v hlavičke
+		if(strcmp(token.data->string,"_")==0) return ERR_SEMAN_PARAMETERS; // _ nemôže byť v parametroch
 		BTreePtr search = BTStack_searchbyname(&Local_trees,token.data); // vyhlada premennu
 		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // ak nenajde neexistuje
 		if(!PRINT){
@@ -978,7 +1014,7 @@ int p_term() {
 			if(search->item_type==T_INT){cmp = 'i';} if(search->item_type==T_DOUBLE){ cmp = 'f';} if(search->item_type==T_STRING){cmp = 's';}
 			if(BOOL_DEFINED_FUN){ //Ak je už definovaná porovná, inak hádže typ do dynstringu
 				if(cmp!=(func_args->string)[termcount]) return ERR_SEMAN_PARAMETERS;
-				termcount++;
+				termcount++; 
 			}else
 			{
 				nstring_add_char(func_args,cmp);
@@ -999,9 +1035,10 @@ int p_term() {
 	   	if(!PRINT){
 		   	if(BOOL_DEFINED_FUN){
 		   		if('i'!=(func_args->string)[termcount]){ 
+		   			//printf("KURNA\n-----------------------------\n MAM : %s [%d]",func_args->string,termcount);
 		   			return ERR_SEMAN_PARAMETERS;
-					termcount++;
 		  		}
+		  		termcount++;
 		   	}
 		   	else{
 					nstring_add_char(func_args,'i');
@@ -1019,8 +1056,8 @@ int p_term() {
 			if(BOOL_DEFINED_FUN){
 		   		if('s'!=(func_args->string)[termcount]){
 		   			return ERR_SEMAN_PARAMETERS;
-					termcount++;
 		  		}
+		  		termcount++;
 		   	}
 		   	else
 				{
@@ -1038,8 +1075,8 @@ int p_term() {
 			if(BOOL_DEFINED_FUN){
 		   		if('f'!=(func_args->string)[termcount]){ 
 		   			return ERR_SEMAN_PARAMETERS;
-					termcount++;
 		  		}
+		  		termcount++;
 		   	}
 		   	else
 				{
@@ -1069,10 +1106,10 @@ int p_idstat() {
 		GET_TOKEN();
 		
 		bool tmp_cond;
+		saved_type=T_UNKNOWN;
 		ret_value = expression(&saved_type,&tmp_cond,Local_trees); // > odtialto dostanem saved_type
 		VALUE_CHECK();
 		if(tmp_cond) return ERR_SEMAN_OTHERS; // Nemôžeme priradit bool operatory
-
 		if( (saved_type==T_INT) || (saved_type==T_STRING )||(saved_type == T_DOUBLE)){  //Prida premennu do stromu, ak nie je ani jedneho typu zavola chybu
 			ret_value=BTStack_newnode(&Act_scope,saved_type, saved_ID);
 			VALUE_CHECK();
@@ -1152,7 +1189,7 @@ int p_exprorid() {
 
 				GET_TOKEN();
 				GET_TOKEN();
-
+				termcount=0;
 				ret_value = p_termlist();
 				VALUE_CHECK();
 			}
