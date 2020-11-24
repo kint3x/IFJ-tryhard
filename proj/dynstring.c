@@ -46,6 +46,20 @@ void nstring_clear(Nstring *s){
 	s->string_size=0;
 }
 
+bool nstring_add_str(Nstring *s, char *str){
+	if(s->allocated_size <= strlen(str) ){
+		s->string=(char *)realloc(s->string,s->allocated_size+strlen(str)+1);
+		if(s->string == NULL){
+			//fprintf(stderr, "Nepodarilo sa spraviť realloc pri funkcí nstring_add_char\n");
+			return false;
+		}
+		s->allocated_size+=strlen(str)+1;
+	}
+	strcpy(s->string+s->string_size,str);
+	s->string_size+=strlen(str);
+	return true;
+}
+
 bool nstring_add_char(Nstring *s, char c){
 
 	if(s->allocated_size <= s->string_size + 1){
@@ -88,7 +102,7 @@ int nstring_cmp(Nstring *s, Nstring *d){
 }
 
 bool nstring_is_clear(Nstring *s){
-	if(s==NULL) return false;
+	if(s==NULL) return true;
 	if(strlen(s->string)>0) return false;
 	else return true;
 }
@@ -128,4 +142,4 @@ int nstring_2int(Nstring *s){
 
 double nstring_3float(Nstring *s){
 	return atof(s->string);
-}
+

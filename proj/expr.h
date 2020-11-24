@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "symtable.h"
 
 typedef enum {
 	L_PLUS,			// +
@@ -30,13 +31,14 @@ typedef enum {
 	L_STRING,		// str
 	L_FLOAT,		// float
 	L_NON_TERMINAL,	// E
-	L_ERR			// pre T_ERR alebo T_UNKNOWN
+	L_ERR,			// pre T_ERR alebo T_UNKNOWN
+	L_BOOL			// pre bool
 
 } expr_lexem;
 
 expr_lexem token_convert();
 int items_above_handle();
-int reduce_stack(bool *rel_flag);
-int expression();
-
+int reduce_stack(bool *rel_flag,tType *change);
+int expression(tType *change,bool *cond,BTreeStackPtr Local_trees);
+int sem_check_var(tType *change,BTreeStackPtr Local_trees);
 #endif

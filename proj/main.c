@@ -14,7 +14,8 @@
 int main(){
 	int ERR=0;
 
-	ERR=p_prog();
+	ERR=parse();
+
 
 	//printf("%d\n",ERR);
 
