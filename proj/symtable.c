@@ -135,6 +135,7 @@ BTreePtr BTree_findbyname(BTreePtr *root,Nstring *n){
 	return NULL;
 }
 
+
 void BTree_print(BTreePtr *root){
 	if((*root)!=NULL){
 		BTree_print(&((*root)->LPtr));
@@ -207,13 +208,15 @@ void BTStack_pop(BTreeStackPtr *root,BTreeStackPtr *change){
 
 
 BTreePtr BTStack_searchbyname(BTreeStackPtr *root,Nstring *s){
-	BTreePtr ret=NULL;
+	BTreePtr ret=NULL,found=NULL;
 	while((*root)!=NULL){
 		ret=BTree_findbyname(&((*root)->root),s);
-		if(ret!=NULL) break;
+		if(ret!=NULL){
+			found=ret;
+		}
 		root=&((*root)->next);
 	}
-	return ret;
+	return found;
 }
 
 void BTStack_printall(BTreeStackPtr *root){
