@@ -19,7 +19,7 @@ extern stack s;
 void init_stack() {
 
 	s.top = NULL;
-	push(L_DOLLAR,0,NULL);
+	push(L_DOLLAR);
 }
 
 void delete_stack() {
@@ -28,29 +28,18 @@ void delete_stack() {
 	while (s.top != NULL) {
 		tmp = s.top;
 		s.top = s.top->next;
-		nstring_free(tmp->nazov);
 		free(tmp);
 	}
 }
 
-void push(expr_lexem l,double data,Nstring *nazov) {
+void push(expr_lexem l) {
 
 	item *i = malloc(sizeof(item));
 	if (i == NULL) {
 		//error
 		return;
 	}
-	if(nazov!=NULL){
-		if(!nstring_is_clear(nazov)){
-			if(l==L_ID){
-				i->nazov=nstring_init();
-				nstring_cpy(nazov,i->nazov);
-			}
-		}
-	}else{
-		i->nazov=NULL;
-	}
-	i->cislo=data;
+
 	i->lex = l;
 	i->handle = false;
 	i->next = s.top;
@@ -65,8 +54,6 @@ void pop(int count) {
 		}
 		tmp = s.top;
 		s.top = s.top->next;
-		nstring_free(tmp->nazov);
-		tmp->nazov=NULL;
 		free(tmp);
 	}
 }

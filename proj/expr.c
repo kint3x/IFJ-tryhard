@@ -118,30 +118,19 @@ int items_above_handle() {
 }
 
 
-int reduce_stack(bool *rel_flag,tType *change) {
-	Nstring *pomocna=nstring_init();
-	double pomoc;
+int reduce_stack(bool *rel_flag) {
+	
 	expr_lexem op1, op2, op3;
 
 	if (items_above_handle() == 1) {
 		switch (s.top->lex) {
 		case L_ID:
-		case L_STRING:
-			nstring_cpy(s.top->nazov,pomocna);
-			pomoc=s.top->cislo;
-			pop(1);
-			s.top->handle = false;
-			push(L_NON_TERMINAL,pomoc,pomocna);
-			nstring_free(pomocna);
-			return ERR_RIGHT;
-			break;
 		case L_INT:
 		case L_FLOAT:
-			pomoc=s.top->cislo;
+		case L_STRING:
 			pop(1);
 			s.top->handle = false;
-			push(L_NON_TERMINAL,pomoc,NULL);
-			nstring_free(pomocna);
+			push(L_NON_TERMINAL);
 			return ERR_RIGHT;
 			break;
 		default:
@@ -155,68 +144,21 @@ int reduce_stack(bool *rel_flag,tType *change) {
 		op1 = s.top->next->next->lex;
 
 		if (op1 == L_LEFT_BR && op2 == L_NON_TERMINAL && op3 == L_RIGHT_BR) {
-			nstring_cpy(s.top->nazov,pomocna);
-			pomoc=s.top->cislo;
 			pop(3);
 			s.top->handle = false;
-			push(L_NON_TERMINAL,pomoc,pomocna);
-			nstring_free(pomocna);
+			push(L_NON_TERMINAL);
 			return ERR_RIGHT;
 		}
 		
 		if (op1 == L_NON_TERMINAL && op3 == L_NON_TERMINAL) {
 			switch (op2) {
 			case L_PLUS:
-				if(((*change)==T_INT)||((*change)==T_DOUBLE)){
-					if(nstring_is_clear(s.top->next->next->nazov)&&nstring_is_clear(s.top->nazov)){
-						pomoc=(s.top->next->next->cislo)-(s.top->cislo);
-					}
-				}
-				nstring_cpy(s.top->nazov,pomocna);
-				pop(3);
-				s.top->handle = false;
-				push(L_NON_TERMINAL,pomoc,pomocna);
-				nstring_free(pomocna);
-				return ERR_RIGHT;
-				break;
 			case L_MINUS:
-				if(((*change)==T_INT)||((*change)==T_DOUBLE)){
-					if(nstring_is_clear(s.top->next->next->nazov)&&nstring_is_clear(s.top->nazov)){
-						pomoc=(s.top->next->next->cislo) - (s.top->cislo);
-					}
-				}
-				nstring_cpy(s.top->nazov,pomocna);
-				pop(3);
-				s.top->handle = false;
-				push(L_NON_TERMINAL,pomoc,pomocna);
-				nstring_free(pomocna);
-				return ERR_RIGHT;
-				break;
 			case L_MUL:
-				if(((*change)==T_INT)||((*change)==T_DOUBLE)){
-					if(nstring_is_clear(s.top->next->next->nazov)&&nstring_is_clear(s.top->nazov)){
-						pomoc=(s.top->next->next->cislo)*(s.top->cislo);
-					}
-				}
-				nstring_cpy(s.top->nazov,pomocna);
-				pop(3);
-				s.top->handle = false;
-				push(L_NON_TERMINAL,pomoc,pomocna);
-				nstring_free(pomocna);
-				return ERR_RIGHT;
-				break;
 			case L_DIV:
-				if(((*change)==T_INT)||((*change)==T_DOUBLE)){
-					if(nstring_is_clear(s.top->next->next->nazov)&&nstring_is_clear(s.top->nazov)){
-						if(s.top->cislo == 0) return ERR_ZERO_DIVIDING;
-						pomoc=(s.top->next->next->cislo)/(s.top->cislo);
-					}
-				}
-				nstring_cpy(s.top->nazov,pomocna);
 				pop(3);
 				s.top->handle = false;
-				push(L_NON_TERMINAL,pomoc,pomocna);
-				nstring_free(pomocna);
+				push(L_NON_TERMINAL);
 				return ERR_RIGHT;
 				break;
 			case L_LESS:
@@ -227,18 +169,15 @@ int reduce_stack(bool *rel_flag,tType *change) {
 			case L_NOT_EQUAL:
 
 				if (*rel_flag == true) {
-					nstring_free(pomocna);
 					return ERR_SYNAN;
 				}
 				pop(3);
 				s.top->handle = false;
-				push(L_NON_TERMINAL,0,NULL);
+				push(L_NON_TERMINAL);
 				*rel_flag = true;
-				nstring_free(pomocna);
 				return ERR_RIGHT;
 				break;
 			default:
-				nstring_free(pomocna);
 				return ERR_SYNAN;
 				break;
 			}
@@ -267,12 +206,11 @@ int expression(tType *change,bool *cond,BTreeStackPtr Local_trees) {
 				delete_stack();
 				return ret_value;
 			}
-
-			push(token_convert(),nstring_3float(token.data),token.data);
+			push(token_convert());
 			GET_TOKEN();
 			break;
 		case '>':
-			ret_value = reduce_stack(&relation_op_flag,change);
+			ret_value = reduce_stack(&relation_op_flag);
 			if(ret_value!=ERR_RIGHT){
 				delete_stack();
 				return ret_value;
@@ -283,7 +221,7 @@ int expression(tType *change,bool *cond,BTreeStackPtr Local_trees) {
 				delete_stack();
 				return ret_value;
 			}
-			push(token_convert(),nstring_3float(token.data),token.data);
+			push(token_convert());
 			GET_TOKEN();
 			break;
 		case ' ':
