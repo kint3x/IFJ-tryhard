@@ -16,6 +16,8 @@ typedef struct item {
 	struct item *next;
 	expr_lexem lex;
 	bool handle;
+	Nstring *nazov;
+	double cislo;
 }item;
 
 typedef struct stack {
@@ -25,7 +27,7 @@ typedef struct stack {
 
 void init_stack();
 void delete_stack();
-void push(expr_lexem l);
+void push(expr_lexem l,double data,Nstring *nazov);
 void pop(int count);
 item *top_terminal();
 

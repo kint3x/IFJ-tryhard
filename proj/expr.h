@@ -37,7 +37,7 @@ typedef enum {
 
 expr_lexem token_convert();
 int items_above_handle();
-int reduce_stack(bool *rel_flag);
+int reduce_stack(bool *rel_flag,tType *change);
 int expression(tType *change,bool *cond,BTreeStackPtr Local_trees);
 int sem_check_var(tType *change,BTreeStackPtr Local_trees);
 #endif
