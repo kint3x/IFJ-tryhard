@@ -19,7 +19,7 @@ extern stack s;
 void init_stack() {
 
 	s.top = NULL;
-	push(L_DOLLAR);
+	push(L_DOLLAR,L_DOLLAR,1);
 }
 
 void delete_stack() {
@@ -32,13 +32,18 @@ void delete_stack() {
 	}
 }
 
-void push(expr_lexem l) {
+void push(expr_lexem l,expr_lexem past_type,double val) {
 
 	item *i = malloc(sizeof(item));
 	if (i == NULL) {
 		//error
 		return;
 	}
+	
+
+	i->type=past_type;
+	i->val=val;
+
 
 	i->lex = l;
 	i->handle = false;

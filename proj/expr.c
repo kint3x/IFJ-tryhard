@@ -118,8 +118,11 @@ int items_above_handle() {
 }
 
 
-int reduce_stack(bool *rel_flag) {
+int reduce_stack(bool *rel_flag,tType *change) {
 	
+	double d_pomocny;
+	expr_lexem t_pomocny;
+
 	expr_lexem op1, op2, op3;
 
 	if (items_above_handle() == 1) {
@@ -128,12 +131,15 @@ int reduce_stack(bool *rel_flag) {
 		case L_INT:
 		case L_FLOAT:
 		case L_STRING:
+			d_pomocny=s.top->val;
+			t_pomocny=s.top->type;
 			pop(1);
 			s.top->handle = false;
-			push(L_NON_TERMINAL);
+			push(L_NON_TERMINAL,t_pomocny,d_pomocny);
 			return ERR_RIGHT;
 			break;
 		default:
+			
 			return ERR_SYNAN;
 			break;
 		}
@@ -144,21 +150,75 @@ int reduce_stack(bool *rel_flag) {
 		op1 = s.top->next->next->lex;
 
 		if (op1 == L_LEFT_BR && op2 == L_NON_TERMINAL && op3 == L_RIGHT_BR) {
+			d_pomocny=s.top->next->val;
+			t_pomocny=s.top->next->type;
+
 			pop(3);
 			s.top->handle = false;
-			push(L_NON_TERMINAL);
+			push(L_NON_TERMINAL,t_pomocny,d_pomocny);
 			return ERR_RIGHT;
 		}
 		
 		if (op1 == L_NON_TERMINAL && op3 == L_NON_TERMINAL) {
 			switch (op2) {
 			case L_PLUS:
-			case L_MINUS:
-			case L_MUL:
-			case L_DIV:
+				if((s.top->next->next->type==L_ID) || (s.top->type==L_ID)){ // ak je jedno z nich ID, vysledok bude E typu T_ID
+					t_pomocny=L_ID;
+					d_pomocny=42; //magicka konštanta aby tam nebola 0
+				}
+				else{ // ak ani jedno nie je ID tak výpočet uložíme a vysledok bude rovnakeho typu
+					t_pomocny=s.top->type;
+					d_pomocny = s.top->next->next->val + s.top->val;
+				}
 				pop(3);
 				s.top->handle = false;
-				push(L_NON_TERMINAL);
+				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
+				return ERR_RIGHT;
+				break;
+			case L_MINUS:
+				if((s.top->next->next->type==L_ID) || (s.top->type==L_ID)){ // ak je jedno z nich ID, vysledok bude E typu T_ID
+					t_pomocny=L_ID;
+					d_pomocny=42; //magicka konštanta aby tam nebola 0
+				}
+				else{ // ak ani jedno nie je ID tak výpočet uložíme a vysledok bude rovnakeho typu
+					t_pomocny=s.top->type;
+					d_pomocny = s.top->next->next->val - s.top->val;
+				}
+				pop(3);
+				s.top->handle = false;
+				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
+				return ERR_RIGHT;
+				break;
+			case L_MUL:
+				if((s.top->next->next->type==L_ID) || (s.top->type==L_ID)){ // ak je jedno z nich ID, vysledok bude E typu T_ID
+					t_pomocny=L_ID;
+					d_pomocny=42; //magicka konštanta aby tam nebola 0
+				}
+				else{ // ak ani jedno nie je ID tak výpočet uložíme a vysledok bude rovnakeho typu
+					t_pomocny=s.top->type;
+					d_pomocny = s.top->next->next->val * s.top->val;
+				}
+				pop(3);
+				s.top->handle = false;
+				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
+				return ERR_RIGHT;
+				break;
+			case L_DIV:
+				if((s.top->next->next->type==L_ID) || (s.top->type==L_ID)){ // ak je jedno z nich ID, vysledok bude E typu T_ID
+					if(s.top->type != L_ID) {
+						if(s.top->val == 0) return ERR_ZERO_DIVIDING; // delime nulou zleje , vyhadzuje error
+					}
+					t_pomocny=L_ID;
+					d_pomocny=42; //magicka konštanta aby tam nebola 0
+				}
+				else{ // ak ani jedno nie je ID tak výpočet uložíme a vysledok bude rovnakeho typu
+					if(s.top->val == 0) return ERR_ZERO_DIVIDING; // delime nulou zleje , vyhadzuje error
+					t_pomocny=s.top->type;
+					d_pomocny = s.top->next->next->val / s.top->val;
+				}
+				pop(3);
+				s.top->handle = false;
+				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
 				return ERR_RIGHT;
 				break;
 			case L_LESS:
@@ -173,7 +233,7 @@ int reduce_stack(bool *rel_flag) {
 				}
 				pop(3);
 				s.top->handle = false;
-				push(L_NON_TERMINAL);
+				push(L_NON_TERMINAL,L_ID,42);
 				*rel_flag = true;
 				return ERR_RIGHT;
 				break;
@@ -206,11 +266,11 @@ int expression(tType *change,bool *cond,BTreeStackPtr Local_trees) {
 				delete_stack();
 				return ret_value;
 			}
-			push(token_convert());
+			push(token_convert(),token_convert(),nstring_3float(token.data));
 			GET_TOKEN();
 			break;
 		case '>':
-			ret_value = reduce_stack(&relation_op_flag);
+			ret_value = reduce_stack(&relation_op_flag,change);
 			if(ret_value!=ERR_RIGHT){
 				delete_stack();
 				return ret_value;
@@ -221,7 +281,7 @@ int expression(tType *change,bool *cond,BTreeStackPtr Local_trees) {
 				delete_stack();
 				return ret_value;
 			}
-			push(token_convert());
+			push(token_convert(),token_convert(),nstring_3float(token.data));
 			GET_TOKEN();
 			break;
 		case ' ':
@@ -281,6 +341,11 @@ int sem_check_var(tType *change,BTreeStackPtr Local_trees){
 				return ERR_SEMAN_TYPE_COMPATIBILITY;
 			}
 		}
+	}
+	if((*change)==T_STRING){ // ak pracujeme so stringmi nemôžeme povoliť operácie * / - 
+		if(token.type==T_MUL) return ERR_SEMAN_TYPE_COMPATIBILITY;
+		if(token.type==T_DIV) return ERR_SEMAN_TYPE_COMPATIBILITY;
+		if(token.type==T_MINUS) return ERR_SEMAN_TYPE_COMPATIBILITY;
 	}
 	return ERR_RIGHT;
 }
