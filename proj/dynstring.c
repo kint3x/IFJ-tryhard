@@ -102,7 +102,7 @@ int nstring_cmp(Nstring *s, Nstring *d){
 }
 
 bool nstring_is_clear(Nstring *s){
-	if(s==NULL) return false;
+	if(s==NULL) return true;
 	if(strlen(s->string)>0) return false;
 	else return true;
 }
