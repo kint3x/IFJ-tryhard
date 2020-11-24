@@ -254,7 +254,6 @@ Token *getNextToken()
 				if (isdigit(c)&& (!(c == '0')) )
 				{
 					nstring_add_char(token->data, c);
-					token->type = T_ERR;
 					state = START;
 					return token;
 
@@ -307,6 +306,7 @@ Token *getNextToken()
 
 				}
 				case E:
+				token->type=T_DOUBLE;
 				if ((c == '+') || (c == '-'))
 				{
 					nstring_add_char(token->data, c);
@@ -475,17 +475,17 @@ Token *getNextToken()
 				}//vrati token !=
 
 				ungetc(c, source); // nasledujuci znak nieje =  znak sa vrati na spracovanie
-				token->type = T_NOT;
+				token->type = T_ERR;
 				state = START;
 				return token; //DONE
 			case AND:
 				ungetc(c, source);
-				token->type = T_AND;
+				token->type = T_ERR;
 				state = START;
 				return token; //DONE
 			case OR:
 				ungetc(c, source);
-				token->type = T_OR;
+				token->type = T_ERR;
 				state = START;
 				return token; //DONE
 			case MULTIPLE:
