@@ -797,15 +797,8 @@ void print_token(Token *token)
 		printf("STRING");
 		break;
 
-	case T_NOT:
-		printf("NOT");
-		break;
-	case T_AND:
-		printf("AND");
-		break;
-	case T_OR:
-		printf("OR");
-		break;
+
+
 	case T_EQ_COMP:
 		printf("EQUAL");
 		break;

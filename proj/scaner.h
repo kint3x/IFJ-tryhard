@@ -36,9 +36,6 @@ typedef enum
   T_STRING, // retazec
 
   // logic operators
-  T_NOT,  //logic not
-  T_AND,  // logic and
-  T_OR, // logic or
   T_EQ_COMP, // ==
   // others char
   T_SEMI, //;
@@ -84,9 +81,7 @@ typedef enum
   MULTIPLE, // *
   TESTDIVIDE,   // / delenie kontroluje či neni komentar
   SPACE,    //space
-  NOT,// !
-  AND,
-  OR,
+  NOT, // !
   LEFTBR,    //(
   RIGHTBR,   // )
   COMMA,     //,
@@ -126,6 +121,6 @@ void print_token(Token *token); //testovanie
 
 /**
 * @brief Zapíše do nstringu písmeno pre typ
-* 
+*
 **/
 void nstring_push_type(Nstring *s,tType type);
