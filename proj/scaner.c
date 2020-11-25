@@ -83,10 +83,6 @@ Token *getNextToken()
 				//logic operators
 				else if (c == '!')
 					state = NOT;
-				else if (c == '&')
-					state = AND;
-				else if (c == '|')
-					state = OR;
 				//others char
 				else if (c == ';')
 					state = SEMI;
@@ -358,49 +354,6 @@ Token *getNextToken()
 							return token;
 					}
 
-
-					/*token->type = T_INT;
-					if (isdigit(c))
-					{
-						nstring_add_char(token->data, c);
-						state = TINT;
-						break;
-					}
-					else if (c == '.')// ak sa nachadza bodka kontrolujem 10tine cislo
-					{
-
-						nstring_add_char(token->data, c);
-							c = getc(source);
-							if (!isdigit(c)) {//fprintf(stderr,"chyba double .\n");
-							token->type = T_ERR;
-							return token;
-
-					 }state = DOUBLE;
-						ungetc(c, source);
-					}
-					else if ((c == 'E') || (c == 'e'))
-					{
-						nstring_add_char(token->data, c);
-						c = getc(source);
-						if (!isdigit(c)) {//fprintf(stderr,"chyba double po e nenasleduje číslo\n");
-						token->type = T_ERR;
-						return token;
-					 }
-						ungetc(c, source);
-						state = DOUBLE;
-					}
-					else
-					{
-
-							state = START;
-							ungetc(c, source);
-							return token;
-
-
-
-
-					}
-					break;*/
 				case DOUBLE:
 				//printf("%c\n", c);
 					token->type = T_DOUBLE;
@@ -460,10 +413,6 @@ Token *getNextToken()
 				ungetc(c, source);
 
 				return token;
-
-
-
-
 			 }
 			case NOT:
 				if (c == '=')
@@ -475,16 +424,6 @@ Token *getNextToken()
 				}//vrati token !=
 
 				ungetc(c, source); // nasledujuci znak nieje =  znak sa vrati na spracovanie
-				token->type = T_ERR;
-				state = START;
-				return token; //DONE
-			case AND:
-				ungetc(c, source);
-				token->type = T_ERR;
-				state = START;
-				return token; //DONE
-			case OR:
-				ungetc(c, source);
 				token->type = T_ERR;
 				state = START;
 				return token; //DONE
@@ -734,23 +673,22 @@ Token *getNextToken()
 				}
 				break;
 			case ASSIGN:
-								if (c == '=')
-								{
-								nstring_add_char(token->data, c);
-									token->type = T_EQ_COMP;
-									state = START;
-									return token;
-								}
+			if (c == '=')
+				{
+					nstring_add_char(token->data, c);
+					token->type = T_EQ_COMP;
+					state = START;
+					return token;
+				}
 
-								else
-								{
-
-									ungetc(c, source);
-									token->type = T_ASSIGN;
-									state = START;
-									return token;
-								}
-				break;
+				else
+				{
+					ungetc(c, source);
+					token->type = T_ASSIGN;
+					state = START;
+					return token;
+				}
+			break;
 			case END:
 		token->type = T_END_OF_FILE;
 
