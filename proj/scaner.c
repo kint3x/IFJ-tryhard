@@ -254,7 +254,6 @@ Token *getNextToken()
 				if (isdigit(c)&& (!(c == '0')) )
 				{
 					nstring_add_char(token->data, c);
-					token->type = T_ERR;
 					state = START;
 					return token;
 
@@ -307,6 +306,7 @@ Token *getNextToken()
 
 				}
 				case E:
+				token->type=T_DOUBLE;
 				if ((c == '+') || (c == '-'))
 				{
 					nstring_add_char(token->data, c);
@@ -457,6 +457,8 @@ Token *getNextToken()
 			{
 				token->type = T_INT;
 				state =START;
+				ungetc(c, source);
+
 				return token;
 
 
@@ -473,17 +475,17 @@ Token *getNextToken()
 				}//vrati token !=
 
 				ungetc(c, source); // nasledujuci znak nieje =  znak sa vrati na spracovanie
-				token->type = T_NOT;
+				token->type = T_ERR;
 				state = START;
 				return token; //DONE
 			case AND:
 				ungetc(c, source);
-				token->type = T_AND;
+				token->type = T_ERR;
 				state = START;
 				return token; //DONE
 			case OR:
 				ungetc(c, source);
-				token->type = T_OR;
+				token->type = T_ERR;
 				state = START;
 				return token; //DONE
 			case MULTIPLE:
@@ -739,20 +741,7 @@ Token *getNextToken()
 									state = START;
 									return token;
 								}
-								else if (c == '<')
-								{
-								nstring_add_char(token->data, c);
-									token->type = T_LESS_EQ;
-									state = START;
-									return token;
-								}
-								else if (c == '>')
-								{
-								nstring_add_char(token->data, c);
-									token->type = T_MORE_EQ;
-									state = START;
-									return token;
-								}
+
 								else
 								{
 
@@ -807,7 +796,7 @@ void print_token(Token *token)
 		printf("EOF");
 		break;
 	case T_WELSE:
-		printf("ELSE");
+		printf("wELSE");
 		break;
 	case T_WFLOAT64:
 		printf("WFLOAT64");
@@ -943,3 +932,14 @@ void print_token(Token *token)
 
 	return 1;
 }*/
+void nstring_push_type(Nstring *s,tType type){
+	if(type==T_INT){
+		nstring_add_char(s,'i');
+	}
+	if(type==T_STRING){
+		nstring_add_char(s,'s');
+	}
+	if(type==T_DOUBLE){
+		nstring_add_char(s,'f');
+	}
+}

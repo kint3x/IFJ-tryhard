@@ -4,10 +4,10 @@
 * projekt ifj 2020/2021                             *
 */
 //hlavicka pro lexikalni analyzator
+
 #pragma once
 #include <stdio.h>
 #include "err.h"
-
 #include "dynstring.h"
 //jednotlive typy
 typedef enum
@@ -123,3 +123,9 @@ void setSourceFile(FILE *f); // funkce pre ulo6enie suboru na nacitanie
 int main();
 Token *getNextToken();  // hlavna funkcia
 void print_token(Token *token); //testovanie
+
+/**
+* @brief Zapíše do nstringu písmeno pre typ
+* 
+**/
+void nstring_push_type(Nstring *s,tType type);

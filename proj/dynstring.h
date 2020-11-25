@@ -66,7 +66,6 @@ bool nstring_add_char(Nstring *s, char c);
 *	@return Vráti true ak sa podarilo, false ak nie
 */
 
-//#TODO --> Tuto funkciu implementujem ak ju bude treba
 bool nstring_add_str(Nstring *s, char *str);
 
 /**
@@ -79,6 +78,16 @@ bool nstring_add_str(Nstring *s, char *str);
 */
 
 int nstring_str_cmp(Nstring *s, const char *str);
+
+/**
+* 	@brief Porovná dva dynstringy
+*
+*	@param s Pointer na štruktúru nafukovacieho stringu
+* 	@param d Pointer na štruktúru nafukovacieho stringu
+*
+*	@return Vráti 0 ak sa rovnajú, <0 ak je zadaný string kratší alebo >0 ak je zadaný string dlhší.
+*/
+int nstring_cmp(Nstring *s, Nstring *d);
 /**
 * 	@brief vytiskne obsah seznamu "s" na standardní výstup
 
@@ -93,4 +102,41 @@ void nstring_print(Nstring *s);
 */
 void nstring_char_remove(Nstring *s);
 
+
+/**
+* @brief Vráti či je string prázdny
+* @return bool
+**/
+
+bool nstring_is_clear(Nstring *s);
+
+/**
+* @brief Porovná návratové hodnoty v dynstringoch pre semanticku analyzu
+* @return bool
+**/
+bool nstring_ret_cmp(Nstring *left,Nstring *right);
+
+/**
+* @brief Kopíruje dynstring a do dynstringu b
+* @return bool
+**/
+bool nstring_cpy(Nstring *a, Nstring *b);
+
+/**
+* @brief Vráti dĺžku dynstringu
+* @return dĺžka
+**/
+int nstring_len(Nstring *s);
+
+/**
+* @brief Vráti obsah nstringu v int
+* @return int
+**/
+int nstring_2int(Nstring *s);
+
+/**
+* @brief Vráti obsah nstringu vo floate
+* @return float
+**/
+double nstring_3float(Nstring *s);
 #endif
