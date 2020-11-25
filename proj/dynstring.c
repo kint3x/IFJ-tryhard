@@ -142,4 +142,4 @@ int nstring_2int(Nstring *s){
 
 double nstring_3float(Nstring *s){
 	return atof(s->string);
-
+}
