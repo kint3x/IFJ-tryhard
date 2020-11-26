@@ -163,7 +163,14 @@ Nstring generated_code;
 
 bool generate_start(){
 	ADD_CODE(GEN_HEADER);
-
+	ADD_CODE("\n#BUILTIN FUNCTIONS ---------------");
+	ADD_CODE(FUN_INT2FLOAT);
+	ADD_CODE(FUN_FLOAT2INT);
+	ADD_CODE(FUN_LEN);
+	ADD_CODE(FUN_ORD);
+	ADD_CODE(FUN_SUBSTR);
+	ADD_CODE(FUN_CHR);
+	ADD_CODE("\n#---------------------------")
 	return true;
 }
 
@@ -331,5 +338,28 @@ bool G_aftercall_empty_write(Nstring *zasobnik){
 	}
 
 	nstring_free(tmp);
+	return true;
+}
+
+bool G_fun_print(Nstring *s, tType type,int uniq){
+	char buf[30];
+	double val=0;
+	val = val*5; // <aby prekladac nemarhoval
+	if(type==T_ID){
+		sprintf(buf,"%s%d",s->string,uniq);
+		ADD_CODE("\nWRITE LF@%");ADD_CODE(buf);
+	}
+	if(type==T_INT){
+		ADD_CODE("\nWRITE int@");ADD_CODE(s->string);
+	}
+	if(type==T_DOUBLE){
+		double val=nstring_3float(s);
+		sprintf(buf,"%a",val);
+		ADD_CODE("\nWRITE float@");ADD_CODE(buf);
+	}
+	if(type==T_STRING){
+		nstring_string_to_escape(s);
+		ADD_CODE("\nWRITE string@");ADD_CODE(s->string);
+	}
 	return true;
 }
