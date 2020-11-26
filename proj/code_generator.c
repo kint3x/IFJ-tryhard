@@ -10,7 +10,25 @@
 //premenne pre generator zacinaju &
 //uzivatelske zacinaju s %
 //definicia predprogramovaných funkcii
-#define FUN_LEN \
+#define FUN_INT2FLOAT\
+"\n LABEL $int2float"\
+"\n PUSHFRAME"\
+"\n DEFVAR LF@&ret1"\
+"\n INT2FLOAT LF@&ret1 LF@&arg1"\
+"\n POPFRAME"\
+"\n RETURN"\
+
+
+#define FUN_FLOAT2INT\
+"\nLABEL $float2int"\
+"\nPUSHFRAME"\
+"\nDEFVAR LF@&ret1"\
+"\nFLOAT2INT LF@&ret1 LF@&arg1"\
+"\nPOPFRAME"\
+"\nRETURN"\
+
+
+#define FUN_LEN\
 "\n#Start oflen "\
 "\n LABEL $len " \
 "\n PUSHFRAME " \
