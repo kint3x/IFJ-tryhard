@@ -20,6 +20,7 @@
 #include "stack.h"
 #include "err.h"
 #include "dynstring.h"
+#include "code_generator.h"
 
 extern Token token;
 extern Token tokenp;
@@ -171,6 +172,11 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val + s.top->val;
 				}
+				if((*change)==T_STRING){
+					G_expr_string_concat();
+				}else{
+					G_expr_operat('+');
+				}
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
@@ -186,6 +192,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val - s.top->val;
 				}
+				G_expr_operat('-');
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
@@ -201,6 +208,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val * s.top->val;
 				}
+				G_expr_operat('*');
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
@@ -220,6 +228,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val / s.top->val;
 				}
+				G_expr_operat('/');
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
@@ -306,11 +315,11 @@ int expression(tType *change,bool *cond,BTreeStackPtr Local_trees) {
 }
 
 int sem_check_var(tType *change,BTreeStackPtr Local_trees){
-
 	if(token.type==T_ID){
 		if(strcmp(token.data->string,"_")==0) return ERR_SEMAN_OTHERS;
 		BTreePtr search = BTStack_searchbyname(&Local_trees,token.data); // vyhlada premennu
 		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // ak nenajde neexistuje
+		G_expr_term(token,search->uniq_scope);
 		
 		if((*change)==T_UNKNOWN){
 			(*change)=search->item_type;
@@ -321,6 +330,7 @@ int sem_check_var(tType *change,BTreeStackPtr Local_trees){
 		}
 	}
 	else if(token.type==T_INT){
+		G_expr_term(token,0);
 		if((*change)==T_UNKNOWN){
 			(*change)=T_INT;
 		}else{
@@ -330,6 +340,7 @@ int sem_check_var(tType *change,BTreeStackPtr Local_trees){
 		}
 	}
 	else if(token.type==T_STRING){
+		G_expr_term(token,0);
 		if((*change)==T_UNKNOWN){
 			(*change)=T_STRING;
 		}else{
@@ -339,6 +350,7 @@ int sem_check_var(tType *change,BTreeStackPtr Local_trees){
 		}
 	}
 	else if(token.type==T_DOUBLE){
+		G_expr_term(token,0);
 		if((*change)==T_UNKNOWN){
 			(*change)=T_DOUBLE;
 		}else{
