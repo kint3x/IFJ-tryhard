@@ -13,6 +13,18 @@
 
 #define PRE_STRING_ALLOC_SIZE 10 // kolko si má string predalokovať
 
+bool Nstring_onlyinit(Nstring *s){
+	s->string=(char *)malloc(PRE_STRING_ALLOC_SIZE*sizeof(char));
+	if(s->string==NULL){
+		free(s);
+		//fprintf(stderr, "Nepodarilo sa allokovať string v štruktúre!\n");
+		return false;
+	}
+	s->string_size=0;
+	s->allocated_size=PRE_STRING_ALLOC_SIZE;
+	nstring_clear(s);
+	return true;
+}
 
 Nstring *nstring_init(){
 	Nstring *s;
@@ -47,7 +59,8 @@ void nstring_clear(Nstring *s){
 }
 
 bool nstring_add_str(Nstring *s, char *str){
-	if(s->allocated_size <= strlen(str) ){
+	long int dlzka = strlen(str);
+	if(s->allocated_size <= dlzka+s->string_size+1 ){
 		s->string=(char *)realloc(s->string,s->allocated_size+strlen(str)+1);
 		if(s->string == NULL){
 			//fprintf(stderr, "Nepodarilo sa spraviť realloc pri funkcí nstring_add_char\n");
