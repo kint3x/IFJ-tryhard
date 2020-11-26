@@ -43,6 +43,7 @@ else{\
 
 bool BOOL_IN_FUNCTION;
 bool BOOL_DEFINED_FUN;
+bool BOOL_PARAM_OR_DATA;
 bool BOOL_IN_RETURN;
 bool BOOL_IN_WFOR;
 bool BOOL_FOUND_RETURN;
@@ -381,10 +382,12 @@ int p_func() {
 			if (token.type == T_LEFTBR) {
 				GET_TOKEN();
 				gl_counter=1;//global counter na 0
+				BOOL_PARAM_OR_DATA=true;
 				ret_value = p_paramlist();
 				VALUE_CHECK();
 				Act_func->AoR=1; // prepnutie na return types
-				gl_counter=0;//global counter na 0
+				gl_counter=1;//global counter na 0
+				BOOL_PARAM_OR_DATA=false;
 				ret_value = p_datatypelist();
 				VALUE_CHECK();
 				BOOL_IN_FUNCTION=true;
@@ -421,7 +424,7 @@ int p_paramlist() {
 	switch (token.type) {
 	case T_ID:
 		nstring_add_str(saved_ID,token.data->string);
-		G_Fun_argument(token.data,gl_counter++); // Generacia argumentu
+		G_Fun_argument(token.data,gl_counter++,uniq_scope); // Generacia argumentu
 		GET_TOKEN();
 		ret_value = p_datatype();
 		VALUE_CHECK();
@@ -452,7 +455,7 @@ int p_paramnext() {
 
 		if (token.type == T_ID) {
 			nstring_add_str(saved_ID,token.data->string);
-			G_Fun_argument(token.data,gl_counter++); // Generacia argumentu
+			G_Fun_argument(token.data,gl_counter++,uniq_scope); // Generacia argumentu
 			GET_TOKEN();
 		}
 		else break;
@@ -559,9 +562,9 @@ int p_datatypenext() {
 int p_datatype() {
 
 	int ret_value = ERR_SYNAN;
-	G_Fun_ret_value(gl_counter++);
 	switch (token.type) {
 	case T_WINT:
+		if(!BOOL_PARAM_OR_DATA) G_Fun_ret_value(gl_counter++); //iba ak sme v navratovych datovych typoch funkcie
 		GET_TOKEN();
 		if(!nstring_is_clear(saved_ID)){
 			BTStack_newnode(&Act_scope,T_INT, saved_ID,uniq_scope);
@@ -571,6 +574,7 @@ int p_datatype() {
 		break;
 
 	case T_WFLOAT64:
+		if(!BOOL_PARAM_OR_DATA) G_Fun_ret_value(gl_counter++); //iba ak sme v navratovych datovych typoch funkcie
 		GET_TOKEN();
 		if(!nstring_is_clear(saved_ID)){
 			BTStack_newnode(&Act_scope,T_DOUBLE, saved_ID,uniq_scope);
@@ -580,6 +584,7 @@ int p_datatype() {
 		break;
 
 	case T_WSTRING:
+		if(!BOOL_PARAM_OR_DATA) G_Fun_ret_value(gl_counter++); //iba ak sme v navratovych datovych typoch funkcie
 		GET_TOKEN();
 		if(!nstring_is_clear(saved_ID)){
 			BTStack_newnode(&Act_scope,T_STRING, saved_ID,uniq_scope);
@@ -752,6 +757,7 @@ int p_stat() {
 		GET_TOKEN();
 		BOOL_FOUND_RETURN=true;
 		BOOL_IN_RETURN = true; // definujem že kontrolujem return
+		gl_counter=1; //gl counter pre pocitanie
 		if(token.type==T_EOL) return ERR_RIGHT; //hotfix return epsilon pravidlo
 		ret_value = p_expressionlist();
 		VALUE_CHECK();
@@ -918,10 +924,16 @@ int p_expressionlist() {
 	VALUE_CHECK();
 	nstring_push_type(right_expr,tmp_check);
 	//Blok pre tlačenie POPS
+	if(BOOL_IN_RETURN){
+		G_Fun_pop_to_ret(gl_counter);
+		gl_counter++;
+	}
+	else{
 	Nstring *new=nstring_init();
 	nstring_get_and_delete(saved_uniq,new);
 	G_expr_pops(new);
 	nstring_free(new);
+	}
 	// Koniec bloku
 	ret_value = p_expressionnext();
 	VALUE_CHECK();
@@ -942,13 +954,18 @@ int p_expressionnext() {
 			ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 			VALUE_CHECK();
 			nstring_push_type(right_expr,tmp_check);
-			//Blok pre POPS do premennej
-			Nstring *new=nstring_init();
-			nstring_get_and_delete(saved_uniq,new);
-			G_expr_pops(new);
-			nstring_free(new);
-			printf("V SAVED_UNIQ je :%s\n",saved_uniq->string);
-			//Pops
+			//Blok pre tlačenie POPS
+			if(BOOL_IN_RETURN){
+				G_Fun_pop_to_ret(gl_counter);
+				gl_counter++;
+			}
+			else{
+				Nstring *new=nstring_init();
+				nstring_get_and_delete(saved_uniq,new);
+				G_expr_pops(new);
+				nstring_free(new);
+			}
+			// Koniec bloku
 			ret_value = p_expressionnext();
 			VALUE_CHECK();
 			break;
@@ -1001,7 +1018,7 @@ int p_termlist() {
 		else{
 			if(EStack_addcall(&Err_stack,saved_ID,stack_left,func_args)==ERR_INTERNAL) return ERR_INTERNAL; //hádžeme na stack
 		}
-
+		G_callfunc(saved_ID);
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -1069,6 +1086,12 @@ int p_term() {
 			{
 				nstring_add_char(func_args,cmp);
 			}
+			char buf[100];
+			sprintf(buf,"%s%d",search->name->string,search->uniq_scope);
+			Nstring *tmp = nstring_init();
+			nstring_add_str(tmp,buf);
+			G_callfunc_arg(tmp,termcount,token.type);
+			nstring_free(tmp);
 		}
 		else { 
 
@@ -1093,6 +1116,7 @@ int p_term() {
 		   	else{
 					nstring_add_char(func_args,'i');
 				}
+			G_callfunc_arg(token.data,termcount,token.type);
 		}
 		else { //VOLA GENERATOR PRINT
 		}
@@ -1113,6 +1137,7 @@ int p_term() {
 				{
 					nstring_add_char(func_args,'s');
 				}
+			G_callfunc_arg(token.data,termcount,token.type);
 		}
 		else { //VOLA GENERATOR PRINT
 		}
@@ -1132,6 +1157,7 @@ int p_term() {
 				{
 					nstring_add_char(func_args,'f');
 				}
+			G_callfunc_arg(token.data,termcount,token.type);
 		} 
 		else { //VOLA GENERATOR PRINT
 		}
@@ -1199,6 +1225,7 @@ int p_idstat() {
 				BOOL_DEFINED_FUN=false; //existuje
 				nstring_clear(func_args);
 		}
+		G_createframe();
 
 		GET_TOKEN();
 
@@ -1229,7 +1256,7 @@ int p_exprorid() {
 			PEEK_TOKEN();
 			
 			if (tokenp.type == T_LEFTBR) {
-
+				G_createframe();
 				if(nstring_str_cmp(token.data,"print")==0) PRINT=true;
 				else PRINT = false;
 				nstring_clear(saved_ID); nstring_add_str(saved_ID,(token.data)->string); // uchova id
@@ -1249,6 +1276,9 @@ int p_exprorid() {
 				termcount=0;
 				ret_value = p_termlist();
 				VALUE_CHECK();
+				G_callfunc(saved_ID);
+				G_aftercall_empty_write(saved_uniq);
+				nstring_clear(saved_uniq);
 			}
 			else {
 				ret_value = p_expressionlist();

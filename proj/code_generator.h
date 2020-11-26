@@ -11,7 +11,7 @@
 
 bool generate_start();
 bool G_Fun_header(Nstring *name);
-bool G_Fun_argument(Nstring *s,int poradie);
+bool G_Fun_argument(Nstring *s,int poradie,int scope);
 bool G_Fun_def_return(int poradie);
 bool G_Fun_ret_value(int poradie);
 bool G_Fun_return();
@@ -22,4 +22,9 @@ bool G_declare_var(Nstring *s,int uniq);
 bool G_expr_pops(Nstring *s);
 bool G_expr_operat(char c);
 bool G_expr_string_concat();
+bool G_callfunc_arg(Nstring *s, int poradie, tType type);
+bool G_createframe();
+bool G_callfunc(Nstring *s);
+bool G_aftercall_empty_write(Nstring *zasobnik);
+bool G_Fun_pop_to_ret(int couter);
 #endif

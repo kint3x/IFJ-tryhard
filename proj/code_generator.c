@@ -10,7 +10,7 @@
 //premenne pre generator zacinaju &
 //uzivatelske zacinaju s %
 //definicia predprogramovaných funkcii
-#define FUN_INT2FLOAT\
+#define FUN_INT2FLOAT \
 "\n LABEL $int2float"\
 "\n PUSHFRAME"\
 "\n DEFVAR LF@&ret1"\
@@ -19,7 +19,7 @@
 "\n RETURN"\
 
 
-#define FUN_FLOAT2INT\
+#define FUN_FLOAT2INT \
 "\nLABEL $float2int"\
 "\nPUSHFRAME"\
 "\nDEFVAR LF@&ret1"\
@@ -28,7 +28,7 @@
 "\nRETURN"\
 
 
-#define FUN_LEN\
+#define FUN_LEN \
 "\n#Start oflen "\
 "\n LABEL $len " \
 "\n PUSHFRAME " \
@@ -177,24 +177,28 @@ bool G_Fun_header(Nstring *name){
 	ADD_CODE("\nDEFVAR LF@&concat3")
 	return true;
 }
-bool G_Fun_argument(Nstring *s,int poradie){
+bool G_Fun_argument(Nstring *s,int poradie,int scope){
 	char buf[30];
+	sprintf(buf,"%d",scope);
+	ADD_CODE("\nDEFVAR LF@");ADD_CODE("%");ADD_CODE(s->string);ADD_CODE(buf);
+	sprintf(buf,"%d",scope);
+	ADD_CODE("\nMOVE LF@%");ADD_CODE(s->string);ADD_CODE(buf);
+	ADD_CODE(" LF@&arg")
 	sprintf(buf,"%d",poradie);
-	ADD_CODE("\nDEFVAR ");ADD_CODE("%");ADD_CODE(s->string);ADD_CODE(buf);
-	ADD_CODE("\nMOVE LF@&arg");ADD_CODE(buf);
-	return true;
-}
-bool G_Fun_def_return(int poradie){
-	char buf[30];
-	sprintf(buf,"%d",poradie);
-	ADD_CODE("\nDEFVAR LF@&ret");ADD_CODE(buf);
+	ADD_CODE(buf);
 	return true;
 }
 
 bool G_Fun_ret_value(int poradie){
 	char buf[30];
 	sprintf(buf,"%d",poradie);
-	ADD_CODE("\nDEFVAR LF@&ret")ADD_CODE(buf);
+	ADD_CODE("\nDEFVAR LF@&ret");ADD_CODE(buf);
+	return true;
+}
+bool G_Fun_pop_to_ret(int counter){
+	char buf[30];
+	sprintf(buf,"%d",counter);
+	ADD_CODE("\nPOPS LF@&ret");ADD_CODE(buf);
 	return true;
 }
 
@@ -275,3 +279,57 @@ bool G_expr_string_concat(){
 	return true;
 }
 
+bool G_createframe(){
+	ADD_CODE("\nCREATEFRAME");
+	return true;
+}
+bool G_callfunc(Nstring *s){
+	ADD_CODE("\nCALL $");ADD_CODE(s->string);
+	return true;
+}
+
+bool G_callfunc_arg(Nstring *s, int poradie, tType type){
+	char buf[30];
+	char buf2[30];
+	sprintf(buf,"%d",poradie);
+
+	if(type==T_ID){
+		ADD_CODE("\nDEFVAR TF@&arg");ADD_CODE(buf);
+		ADD_CODE("\nMOVE TF@&arg");ADD_CODE(buf);ADD_CODE(" LF@%");ADD_CODE(s->string);
+	}
+	if(type==T_INT){
+		ADD_CODE("\nDEFVAR TF@&arg");ADD_CODE(buf);
+		ADD_CODE("\nMOVE TF@&arg");ADD_CODE(buf);ADD_CODE(" int@");ADD_CODE(s->string);
+	}
+	if(type==T_DOUBLE){
+		double val=nstring_3float(s);
+		sprintf(buf2,"%a",val);
+		ADD_CODE("\nDEFVAR TF@&arg");ADD_CODE(buf);
+		ADD_CODE("\nMOVE TF@&arg");ADD_CODE(buf);ADD_CODE(" float@");ADD_CODE(buf2);
+	}
+	if(type==T_STRING){
+		nstring_string_to_escape(s);
+		ADD_CODE("\nDEFVAR TF@&arg");ADD_CODE(buf);
+		ADD_CODE("\nMOVE TF@&arg");ADD_CODE(buf);ADD_CODE(" string@");ADD_CODE(s->string);
+	}
+	return true;
+}
+
+bool G_aftercall_empty_write(Nstring *zasobnik){
+	char buf[30];
+	unsigned int dlzka=(unsigned int)nstring_len(zasobnik);
+	int i=1;
+	Nstring *tmp = nstring_init();
+
+	while(zasobnik->string[dlzka-1]!='%'){
+		sprintf(buf,"%d",i);
+		nstring_get_and_delete(zasobnik,tmp);
+		if(nstring_str_cmp(tmp,"_")!=0){
+			ADD_CODE("\nMOVE LF@%");ADD_CODE(tmp->string);ADD_CODE(" TF@&ret");ADD_CODE(buf);
+		}
+		i++;
+	}
+
+	nstring_free(tmp);
+	return true;
+}
