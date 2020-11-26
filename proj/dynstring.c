@@ -156,3 +156,59 @@ int nstring_2int(Nstring *s){
 double nstring_3float(Nstring *s){
 	return atof(s->string);
 }
+
+bool nstring_string_to_escape(Nstring *s){
+	int c;
+	char buf[30];
+	printf("premen tento string:%s\n",s->string);
+	Nstring *tmp=nstring_init();
+	if(tmp==NULL) return false;
+	for(int i=0;i<strlen(s->string);i++){
+		c=s->string[i];
+		if(c>=0 && c<=32){
+			if(c==0){
+				nstring_add_str(tmp,"\\000");
+			}
+			else{
+				sprintf(buf,"%d",c);
+				nstring_add_char(tmp,'\\');
+				nstring_add_char(tmp,'0');
+				nstring_add_str(tmp,buf);
+			}
+		}
+		else if(c==35){
+			nstring_add_str(tmp,"\\035");
+		}
+		else if(c==92){
+			nstring_add_str(tmp,"\\092");
+		}
+		else{
+			nstring_add_char(tmp,c);
+		}
+	}
+	nstring_clear(s);
+	nstring_add_str(s,tmp->string);
+	nstring_free(tmp);
+	return true;
+}
+
+bool nstring_get_and_delete(Nstring *source,Nstring *new){
+	Nstring *tmp=nstring_init();
+	int c,i=0;
+	nstring_clear(new);
+	do{
+		c=source->string[i];
+		if(c!='|'){
+			if(c!='%') nstring_add_char(new,c);
+		}
+		else{
+			source->string[i]='%';
+			break;
+		}
+		source->string[i]='%';
+		i++;
+	}while(source->string[i] != '\0');
+
+	nstring_free(tmp);
+	return true;
+}
