@@ -276,6 +276,8 @@ int parse(){
 	nstring_free(right_expr);
 	nstring_free(saved_uniq);
 
+	G_end();// generacia labelu end
+
 	G_PRINT();
 	if(token.type!=T_END_OF_FILE)nstring_free(token.data); // uvolnit nstring v token.data
 
@@ -393,6 +395,7 @@ int p_func() {
 				// kontrola ci naslo return ak tam mal byť
 				if(!BOOL_FOUND_RETURN){
 					if(Act_func->returns->string[0]!='\0') return ERR_SEMAN_PARAMETERS; // Ak nenašiel return ale funkcia má return values tak err	
+					G_Fun_return();//Print return pre void funkcie
 				}
 
 				if (token.type == T_EOL) {
@@ -752,9 +755,10 @@ int p_stat() {
 		if(token.type==T_EOL) return ERR_RIGHT; //hotfix return epsilon pravidlo
 		ret_value = p_expressionlist();
 		VALUE_CHECK();
-		BOOL_IN_RETURN = false; // definujem že kontrolujem return
-		
+		BOOL_IN_RETURN = false; // definujem že  končím kontrolovanie returnu
+			
 		if(strcmp(Act_func->returns->string,right_expr->string)!=0) return ERR_SEMAN_PARAMETERS; // Vracia zle typy
+		G_Fun_return(); // Generuje koniec funkcie
 
 		break;
 	case T_ID:
@@ -858,10 +862,15 @@ int p_idnext() {
 		SEARCH_AND_PUSH();
 		char sbuf[30];
 		BTreePtr temp = BTStack_searchbyname(&Local_trees,saved_ID);
+		if(nstring_str_cmp(saved_ID,"_")!=0){
 		snprintf(sbuf, 30, "%d",temp->uniq_scope);
 		nstring_add_str(saved_uniq,saved_ID->string);nstring_add_str(saved_uniq,sbuf); nstring_add_char(saved_uniq,'|');
+		}
+		else{
+			nstring_add_str(saved_uniq,saved_ID->string);nstring_add_char(saved_uniq,'|');
+		}
 		GET_TOKEN();
-		printf("SAVED_UNIQ:%s\n",saved_uniq->string);
+		//printf("SAVED_UNIQ:%s\n",saved_uniq->string);
 		if (token.type == T_ID) {
 			nstring_clear(saved_ID); nstring_add_str(saved_ID,(token.data)->string); // UCHOVAM ID
 			GET_TOKEN();
@@ -876,10 +885,15 @@ int p_idnext() {
 		//printf("ROBIM SEARCH AND PUSH %s",saved_ID->string);
 		//printf("PRED SEARCH A PUSH: %s \n",stack_left->string);
 		SEARCH_AND_PUSH();
-		temp = BTStack_searchbyname(&Local_trees,saved_ID);
-		sprintf(sbuf,"%d",temp->uniq_scope);
-		nstring_add_str(saved_uniq,saved_ID->string);
-		nstring_add_str(saved_uniq,sbuf);
+		if(nstring_str_cmp(saved_ID,"_")!=0){
+			temp = BTStack_searchbyname(&Local_trees,saved_ID);
+			sprintf(sbuf,"%d",temp->uniq_scope);
+			nstring_add_str(saved_uniq,saved_ID->string);
+			nstring_add_str(saved_uniq,sbuf);
+		}
+		else {
+			nstring_add_str(saved_uniq,saved_ID->string);
+		}
 
 		printf("SAVED_UNIQ:%s\n",saved_uniq->string);
 		//printf("PO SEARCH A PUSH: %s \n",stack_left->string);
@@ -903,7 +917,12 @@ int p_expressionlist() {
 	ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 	VALUE_CHECK();
 	nstring_push_type(right_expr,tmp_check);
-
+	//Blok pre tlačenie POPS
+	Nstring *new=nstring_init();
+	nstring_get_and_delete(saved_uniq,new);
+	G_expr_pops(new);
+	nstring_free(new);
+	// Koniec bloku
 	ret_value = p_expressionnext();
 	VALUE_CHECK();
 
@@ -923,7 +942,13 @@ int p_expressionnext() {
 			ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 			VALUE_CHECK();
 			nstring_push_type(right_expr,tmp_check);
-
+			//Blok pre POPS do premennej
+			Nstring *new=nstring_init();
+			nstring_get_and_delete(saved_uniq,new);
+			G_expr_pops(new);
+			nstring_free(new);
+			printf("V SAVED_UNIQ je :%s\n",saved_uniq->string);
+			//Pops
 			ret_value = p_expressionnext();
 			VALUE_CHECK();
 			break;
@@ -1140,8 +1165,15 @@ int p_idstat() {
 			VALUE_CHECK();
 		}
 		else return ERR_SEMAN_OTHERS;
-		
-
+		BTreePtr tmp_sr=BTStack_searchbyname(&Local_trees,saved_ID); if(tmp_sr==NULL) return ERR_INTERNAL;
+		G_declare_var(tmp_sr->name,tmp_sr->uniq_scope);
+		nstring_clear(saved_uniq);
+		char buf[30];
+		sprintf(buf,"%d",tmp_sr->uniq_scope);
+		nstring_add_str(saved_uniq,tmp_sr->name->string);
+		nstring_add_str(saved_uniq,buf);
+		G_expr_pops(saved_uniq);
+		nstring_clear(saved_uniq);
 		break;
 
 	case T_COMMA:
