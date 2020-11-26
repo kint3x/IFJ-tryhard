@@ -366,7 +366,6 @@ int p_funclist() {
 }
 
 int p_func() {
-
 	int ret_value = ERR_SYNAN;
 	BOOL_FOUND_RETURN = false; // incializacia ci najde return
 	if (token.type == T_WFUNC) {
@@ -901,7 +900,7 @@ int p_idnext() {
 			nstring_add_str(saved_uniq,saved_ID->string);
 		}
 
-		printf("SAVED_UNIQ:%s\n",saved_uniq->string);
+		//printf("SAVED_UNIQ:%s\n",saved_uniq->string);
 		//printf("PO SEARCH A PUSH: %s \n",stack_left->string);
 		GET_TOKEN();
 
@@ -1094,7 +1093,7 @@ int p_term() {
 			nstring_free(tmp);
 		}
 		else { 
-
+		G_fun_print(token.data, token.type,search->uniq_scope);
 		//VOLA GENERATOR PRINT
 		}
 
@@ -1119,6 +1118,7 @@ int p_term() {
 			G_callfunc_arg(token.data,termcount,token.type);
 		}
 		else { //VOLA GENERATOR PRINT
+			G_fun_print(token.data, token.type,0);
 		}
 		GET_TOKEN();
 
@@ -1140,6 +1140,7 @@ int p_term() {
 			G_callfunc_arg(token.data,termcount,token.type);
 		}
 		else { //VOLA GENERATOR PRINT
+			G_fun_print(token.data, token.type,0);
 		}
 		GET_TOKEN();
 
@@ -1160,6 +1161,7 @@ int p_term() {
 			G_callfunc_arg(token.data,termcount,token.type);
 		} 
 		else { //VOLA GENERATOR PRINT
+			G_fun_print(token.data, token.type,0);
 		}
 
 		GET_TOKEN();

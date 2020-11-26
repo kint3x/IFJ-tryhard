@@ -160,7 +160,7 @@ double nstring_3float(Nstring *s){
 bool nstring_string_to_escape(Nstring *s){
 	int c;
 	char buf[30];
-	printf("premen tento string:%s",s->string);
+	//printf("premen tento string:%s",s->string);
 	Nstring *tmp=nstring_init();
 	if(tmp==NULL) return false;
 	for(int i=0;i<strlen(s->string);i++){
