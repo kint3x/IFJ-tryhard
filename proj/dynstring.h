@@ -21,6 +21,7 @@ typedef struct{
 	unsigned int allocated_size;
 }Nstring;
 
+bool Nstring_onlyinit(Nstring *s);
 /**
 *	@brief Inicializácia nafukovacieho stringu
 *

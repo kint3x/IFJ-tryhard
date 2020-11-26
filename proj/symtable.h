@@ -30,6 +30,7 @@ typedef struct BTree {
 	tType item_type; //Pre keyword
 	//Variabile var_type;
 	Nstring *name;
+	int uniq_scope;
 	unsigned short int AoR;
 	unsigned short int num_arguments;
 	unsigned short int num_returns;
@@ -56,7 +57,7 @@ void BTree_freeleaf(BTreePtr ptr);
 
 void BTree_print(BTreePtr *root);
 
-int BTree_newnode(BTreePtr *root, tType item, Nstring *n,BTreePtr *setptr);
+int BTree_newnode(BTreePtr *root, tType item, Nstring *n,BTreePtr *setptr,int uniq_scope);
 
 BTreePtr BTree_findbyname(BTreePtr *root,Nstring *n);
 
@@ -75,7 +76,7 @@ BTreePtr BTStack_searchbyname(BTreeStackPtr *root,Nstring *s);
 
 void BTStack_printall(BTreeStackPtr *root);
 
-int BTStack_newnode(BTreeStackPtr *actual_tree,tType item, Nstring *n);
+int BTStack_newnode(BTreeStackPtr *actual_tree,tType item, Nstring *n,int uniq_scope);
 #endif
 /*#define ADD_GLOBAL_FUNCTION() int res_add_gl= BTree_newnode(&Global_tree,T_WFUNC,token.data,&Act_func); if(res_add_gl!=ERR_RIGHT) return res_add_gl;
 #define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack;

@@ -16,9 +16,11 @@
 #include <stdbool.h>
 #include "parser.h"
 #include "scaner.h"
+#include <string.h>
+#include "code_generator.h"
 
-#define ADD_GLOBAL_FUNCTION() int res_add_gl= BTree_newnode(&Global_tree,T_WFUNC,token.data,&Act_func); if(res_add_gl!=ERR_RIGHT) return res_add_gl;
-#define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack; 
+#define ADD_GLOBAL_FUNCTION() int res_add_gl= BTree_newnode(&Global_tree,T_WFUNC,token.data,&Act_func,0); if(res_add_gl!=ERR_RIGHT) return res_add_gl;
+#define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack; uniq_scope++;
 #define LOCAL_POP() BTStack_pop(&Local_trees,&Act_scope);
 
 #define SEARCH_AND_PUSH() ; if(1){\
@@ -46,9 +48,14 @@ bool BOOL_IN_WFOR;
 bool BOOL_FOUND_RETURN;
 
 bool PRINT;
+
+Nstring *saved_uniq;
+
 Nstring *saved_ID;
 tType saved_type;
 int termcount;
+int gl_counter;
+unsigned int uniq_scope;
 
 Nstring *stack_left;
 Nstring *func_args;
@@ -65,6 +72,7 @@ BTreePtr Global_tree;
 
 Token token; // GLOBALNA PREMENNA S AKTUALNYM TOKENOM
 Token tokenp; // pomocny token
+
 
 void peek_nexttoken() {
 	Token *t = getNextToken();   // NACITAME NOVY TOKEN
@@ -123,33 +131,33 @@ int Init_builtinfunct(){
 	Nstring *news=nstring_init();
 
 	if(!nstring_add_str(news,"inputs")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 	if(!nstring_add_str(new->returns,"si")) return ERR_INTERNAL;
 	new->num_returns = 2;
 
 	nstring_clear(news);
 
 	if(!nstring_add_str(news,"inputi")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 	if(!nstring_add_str(new->returns,"ii")) return ERR_INTERNAL;
 	new->num_returns = 2;
 
 	nstring_clear(news);
 
 	if(!nstring_add_str(news,"inputf")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 	if(!nstring_add_str(new->returns,"fi")) return ERR_INTERNAL;
 	new->num_returns = 2;
 
 	nstring_clear(news);
 
 	if(!nstring_add_str(news,"print")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 
 	nstring_clear(news);
 
 	if(!nstring_add_str(news,"int2float")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 	if(!nstring_add_str(new->returns,"f")) return ERR_INTERNAL;
 	if(!nstring_add_str(new->args,"i")) return ERR_INTERNAL;
 	new->num_returns = 1;
@@ -158,7 +166,7 @@ int Init_builtinfunct(){
 	nstring_clear(news);
 
 	if(!nstring_add_str(news,"float2int")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 	if(!nstring_add_str(new->returns,"i")) return ERR_INTERNAL;
 	if(!nstring_add_str(new->args,"f")) return ERR_INTERNAL;
 	new->num_returns = 1;
@@ -167,7 +175,7 @@ int Init_builtinfunct(){
 	nstring_clear(news);
 
 	if(!nstring_add_str(news,"len")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 	if(!nstring_add_str(new->returns,"i")) return ERR_INTERNAL;
 	if(!nstring_add_str(new->args,"s")) return ERR_INTERNAL;
 	new->num_returns = 1;
@@ -176,7 +184,7 @@ int Init_builtinfunct(){
 	nstring_clear(news);
 
 	if(!nstring_add_str(news,"substr")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 	if(!nstring_add_str(new->returns,"si")) return ERR_INTERNAL;
 	if(!nstring_add_str(new->args,"sii")) return ERR_INTERNAL;
 	new->num_returns = 2;
@@ -185,7 +193,7 @@ int Init_builtinfunct(){
 	nstring_clear(news);
 
 	if(!nstring_add_str(news,"ord")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 	if(!nstring_add_str(new->returns,"ii")) return ERR_INTERNAL;
 	if(!nstring_add_str(new->args,"si")) return ERR_INTERNAL;
 	new->num_returns = 2;
@@ -194,7 +202,7 @@ int Init_builtinfunct(){
 	nstring_clear(news);
 
 	if(!nstring_add_str(news,"chr")) return ERR_INTERNAL;
-	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new)!=ERR_RIGHT) return ERR_INTERNAL;
+	if(BTree_newnode(&Global_tree, T_WFUNC,news,&new,0)!=ERR_RIGHT) return ERR_INTERNAL;
 	if(!nstring_add_str(new->returns,"si")) return ERR_INTERNAL;
 	if(!nstring_add_str(new->args,"i")) return ERR_INTERNAL;
 	new->num_returns = 2;
@@ -210,6 +218,7 @@ void init_global_var(){
 	token.data = NULL; // Nastavi dynstring na NULL
 	tokenp.data = NULL;
 	tokenp.type = -1;
+	uniq_scope=0;
 	Local_trees=NULL;
 	Act_node=NULL;
 	Act_func=NULL;
@@ -221,6 +230,7 @@ void init_global_var(){
 	stack_left=nstring_init();
 	func_args=nstring_init();
 	right_expr=nstring_init();
+	saved_uniq=nstring_init();
 	termcount=0;
 	Init_builtinfunct();
 
@@ -228,6 +238,7 @@ void init_global_var(){
 
 int parse(){
 	int	ret_value=ERR_SYNAN;
+	generate_start(); // štart generácie
 
 	init_global_var();
 
@@ -256,12 +267,16 @@ int parse(){
 	//BTree_print(&Global_tree);
 	//BTStack_printall(&Local_trees);
 	BTree_dispose(&Global_tree);
+
 	BTStack_dispose(&Local_trees);
 	EStack_dispose(&Err_stack);
 	nstring_free(saved_ID);
 	nstring_free(stack_left);
 	nstring_free(func_args);
 	nstring_free(right_expr);
+	nstring_free(saved_uniq);
+
+	G_PRINT();
 	if(token.type!=T_END_OF_FILE)nstring_free(token.data); // uvolnit nstring v token.data
 
 	//stderr_print(ret_value);
@@ -314,7 +329,6 @@ int p_prog() {
 		VALUE_CHECK();
 		ret_value = p_funclist();
 		VALUE_CHECK();
-
 		break;
 	default:
 		break;
@@ -355,17 +369,20 @@ int p_func() {
 	if (token.type == T_WFUNC) {
 		;LOCAL_TOP();
 		GET_TOKEN();
-
 		if (token.type == T_ID) {
 			ADD_GLOBAL_FUNCTION(); // Pridanie Funkcie
+
+			G_Fun_header(token.data);//GENERACIA NAZVU
+
 			GET_TOKEN();
 
 			if (token.type == T_LEFTBR) {
 				GET_TOKEN();
-
+				gl_counter=1;//global counter na 0
 				ret_value = p_paramlist();
 				VALUE_CHECK();
 				Act_func->AoR=1; // prepnutie na return types
+				gl_counter=0;//global counter na 0
 				ret_value = p_datatypelist();
 				VALUE_CHECK();
 				BOOL_IN_FUNCTION=true;
@@ -375,11 +392,11 @@ int p_func() {
 
 				// kontrola ci naslo return ak tam mal byť
 				if(!BOOL_FOUND_RETURN){
-					if(Act_func->returns->string[0]!='\0') return ERR_SEMAN_PARAMETERS; // Ak nenašiel return ale funkcia má return values tak err
+					if(Act_func->returns->string[0]!='\0') return ERR_SEMAN_PARAMETERS; // Ak nenašiel return ale funkcia má return values tak err	
 				}
 
 				if (token.type == T_EOL) {
-					GET_TOKEN();
+					GET_TOKEN();	
 				}
 				else if (token.type == T_END_OF_FILE) {
 					ret_value = ERR_RIGHT;
@@ -398,10 +415,10 @@ int p_func() {
 int p_paramlist() {
 
 	int ret_value = ERR_SYNAN;
-
 	switch (token.type) {
 	case T_ID:
 		nstring_add_str(saved_ID,token.data->string);
+		G_Fun_argument(token.data,gl_counter++); // Generacia argumentu
 		GET_TOKEN();
 		ret_value = p_datatype();
 		VALUE_CHECK();
@@ -432,6 +449,7 @@ int p_paramnext() {
 
 		if (token.type == T_ID) {
 			nstring_add_str(saved_ID,token.data->string);
+			G_Fun_argument(token.data,gl_counter++); // Generacia argumentu
 			GET_TOKEN();
 		}
 		else break;
@@ -538,22 +556,21 @@ int p_datatypenext() {
 int p_datatype() {
 
 	int ret_value = ERR_SYNAN;
-
+	G_Fun_ret_value(gl_counter++);
 	switch (token.type) {
 	case T_WINT:
 		GET_TOKEN();
 		if(!nstring_is_clear(saved_ID)){
-			BTStack_newnode(&Act_scope,T_INT, saved_ID);
+			BTStack_newnode(&Act_scope,T_INT, saved_ID,uniq_scope);
 		}
 		BTree_insertAoR(Act_func,T_WINT);
-
 		ret_value = ERR_RIGHT;
 		break;
 
 	case T_WFLOAT64:
 		GET_TOKEN();
 		if(!nstring_is_clear(saved_ID)){
-			BTStack_newnode(&Act_scope,T_DOUBLE, saved_ID);
+			BTStack_newnode(&Act_scope,T_DOUBLE, saved_ID,uniq_scope);
 		}
 		BTree_insertAoR(Act_func,T_WFLOAT64);
 		ret_value = ERR_RIGHT;
@@ -562,7 +579,7 @@ int p_datatype() {
 	case T_WSTRING:
 		GET_TOKEN();
 		if(!nstring_is_clear(saved_ID)){
-			BTStack_newnode(&Act_scope,T_STRING, saved_ID);
+			BTStack_newnode(&Act_scope,T_STRING, saved_ID,uniq_scope);
 		}
 		BTree_insertAoR(Act_func,T_WSTRING);
 		ret_value = ERR_RIGHT;
@@ -575,7 +592,6 @@ int p_datatype() {
 }
 
 int p_statlist() {
-
 	int ret_value = ERR_SYNAN;
 	switch (token.type) {
 	case T_WIF:
@@ -591,7 +607,6 @@ int p_statlist() {
 			ret_value = ERR_SYNAN;
 			VALUE_CHECK();
 		}
-
 		ret_value = p_opteol();
 		VALUE_CHECK();
 		ret_value = p_statlist();
@@ -723,7 +738,7 @@ int p_stat() {
 		}
 		BOOL_IN_WFOR=false;
 
-		top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack; // LOCAL TOP() bez int=
+		top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack; uniq_scope++;// LOCAL TOP() bez int=
 
 		ret_value = p_statlist();
 		VALUE_CHECK();
@@ -745,12 +760,12 @@ int p_stat() {
 	case T_ID:
 		;bool ad_res=nstring_add_str(saved_ID,token.data->string); if(!ad_res) return ERR_INTERNAL;
 		saved_type=token.type;
-
+		nstring_clear(saved_uniq); // uvolnenie pre unikátne
 		GET_TOKEN();
-
 
 		ret_value = p_idstat();
 		VALUE_CHECK();
+
 
 		nstring_clear(stack_left);
 		nstring_clear(saved_ID);
@@ -779,7 +794,7 @@ int p_defstat() {
 
 			if(tmp_cond) return ERR_SEMAN_OTHERS; // v definicii nemoze byt relacny operator
 			if( (tmp_check==T_INT) || (tmp_check==T_STRING )||(tmp_check == T_DOUBLE)){  //Prida premennu do stromu, ak nie je ani jedneho typu zavola chybu
-				ret_value=BTStack_newnode(&Act_scope,tmp_check, saved_ID);
+				ret_value=BTStack_newnode(&Act_scope,tmp_check, saved_ID,uniq_scope);
 				VALUE_CHECK();
 			}
 			else return ERR_SEMAN_OTHERS;
@@ -841,8 +856,12 @@ int p_idnext() {
 	switch (token.type) {
 	case T_COMMA:
 		SEARCH_AND_PUSH();
+		char sbuf[30];
+		BTreePtr temp = BTStack_searchbyname(&Local_trees,saved_ID);
+		snprintf(sbuf, 30, "%d",temp->uniq_scope);
+		nstring_add_str(saved_uniq,saved_ID->string);nstring_add_str(saved_uniq,sbuf); nstring_add_char(saved_uniq,'|');
 		GET_TOKEN();
-
+		printf("SAVED_UNIQ:%s\n",saved_uniq->string);
 		if (token.type == T_ID) {
 			nstring_clear(saved_ID); nstring_add_str(saved_ID,(token.data)->string); // UCHOVAM ID
 			GET_TOKEN();
@@ -857,6 +876,12 @@ int p_idnext() {
 		//printf("ROBIM SEARCH AND PUSH %s",saved_ID->string);
 		//printf("PRED SEARCH A PUSH: %s \n",stack_left->string);
 		SEARCH_AND_PUSH();
+		temp = BTStack_searchbyname(&Local_trees,saved_ID);
+		sprintf(sbuf,"%d",temp->uniq_scope);
+		nstring_add_str(saved_uniq,saved_ID->string);
+		nstring_add_str(saved_uniq,sbuf);
+
+		printf("SAVED_UNIQ:%s\n",saved_uniq->string);
 		//printf("PO SEARCH A PUSH: %s \n",stack_left->string);
 		GET_TOKEN();
 
@@ -1111,7 +1136,7 @@ int p_idstat() {
 		VALUE_CHECK();
 		if(tmp_cond) return ERR_SEMAN_OTHERS; // Nemôžeme priradit bool operatory
 		if( (saved_type==T_INT) || (saved_type==T_STRING )||(saved_type == T_DOUBLE)){  //Prida premennu do stromu, ak nie je ani jedneho typu zavola chybu
-			ret_value=BTStack_newnode(&Act_scope,saved_type, saved_ID);
+			ret_value=BTStack_newnode(&Act_scope,saved_type, saved_ID,uniq_scope);
 			VALUE_CHECK();
 		}
 		else return ERR_SEMAN_OTHERS;
