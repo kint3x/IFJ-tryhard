@@ -20,6 +20,7 @@
 "\n RETURN"
 
 #define FUN_SUBSTR\
+"\nLABEL  $substr"\
 "\nPUSHFRAME "\
 "\nDEFVAR LF@&ret1"\
 "\nMOVE LF@&ret1 String@"\
@@ -70,9 +71,22 @@
 "\nJUMPIFEQ $substr$startloop LF@&conloop bool@true"\
 "\nLABEL $substr$end "\
 "\nPOPFRAME "\
-"\nRETURN "\
+"\nRETURN"
 
-
+#define FUN_CHR\
+"\nLABEL $chr"\
+"\nPUSHFRAME"\
+"\nDEFVAR LF@&ret1"\
+"\nMOVE LF@&ret1 string@"\
+"\nDEFVAR  LF@&condition"\
+"\nLT LF@&condition LF@&arg1 int@0"\
+"\nJUMPIFEQ $chr$end LF@&condition bool@true"\
+"\nGT LF@&condition LF@&arg1 int@255"\
+"\nINT2CHAR LF@&ret1 LF@&arg1"\
+"\nJUMPIFEQ $chr$end LF@&condition bool@true"\
+"\nLABEL $chr$end"\
+"\nPOPFRAME"\
+"\nRETURN
 
 
 
