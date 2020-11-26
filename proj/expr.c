@@ -234,12 +234,18 @@ int reduce_stack(bool *rel_flag,tType *change) {
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
 				return ERR_RIGHT;
 				break;
-			case L_LESS:
-			case L_MORE:
-			case L_LESS_EQ:
-			case L_MORE_EQ:
-			case L_EQUAL:
-			case L_NOT_EQUAL:
+			case L_LESS://<
+				if(op2==L_LESS)G_if_operat('<',*change);
+			case L_MORE://>
+				if(op2==L_MORE)G_if_operat('>',*change);
+			case L_LESS_EQ://M
+				if(op2==L_LESS_EQ)G_if_operat('M',*change);
+			case L_MORE_EQ://V
+				if(op2==L_MORE_EQ)G_if_operat('V',*change);
+			case L_EQUAL://=
+				if(op2==L_EQUAL)G_if_operat('=',*change);
+			case L_NOT_EQUAL://!
+				if(op2==L_NOT_EQUAL)G_if_operat('!',*change);
 
 				if (*rel_flag == true) {
 					return ERR_SEMAN_TYPE_COMPATIBILITY;

@@ -639,11 +639,14 @@ int p_stat() {
 	case T_WIF:
 		GET_TOKEN();
 		
+		int lablel_uniq=uniq_scope; // preberie Uniq label pre IF
 		bool tmp_cond;  // semanticka kontrola či je podmienka v ife
 		tType tmp_check;
 
 		ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 		VALUE_CHECK();
+
+		G_if_label_cond(lablel_uniq);
 
 		if(!tmp_cond) return ERR_SEMAN_TYPE_COMPATIBILITY; // semanticka chyba ak nie
 
@@ -666,6 +669,8 @@ int p_stat() {
 
 		ret_value = p_opteol();
 		VALUE_CHECK();
+
+
 		ret_value = p_statlist();
 		VALUE_CHECK();
 
@@ -696,8 +701,10 @@ int p_stat() {
 		
 		ret_value = p_opteol();
 		VALUE_CHECK();
+		G_if_label(lablel_uniq);
 		ret_value = p_statlist();
 		VALUE_CHECK();
+		G_end_else(lablel_uniq);
 		
 		break;
 	case T_WFOR:
