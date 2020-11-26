@@ -37,7 +37,7 @@ void BTree_freeleaf(BTreePtr ptr){
 	free(ptr);
 }
 
-int BTree_newnode(BTreePtr *root, tType item, Nstring *n, BTreePtr *setptr){
+int BTree_newnode(BTreePtr *root, tType item, Nstring *n, BTreePtr *setptr,int uniq_scope){
 	int newkey=BTree_getkey(n);
 	if(newkey==-1) return false;
 	if(strcmp(n->string,"_")==0) return ERR_SEMAN_PARAMETERS; //premenna sa nemôže definovať ak ma nazov _
@@ -66,6 +66,8 @@ int BTree_newnode(BTreePtr *root, tType item, Nstring *n, BTreePtr *setptr){
 	if(nstring_add_str((*root)->name,n->string)==false) return ERR_INTERNAL;
 	if(((*root)->args=nstring_init())==NULL) return ERR_INTERNAL;
 	if(((*root)->returns=nstring_init())==NULL) return ERR_INTERNAL;
+
+	(*root)->uniq_scope=uniq_scope;
 	(*root)->key=newkey;
 	(*root)->item_type=item;
 	(*root)->num_arguments=0;
@@ -228,11 +230,11 @@ void BTStack_printall(BTreeStackPtr *root){
 	}
 }
 
-int BTStack_newnode(BTreeStackPtr *actual_tree,tType item, Nstring *n){
+int BTStack_newnode(BTreeStackPtr *actual_tree,tType item, Nstring *n,int uniq_scope){
 	BTreePtr change;
 	if((*actual_tree)==NULL){
 		fprintf(stderr, "SNAZIS SA VLOZIT PREMENNU DO ZIADNEHO STROMU\n");
 		return ERR_INTERNAL;
 	}
-	return BTree_newnode(&((*actual_tree)->root),item, n,&change);
+	return BTree_newnode(&((*actual_tree)->root),item, n,&change,uniq_scope);
 }
