@@ -70,7 +70,9 @@ Token *getNextToken()
 				//STRING
 
 				else if (c == '\"')
+				{
 					state = STRING;
+						break;	 }
 				//operatory
 				else if (c == '-')
 					state = MINUS;
@@ -689,7 +691,7 @@ Token *getNextToken()
 
 							if (c == '\"')
 							{
-								nstring_add_char(token->data, c);
+								//nstring_add_char(token->data, c);
 								token->type = T_STRING;
 								state = START;
 								return token;
