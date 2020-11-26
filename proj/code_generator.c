@@ -10,7 +10,7 @@
 //premenne pre generator zacinaju &
 //uzivatelske zacinaju s %
 //definicia predprogramovaných funkcii
-#define FUN_LEN\
+#define FUN_LEN \
 "\n#Start oflen "\
 "\n LABEL $len " \
 "\n PUSHFRAME " \
@@ -20,8 +20,8 @@
 "\n RETURN"\
 
 
-#define FUN_ORD\
-"\LABEL $ord"\
+#define FUN_ORD \
+"\nLABEL $ord"\
 "\nPUSHFRAME" \
 "\nDEFVAR LF@&ret1"\
 "\nMOVE LF@&ret1 int@"\
@@ -52,7 +52,7 @@
 
 
 
-#define FUN_SUBSTR\
+#define FUN_SUBSTR \
 "\nLABEL  $substr"\
 "\nPUSHFRAME "\
 "\nDEFVAR LF@&ret1"\
@@ -106,7 +106,7 @@
 "\nPOPFRAME "\
 "\nRETURN"\
 
-#define FUN_CHR\
+#define FUN_CHR \
 "\nLABEL $chr"\
 "\nPUSHFRAME"\
 "\nDEFVAR LF@&ret1"\
@@ -151,8 +151,12 @@ bool generate_start(){
 
 bool G_Fun_header(Nstring *name){
 	ADD_CODE("\n#FUNCTION "); ADD_CODE("$");ADD_CODE(name->string);
+	ADD_CODE("\nLABEL "); ADD_CODE("$");ADD_CODE(name->string);
 	ADD_CODE("\nPUSHFRAME");
 	ADD_CODE("\nDEFVAR LF@&bin")
+	ADD_CODE("\nDEFVAR LF@&concat1")
+	ADD_CODE("\nDEFVAR LF@&concat2")
+	ADD_CODE("\nDEFVAR LF@&concat3")
 	return true;
 }
 bool G_Fun_argument(Nstring *s,int poradie){
@@ -185,3 +189,71 @@ void G_PRINT(){
 	printf("%s\n",generated_code.string);
 	free(generated_code.string);
 }
+bool G_end(){
+	ADD_CODE("\nLABEL end");
+	return true;
+}
+bool G_expr_term(Token token,int uniq){
+	ADD_CODE("\nPUSHS ");
+	char buf[30];
+	if(token.type==T_ID){
+		sprintf(buf,"%s%d",token.data->string,uniq);
+		ADD_CODE("LF@%");ADD_CODE(buf);
+	}
+	if(token.type==T_INT){
+		ADD_CODE("int@");ADD_CODE(token.data->string);
+	}
+	if(token.type==T_DOUBLE){
+		double val=nstring_3float(token.data);
+		sprintf(buf,"%a",val);
+		ADD_CODE("float@");ADD_CODE(buf);
+	}
+	if(token.type==T_STRING){
+		nstring_string_to_escape(token.data);
+		ADD_CODE("string@");ADD_CODE(token.data->string);
+	}
+	return true;
+}
+
+bool G_declare_var(Nstring *s,int uniq){
+	char buf[30];
+	sprintf(buf,"%d",uniq);
+	ADD_CODE("\nDEFVAR LF@%");
+	ADD_CODE(s->string);ADD_CODE(buf);
+	return true;
+}
+
+bool G_expr_pops(Nstring *s){
+	if(nstring_str_cmp(s,"_")==0){
+		ADD_CODE("\nCLEARS");
+	}
+	else{
+		ADD_CODE("\nPOPS LF@%");ADD_CODE(s->string);
+	}
+	return true;
+}
+
+bool G_expr_operat(char c){
+	if(c=='+'){
+		ADD_CODE("\nADDS");
+	}
+	else if(c=='-'){
+		ADD_CODE("\nSUBS");
+	}
+	else if(c=='/'){
+		ADD_CODE("\nDIVS");
+	}
+	else if(c=='*'){
+		ADD_CODE("\nMULS");
+	}
+	return true;
+}
+
+bool G_expr_string_concat(){
+	ADD_CODE("\nPOPS LF@&concat2");
+	ADD_CODE("\nPOPS LF@&concat1");
+	ADD_CODE("\nCONCAT LF@&concat3 LF@&concat1 LF@&concat2");
+	ADD_CODE("\nPUSHS LF@&concat3");
+	return true;
+}
+
