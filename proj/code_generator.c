@@ -139,6 +139,49 @@
 "\nPOPFRAME"\
 "\nRETURN"\
 
+#define  FUN_INPUTI \
+"\nLABEL $inputi"  \
+"\nPUSHFRAME"  \
+"\nDEFVAR LF@&ret1"  \
+"\nDEFVAR LF@&ret2"  \
+"\nDEFVAR LF@%char"  \
+"\nREAD LF@%char int"  \
+"\nDEFVAR LF@&cond_return"  \
+"\nEQ LF@&cond_return LF@%char nil@nil"  \
+"\nJUMPIFEQ $inputf$end LF@&cond_return bool@false"  \
+"\nLABEL $inputf$err"  \
+"\nMOVE LF@&ret1 nil@nil"  \
+"\nMOVE LF@&ret2 int@1"  \
+"\nPOPFRAME"  \
+"\nRETURN"  \
+"\nLABEL $inputf$end"  \
+"\nMOVE LF@&ret1 LF@%char"  \
+"\nMOVE LF@&ret2 int@0"  \
+"\nPOPFRAME"  \
+"\nRETURN"  \
+
+
+#define  FUN_INPUTF \
+"\nLABEL $inputf"  \
+"\nPUSHFRAME"  \
+"\nDEFVAR LF@&ret1"  \
+"\nDEFVAR LF@&ret2"  \
+"\nDEFVAR LF@%char"  \
+"\nREAD LF@%char float"  \
+"\nDEFVAR LF@&cond_return"  \
+"\nEQ LF@&cond_return LF@%char nil@nil"  \
+"\nJUMPIFEQ $inputf$end LF@&cond_return bool@false"  \
+"\nLABEL $inputf$err"  \
+"\nMOVE LF@&ret1 nil@nil"  \
+"\nMOVE LF@&ret2 int@1"  \
+"\nPOPFRAME"  \
+"\nRETURN"  \
+"\nLABEL $inputf$end"  \
+"\nMOVE LF@&ret1 LF@%char"  \
+"\nMOVE LF@&ret2 int@0"  \
+
+"\nPOPFRAME"  \
+"\nRETURN"   \
 
 
 
@@ -178,10 +221,15 @@ bool G_Fun_header(Nstring *name){
 	ADD_CODE("\n#FUNCTION "); ADD_CODE("$");ADD_CODE(name->string);
 	ADD_CODE("\nLABEL "); ADD_CODE("$");ADD_CODE(name->string);
 	ADD_CODE("\nPUSHFRAME");
-	ADD_CODE("\nDEFVAR LF@&bin")
-	ADD_CODE("\nDEFVAR LF@&concat1")
-	ADD_CODE("\nDEFVAR LF@&concat2")
-	ADD_CODE("\nDEFVAR LF@&concat3")
+	ADD_CODE("\nDEFVAR LF@&bin");
+	ADD_CODE("\nDEFVAR LF@&concat1");
+	ADD_CODE("\nDEFVAR LF@&concat2");
+	ADD_CODE("\nDEFVAR LF@&concat3");
+	ADD_CODE("\nDEFVAR LF@&float1");
+	ADD_CODE("\nDEFVAR LF@&float2");
+	ADD_CODE("\nDEFVAR LF@&int1");
+	ADD_CODE("\nDEFVAR LF@&int2");
+	ADD_CODE("\nDEFVAR LF@&bool");
 	return true;
 }
 bool G_Fun_argument(Nstring *s,int poradie,int scope){
@@ -361,5 +409,156 @@ bool G_fun_print(Nstring *s, tType type,int uniq){
 		nstring_string_to_escape(s);
 		ADD_CODE("\nWRITE string@");ADD_CODE(s->string);
 	}
+	return true;
+}
+
+bool G_if_operat(char c,tType type){
+	ADD_CODE("\n#GENERATE CONDITION");
+	ADD_CODE("\n#------------------");
+	switch(type){
+		case T_INT:
+			if(c=='<'){
+				ADD_CODE("\nLTS");
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			else if(c=='>'){
+				ADD_CODE("\nGTS");
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			else if(c=='M'){
+				ADD_CODE("\nPOPS LF@&int2");
+				ADD_CODE("\nPOPS LF@&int1");
+				ADD_CODE("\nLT LF@&bool LF@&int1 LF@&int2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nEQ LF@&bool LF@&int1 LF@&int2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nORS");
+				ADD_CODE("\nPOPS LF@&bool")
+			}
+			else if(c=='V'){
+				ADD_CODE("\nPOPS LF@&int2");
+				ADD_CODE("\nPOPS LF@&int1");
+				ADD_CODE("\nGT LF@&bool LF@&int1 LF@&int2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nEQ LF@&bool LF@&int1 LF@&int2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nORS");
+				ADD_CODE("\nPOPS LF@&bool")
+			}
+			else if(c=='='){
+				ADD_CODE("\nEQS");
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			else if(c=='!'){
+				ADD_CODE("\nEQS");
+				ADD_CODE("\nNOTS")
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			break;
+		case T_STRING:
+			if(c=='<'){
+				ADD_CODE("\nLTS");
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			else if(c=='>'){
+				ADD_CODE("\nGTS");
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			else if(c=='M'){
+				ADD_CODE("\nPOPS LF@&concat2");
+				ADD_CODE("\nPOPS LF@&concat1");
+				ADD_CODE("\nLT LF@&bool LF@&concat1 LF@&concat2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nEQ LF@&bool LF@&concat1 LF@&concat2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nORS");
+				ADD_CODE("\nPOPS LF@&bool")
+			}
+			else if(c=='V'){
+				ADD_CODE("\nPOPS LF@&concat2");
+				ADD_CODE("\nPOPS LF@&concat1");
+				ADD_CODE("\nGT LF@&bool LF@&concat1 LF@&concat2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nEQ LF@&bool LF@&concat1 LF@&concat2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nORS");
+				ADD_CODE("\nPOPS LF@&bool")
+			}
+			else if(c=='='){
+				ADD_CODE("\nEQS");
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			else if(c=='!'){
+				ADD_CODE("\nEQS");
+				ADD_CODE("\nNOTS")
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			break;
+		case T_DOUBLE:
+			if(c=='<'){
+				ADD_CODE("\nLTS");
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			else if(c=='>'){
+				ADD_CODE("\nGTS");
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			else if(c=='M'){
+				ADD_CODE("\nPOPS LF@&float2");
+				ADD_CODE("\nPOPS LF@&float1");
+				ADD_CODE("\nLT LF@&bool LF@&float1 LF@&float2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nEQ LF@&bool LF@&float1 LF@&float2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nORS");
+				ADD_CODE("\nPOPS LF@&bool")
+			}
+			else if(c=='V'){
+				ADD_CODE("\nPOPS LF@&float2");
+				ADD_CODE("\nPOPS LF@&float1");
+				ADD_CODE("\nGT LF@&bool LF@&float1 LF@&float2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nEQ LF@&bool LF@&float1 LF@&float2");
+				ADD_CODE("\nPUSHS LF@&bool");
+				ADD_CODE("\nORS");
+				ADD_CODE("\nPOPS LF@&bool")
+			}
+			else if(c=='='){
+				ADD_CODE("\nEQS");
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			else if(c=='!'){
+				ADD_CODE("\nEQS");
+				ADD_CODE("\nNOTS")
+				ADD_CODE("\nPOPS LF@&bool");
+			}
+			break;
+		default:
+			return false;
+			break;
+	 }
+	return true;
+}
+
+bool G_if_label(int l){
+	char buf[30];
+	sprintf(buf,"?end_else%d",l);
+	ADD_CODE("\nJUMP ");ADD_CODE(buf);
+	sprintf(buf,"?else%d",l);
+	ADD_CODE("\nLABEL ");ADD_CODE(buf);
+	return true;
+}
+
+bool G_if_label_cond(int l){
+	char buf[30];
+	sprintf(buf,"?else%d",l);
+	ADD_CODE("\nJUMPIFNEQ ");ADD_CODE(buf);ADD_CODE(" LF@&bool bool@true")
+	return true;
+}
+
+bool G_end_else(int l){
+	char buf[30];
+	sprintf(buf,"?end_else%d",l);
+	ADD_CODE("\nLABEL ");ADD_CODE(buf);
 	return true;
 }

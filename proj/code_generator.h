@@ -28,4 +28,8 @@ bool G_callfunc(Nstring *s);
 bool G_aftercall_empty_write(Nstring *zasobnik);
 bool G_Fun_pop_to_ret(int couter);
 bool G_fun_print(Nstring *s, tType type,int uniq);
+bool G_if_operat(char c,tType type);
+bool G_if_label(int l);
+bool G_if_label_cond(int l);
+bool G_end_else(int l);
 #endif
