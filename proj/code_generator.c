@@ -39,7 +39,7 @@
 
 
 #define FUN_ORD\
-"\LABEL $ord"\
+"\nLABEL $ord"\
 "\nPUSHFRAME" \
 "\nDEFVAR LF@&ret1"\
 "\nMOVE LF@&ret1 int@"\
