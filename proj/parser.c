@@ -769,7 +769,7 @@ int p_stat() {
 		BOOL_FOUND_RETURN=true;
 		BOOL_IN_RETURN = true; // definujem že kontrolujem return
 		gl_counter=1; //gl counter pre pocitanie
-		if(token.type==T_EOL) return ERR_RIGHT; //hotfix return epsilon pravidlo
+		if(token.type==T_EOL) {   BOOL_IN_RETURN = false; return ERR_RIGHT;  } //hotfix return epsilon pravidlo 
 		ret_value = p_expressionlist();
 		VALUE_CHECK();
 		BOOL_IN_RETURN = false; // definujem že  končím kontrolovanie returnu

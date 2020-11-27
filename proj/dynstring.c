@@ -166,8 +166,10 @@ bool nstring_string_to_escape(Nstring *s){
 	for(int i=0;i<strlen(s->string);i++){
 		c=s->string[i];
 		if(c>=0 && c<=32){
-			if(c==0){
-				nstring_add_str(tmp,"\\000");
+			if(c<10){
+				sprintf(buf,"%d",c);
+				nstring_add_str(tmp,"\\00");
+				nstring_add_str(tmp,buf);
 			}
 			else{
 				sprintf(buf,"%d",c);

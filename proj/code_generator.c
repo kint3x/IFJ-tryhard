@@ -69,57 +69,48 @@
 
 
 #define FUN_SUBSTR \
-"\nLABEL  $substr"\
-"\nPUSHFRAME "\
+"\n#START OF FUNCTION SUBSTR"\
+"\nLABEL  $substr" 	\
+"\nPUSHFRAME"  \
 "\nDEFVAR LF@&ret1"\
-"\nMOVE LF@&ret1 String@"\
+"\nDEFVAR LF@&ret2" \
+"\nDEFVAR LF@&len"\
+"\nDEFVAR LF@&bool"\
+"\nDEFVAR LF@&str"\
+"\nDEFVAR LF@&counter"\
+"\nMOVE LF@&counter int@0"\
+"\nMOVE LF@&str string@"\
+"\nMOVE LF@&ret1 string@"\
 "\nCREATEFRAME"\
 "\nDEFVAR TF@&arg1"\
 "\nMOVE TF@&arg1 LF@&arg1"\
 "\nCALL $len"\
-"\n# TF@&ret1 -DLŽKA retazca"\
-"\nDEFVAR LF@&length"\
-"\nMOVE LF@&length TF@&ret1"\
-"\nDEFVAR LF@&cond_ret"\
-"\nLT LF@&cond_ret  LF@&length int@0"\
-"\nJUMPIFEQ $substr$end LF@&cond_ret bool@true"\
-"\nEQ LF@&cond_ret  LF@&length int@0"\
-"\nJUMPIFEQ $substr$end LF@&cond_ret bool@true"\
-"\nLT LF@&cond_ret  LF@&arg2 int@0"\
-"\nJUMPIFEQ $substr$end LF@&cond_ret bool@true"\
-"\nEQ LF@&cond_ret  LF@&arg2 int@0"\
-"\nJUMPIFEQ $substr$end LF@&cond_ret bool@true"\
-"\nGT LF@&cond_ret  LF@&arg2 LF@&length"\
-"\nJUMPIFEQ $substr$end LF@&cond_ret bool@true"\
-"\nEQ LF@&cond_ret  LF@&arg3 int@0"\
-"\nJUMPIFEQ $substr$end LF@&cond_ret bool@true"\
-"\nDEFVAR LF@&n"\
-"\nMOVE LF@&n LF@&length"\
-"\nSUB  LF@&n LF@&n LF@&arg2"\
-"\nADD LF@&n LF@&n int@1"\
-"\nDEFVAR LF@&nevcondition"\
-"\nLT LF@&nevcondition LF@&arg3 int@0"\
-"\nJUMPIFEQ $substr$changen LF@&nevcondition bool@true"\
-"\nGT LF@&nevcondition LF@&arg3 LF@&n"\
-"\nJUMPIFEQ $substr$changen LF@&nevcondition bool@true"\
-"\nJUMP $substr$cut"\
-"\nLABEL $substr$changen"\
-"\nMOVE LF@&arg3 LF@&n"\
-"\nLABEL $substr$cut"\
-"\n DEFVAR LF@&i"\
-"\nMOVE LF@&i LF@&arg2"\
-"\nSUB LF@&i LF@&i int@1"\
-"\nDEFVAR LF@&outchar"\
-"\nDEFVAR LF@&conloop"\
-"\nLABEL $substr$startloop"\
-"\nGETCHAR LF@&outchar LF@&arg1 LF@&i"\
-"\nADD LF@&i LF@&i int@1"\
-"\nCONCAT LF@&ret1 LF@&ret1 LF@&outchar"\
-"\nSUB LF@&arg3 LF@&arg3 int@1"\
-"\nGT LF@&conloop LF@&arg3 int@0"\
-"\nJUMPIFEQ $substr$startloop LF@&conloop bool@true"\
-"\nLABEL $substr$end "\
-"\nPOPFRAME "\
+"\nMOVE LF@&len TF@&ret1"\
+"\nLT LF@&bool LF@&arg2 int@0" \
+"\nJUMPIFEQ $substr$err LF@&bool bool@true"\
+"\nGT LF@&bool LF@&arg2 LF@&len" \
+"\nJUMPIFEQ $substr$err LF@&bool bool@true"\
+"\nLT LF@&bool LF@&arg3 int@0" \
+"\nJUMPIFEQ $substr$err LF@&bool bool@true"\
+"\nLABEL &sub_while"  \
+"\nLT LF@&bool LF@&counter LF@&arg3" \
+"\nJUMPIFEQ &sub_while_e LF@&bool bool@false" \
+"\nLT LF@&bool LF@&arg2 LF@&len"  \
+"\nJUMPIFEQ &sub_while_e LF@&bool bool@false" \
+"\nGETCHAR LF@&str LF@&arg1 LF@&arg2"\
+"\nCONCAT LF@&ret1 LF@&ret1 LF@&str"\
+"\nADD LF@&arg2 LF@&arg2 int@1"\
+"\nADD LF@&counter LF@&counter int@1"\
+"\nJUMP &sub_while"\
+"\nLABEL &sub_while_e"\
+"\nJUMP $substr$right"\
+"\nLABEL $substr$err"\
+"\nMOVE LF@&ret2 int@1"\
+"\nJUMP $substr$end"\
+"\nLABEL $substr$right"\
+"\nMOVE LF@&ret2 int@0"\
+"\nLABEL $substr$end"\
+"\nPOPFRAME"\
 "\nRETURN"\
 
 #define FUN_CHR \
@@ -147,10 +138,10 @@
 "\nPUSHFRAME"  \
 "\nDEFVAR LF@&ret1"  \
 "\nDEFVAR LF@&ret2"  \
-"\nDEFVAR LF@%char"  \
-"\nREAD LF@%char int"  \
+"\nDEFVAR LF@&char"  \
+"\nREAD LF@&char int"  \
 "\nDEFVAR LF@&cond_return"  \
-"\nEQ LF@&cond_return LF@%char nil@nil"  \
+"\nEQ LF@&cond_return LF@&char nil@nil"  \
 "\nJUMPIFEQ $inputi$end LF@&cond_return bool@false"  \
 "\nLABEL $inputi$err"  \
 "\nMOVE LF@&ret1 nil@nil"  \
@@ -158,7 +149,7 @@
 "\nPOPFRAME"  \
 "\nRETURN"  \
 "\nLABEL $inputi$end"  \
-"\nMOVE LF@&ret1 LF@%char"  \
+"\nMOVE LF@&ret1 LF@&char"  \
 "\nMOVE LF@&ret2 int@0"  \
 "\nPOPFRAME"  \
 "\nRETURN"  \
@@ -169,10 +160,10 @@
 "\nPUSHFRAME"  \
 "\nDEFVAR LF@&ret1"  \
 "\nDEFVAR LF@&ret2"  \
-"\nDEFVAR LF@%char"  \
-"\nREAD LF@%char float"  \
+"\nDEFVAR LF@&char"  \
+"\nREAD LF@&char float"  \
 "\nDEFVAR LF@&cond_return"  \
-"\nEQ LF@&cond_return LF@%char nil@nil"  \
+"\nEQ LF@&cond_return LF@&char nil@nil"  \
 "\nJUMPIFEQ $inputf$end LF@&cond_return bool@false"  \
 "\nLABEL $inputf$err"  \
 "\nMOVE LF@&ret1 nil@nil"  \
@@ -180,7 +171,7 @@
 "\nPOPFRAME"  \
 "\nRETURN"  \
 "\nLABEL $inputf$end"  \
-"\nMOVE LF@&ret1 LF@%char"  \
+"\nMOVE LF@&ret1 LF@&char"  \
 "\nMOVE LF@&ret2 int@0"  \
 "\nPOPFRAME"  \
 "\nRETURN"   
@@ -190,10 +181,10 @@
 "\nPUSHFRAME"  \
 "\nDEFVAR LF@&ret1"  \
 "\nDEFVAR LF@&ret2"  \
-"\nDEFVAR LF@%char"  \
-"\nREAD LF@%char string"  \
+"\nDEFVAR LF@&char"  \
+"\nREAD LF@&char string"  \
 "\nDEFVAR LF@&cond_return"  \
-"\nEQ LF@&cond_return LF@%char string@"  \
+"\nEQ LF@&cond_return LF@&char nil@nil"  \
 "\nJUMPIFEQ $inputs$end LF@&cond_return bool@false"  \
 "\nLABEL $inputs$err"  \
 "\nMOVE LF@&ret1 nil@nil"  \
@@ -201,7 +192,7 @@
 "\nPOPFRAME"  \
 "\nRETURN"  \
 "\nLABEL $inputs$end"  \
-"\nMOVE LF@&ret1 LF@%char"  \
+"\nMOVE LF@&ret1 LF@&char"  \
 "\nMOVE LF@&ret2 int@0"  \
 "\nPOPFRAME"  \
 "\nRETURN"  
@@ -227,6 +218,7 @@ Nstring generated_code;
 Nstring pre_function;
 Nstring def_vars;
 Nstring post_function;
+
 
 #define ADD_CODE(_code) if(!nstring_add_str(&post_function,(_code))) return false;
 #define ADD_HEADER_CODE(_code) if(!nstring_add_str(&pre_function,(_code))) return false;
@@ -300,6 +292,9 @@ bool G_Fun_return(){
 	return true;
 }
 bool G_PRINT(){
+	ADD_GLOBAL_CODE("\nJUMP end");
+	ADD_GLOBAL_CODE("\nLABEL exit_zerodiv");
+	ADD_GLOBAL_CODE("\nEXIT int@9");
 	ADD_GLOBAL_CODE(GEN_END);
 	printf("%s\n",generated_code.string);
 	 free(generated_code.string);
@@ -314,7 +309,7 @@ bool G_end(){
 }
 bool G_expr_term(Token token,int uniq){
 	ADD_CODE("\nPUSHS ");
-	char buf[30];
+	char buf[40];
 	if(token.type==T_ID){
 		sprintf(buf,"%s%d",token.data->string,uniq);
 		ADD_CODE("LF@%");ADD_CODE(buf);
@@ -360,8 +355,19 @@ bool G_expr_operat(char c,tType type){
 		ADD_CODE("\nSUBS");
 	}
 	else if(c=='/'){
-		if(type==T_INT) {ADD_CODE("\nIDIVS");}
-		else {ADD_CODE("\nDIVS");}
+		if(type==T_INT) {
+			ADD_CODE("\nPOPS LF@&int1");
+			ADD_CODE("\nJUMPIFEQ exit_zerodiv LF@&int1 int@0")
+			ADD_CODE("\nPUSHS LF@&int1");
+			ADD_CODE("\nIDIVS");
+		}
+		else {
+			ADD_CODE("\nPOPS LF@&float1");
+			ADD_CODE("\nJUMPIFEQ exit_zerodiv LF@&float1 float@0x0p+0");
+			ADD_CODE("\nPUSHS LF@&float1");
+			ADD_CODE("\nDIVS");
+		}
+
 	}
 	else if(c=='*'){
 		ADD_CODE("\nMULS");
