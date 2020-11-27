@@ -39,4 +39,5 @@ bool G_for_ass_end(int uniq);
 bool G_for_end(int uniq);
 bool G_defstat_var(Nstring *s,int uniq);
 bool G_buildfun();
+void G_FREEALL();
 #endif

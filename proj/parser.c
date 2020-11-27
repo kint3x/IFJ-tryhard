@@ -278,7 +278,8 @@ int parse(){
 	nstring_free(right_expr);
 	nstring_free(saved_uniq);
 
-	G_PRINT();
+	if(ret_value==ERR_RIGHT) G_PRINT();
+	G_FREEALL();
 	if(token.type!=T_END_OF_FILE)nstring_free(token.data); // uvolnit nstring v token.data
 
 	//stderr_print(ret_value);

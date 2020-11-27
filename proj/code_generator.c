@@ -297,10 +297,7 @@ bool G_PRINT(){
 	ADD_GLOBAL_CODE("\nEXIT int@9");
 	ADD_GLOBAL_CODE(GEN_END);
 	printf("%s\n",generated_code.string);
-	 free(generated_code.string);
-	 free(pre_function.string);
-	 free(post_function.string);
-	 free(def_vars.string);
+	G_FREEALL();
 	 return true;
 }
 bool G_end(){
@@ -673,4 +670,15 @@ bool G_buildfun(){
 	nstring_clear(&post_function);
 
 	return true;
+}
+
+void G_FREEALL(){
+	free(generated_code.string);
+	generated_code.string=NULL;
+	free(pre_function.string);
+	pre_function.string=NULL;
+	free(post_function.string);
+	post_function.string=NULL;
+	free(def_vars.string);
+	def_vars.string=NULL;
 }
