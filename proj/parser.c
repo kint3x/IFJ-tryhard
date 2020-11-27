@@ -55,6 +55,7 @@ Nstring *saved_uniq;
 Nstring *saved_ID;
 tType saved_type;
 int termcount;
+int arg_count;
 int gl_counter;
 unsigned int uniq_scope;
 
@@ -1012,6 +1013,7 @@ int p_termlist() {
 	case T_INT:
 	case T_DOUBLE:
 	case T_STRING:
+		arg_count=1;
 		ret_value = p_term();
 		VALUE_CHECK();
 		ret_value = p_termnext();
@@ -1104,7 +1106,7 @@ int p_term() {
 			sprintf(buf,"%s%d",search->name->string,search->uniq_scope);
 			Nstring *tmp = nstring_init();
 			nstring_add_str(tmp,buf);
-			G_callfunc_arg(tmp,termcount,token.type);
+			G_callfunc_arg(tmp,arg_count++,token.type);
 			nstring_free(tmp);
 		}
 		else { 
@@ -1130,7 +1132,7 @@ int p_term() {
 		   	else{
 					nstring_add_char(func_args,'i');
 				}
-			G_callfunc_arg(token.data,termcount,token.type);
+			G_callfunc_arg(token.data,arg_count++,token.type);
 		}
 		else { //VOLA GENERATOR PRINT
 			G_fun_print(token.data, token.type,0);
@@ -1152,7 +1154,7 @@ int p_term() {
 				{
 					nstring_add_char(func_args,'s');
 				}
-			G_callfunc_arg(token.data,termcount,token.type);
+			G_callfunc_arg(token.data,arg_count++,token.type);
 		}
 		else { //VOLA GENERATOR PRINT
 			G_fun_print(token.data, token.type,0);
@@ -1173,7 +1175,7 @@ int p_term() {
 				{
 					nstring_add_char(func_args,'f');
 				}
-			G_callfunc_arg(token.data,termcount,token.type);
+			G_callfunc_arg(token.data,arg_count++,token.type);
 		} 
 		else { //VOLA GENERATOR PRINT
 			G_fun_print(token.data, token.type,0);
