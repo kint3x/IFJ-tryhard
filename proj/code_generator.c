@@ -145,13 +145,13 @@
 "\nREAD LF@%char int"  \
 "\nDEFVAR LF@&cond_return"  \
 "\nEQ LF@&cond_return LF@%char nil@nil"  \
-"\nJUMPIFEQ $inputf$end LF@&cond_return bool@false"  \
-"\nLABEL $inputf$err"  \
+"\nJUMPIFEQ $inputi$end LF@&cond_return bool@false"  \
+"\nLABEL $inputi$err"  \
 "\nMOVE LF@&ret1 nil@nil"  \
 "\nMOVE LF@&ret2 int@1"  \
 "\nPOPFRAME"  \
 "\nRETURN"  \
-"\nLABEL $inputf$end"  \
+"\nLABEL $inputi$end"  \
 "\nMOVE LF@&ret1 LF@%char"  \
 "\nMOVE LF@&ret2 int@0"  \
 "\nPOPFRAME"  \
@@ -178,6 +178,27 @@
 "\nMOVE LF@&ret2 int@0"  \
 "\nPOPFRAME"  \
 "\nRETURN"   
+
+#define  FUN_INPUTS \
+"\nLABEL $inputs"  \
+"\nPUSHFRAME"  \
+"\nDEFVAR LF@&ret1"  \
+"\nDEFVAR LF@&ret2"  \
+"\nDEFVAR LF@%char"  \
+"\nREAD LF@%char string"  \
+"\nDEFVAR LF@&cond_return"  \
+"\nEQ LF@&cond_return LF@%char string@"  \
+"\nJUMPIFEQ $inputs$end LF@&cond_return bool@false"  \
+"\nLABEL $inputs$err"  \
+"\nMOVE LF@&ret1 nil@nil"  \
+"\nMOVE LF@&ret2 int@1"  \
+"\nPOPFRAME"  \
+"\nRETURN"  \
+"\nLABEL $inputs$end"  \
+"\nMOVE LF@&ret1 LF@%char"  \
+"\nMOVE LF@&ret2 int@0"  \
+"\nPOPFRAME"  \
+"\nRETURN"  
 
 
 
@@ -219,6 +240,10 @@ bool generate_start(){
 	ADD_GLOBAL_CODE(FUN_ORD);
 	ADD_GLOBAL_CODE(FUN_SUBSTR);
 	ADD_GLOBAL_CODE(FUN_CHR);
+	ADD_GLOBAL_CODE(FUN_INPUTI);
+	ADD_GLOBAL_CODE(FUN_INPUTF);
+	ADD_GLOBAL_CODE(FUN_INPUTS);
+
 	ADD_GLOBAL_CODE("\n#---------------------------")
 	return true;
 }
@@ -321,7 +346,7 @@ bool G_expr_pops(Nstring *s){
 	return true;
 }
 
-bool G_expr_operat(char c){
+bool G_expr_operat(char c,tType type){
 	if(c=='+'){
 		ADD_CODE("\nADDS");
 	}
@@ -329,7 +354,8 @@ bool G_expr_operat(char c){
 		ADD_CODE("\nSUBS");
 	}
 	else if(c=='/'){
-		ADD_CODE("\nDIVS");
+		if(type==T_INT) {ADD_CODE("\nIDIVS");}
+		else {ADD_CODE("\nDIVS");}
 	}
 	else if(c=='*'){
 		ADD_CODE("\nMULS");

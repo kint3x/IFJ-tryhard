@@ -277,8 +277,6 @@ int parse(){
 	nstring_free(right_expr);
 	nstring_free(saved_uniq);
 
-	G_end();// generacia labelu end
-
 	G_PRINT();
 	if(token.type!=T_END_OF_FILE)nstring_free(token.data); // uvolnit nstring v token.data
 
@@ -1033,7 +1031,8 @@ int p_termlist() {
 		else{
 			if(EStack_addcall(&Err_stack,saved_ID,stack_left,func_args)==ERR_INTERNAL) return ERR_INTERNAL; //hádžeme na stack
 		}
-		G_callfunc(saved_ID);
+		
+		if(!PRINT) G_callfunc(saved_ID);
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -1070,7 +1069,7 @@ int p_termnext() {
 		else{
 			if(EStack_addcall(&Err_stack,saved_ID,stack_left,func_args)==ERR_INTERNAL) return ERR_INTERNAL; //hádžeme na stack
 		}
-
+		if(!PRINT) G_callfunc(saved_ID);
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -1294,7 +1293,8 @@ int p_exprorid() {
 				termcount=0;
 				ret_value = p_termlist();
 				VALUE_CHECK();
-				G_callfunc(saved_ID);
+				
+				//G_callfunc(saved_ID);
 				G_aftercall_empty_write(saved_uniq);
 				nstring_clear(saved_uniq);
 			}

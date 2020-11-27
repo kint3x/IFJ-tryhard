@@ -20,7 +20,7 @@ bool G_end();
 bool G_expr_term(Token token,int uniq);
 bool G_declare_var(Nstring *s,int uniq);
 bool G_expr_pops(Nstring *s);
-bool G_expr_operat(char c);
+bool G_expr_operat(char c,tType type);
 bool G_expr_string_concat();
 bool G_callfunc_arg(Nstring *s, int poradie, tType type);
 bool G_createframe();

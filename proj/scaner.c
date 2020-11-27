@@ -733,6 +733,7 @@ Token *getNextToken()
 				}
 				else if (c == 'x')
 				{
+					nstring_add_char(token->data,'\\');
 					nstring_add_char(token->data, c);
 					state = HEX;
 				}

@@ -175,7 +175,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 				if((*change)==T_STRING){
 					G_expr_string_concat();
 				}else{
-					G_expr_operat('+');
+					G_expr_operat('+',(*change));
 				}
 				pop(3);
 				s.top->handle = false;
@@ -192,7 +192,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val - s.top->val;
 				}
-				G_expr_operat('-');
+				G_expr_operat('-',(*change));
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
@@ -208,7 +208,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val * s.top->val;
 				}
-				G_expr_operat('*');
+				G_expr_operat('*',(*change));
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
@@ -228,7 +228,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val / s.top->val;
 				}
-				G_expr_operat('/');
+				G_expr_operat('/',(*change));
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
