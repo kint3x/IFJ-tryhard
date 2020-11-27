@@ -1,3 +1,12 @@
+/**
+ * Projekt: Implementácia generacie kodu pre jazyk IFJ20
+ *
+ * @brief Generácia kódu.
+ *
+ * @author Matej Kocman <xkocma07@vutbr.cz>
+ * @author Martin Matějka <xmatej55@vutbr.cz>
+ * @author Ľubomír Závodský <xzavod14@vutbr.cz>
+ */
 
 #include "code_generator.h"
 
