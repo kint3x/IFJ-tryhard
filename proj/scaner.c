@@ -70,7 +70,9 @@ Token *getNextToken()
 				//STRING
 
 				else if (c == '\"')
+				{
 					state = STRING;
+						break;	 }
 				//operatory
 				else if (c == '-')
 					state = MINUS;
@@ -628,7 +630,7 @@ Token *getNextToken()
 
 							if (c == '\"')
 							{
-								nstring_add_char(token->data, c);
+								//nstring_add_char(token->data, c);
 								token->type = T_STRING;
 								state = START;
 								return token;
@@ -636,7 +638,6 @@ Token *getNextToken()
 							else if (c == 92)
 							{
 
-								nstring_add_char(token->data, c);
 								state = ESC;
 							}
 							else if (c > 31)
@@ -654,14 +655,24 @@ Token *getNextToken()
 				break;
 			case ESC:
 
-				if ((c == 'n') || (c == 't') || (c == '"')|| (c == 92))
+				if ((c == 'n'))
 				{
 
+					nstring_add_char(token->data, '\n');
+					state = STRING;
+				}
+				else if((c == 't')){
+					nstring_add_char(token->data, '\t');
+					state = STRING;
+				}
+				else if ((c == '\"')|| (c == 92))
+				{
 					nstring_add_char(token->data, c);
 					state = STRING;
 				}
 				else if (c == 'x')
 				{
+					nstring_add_char(token->data,'\\');
 					nstring_add_char(token->data, c);
 					state = HEX;
 				}

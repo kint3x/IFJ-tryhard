@@ -20,6 +20,7 @@
 #include "stack.h"
 #include "err.h"
 #include "dynstring.h"
+#include "code_generator.h"
 
 extern Token token;
 extern Token tokenp;
@@ -171,6 +172,11 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val + s.top->val;
 				}
+				if((*change)==T_STRING){
+					G_expr_string_concat();
+				}else{
+					G_expr_operat('+',(*change));
+				}
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
@@ -186,6 +192,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val - s.top->val;
 				}
+				G_expr_operat('-',(*change));
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
@@ -201,6 +208,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val * s.top->val;
 				}
+				G_expr_operat('*',(*change));
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
@@ -220,17 +228,24 @@ int reduce_stack(bool *rel_flag,tType *change) {
 					t_pomocny=s.top->type;
 					d_pomocny = s.top->next->next->val / s.top->val;
 				}
+				G_expr_operat('/',(*change));
 				pop(3);
 				s.top->handle = false;
 				push(L_NON_TERMINAL,t_pomocny,d_pomocny);
 				return ERR_RIGHT;
 				break;
-			case L_LESS:
-			case L_MORE:
-			case L_LESS_EQ:
-			case L_MORE_EQ:
-			case L_EQUAL:
-			case L_NOT_EQUAL:
+			case L_LESS://<
+				if(op2==L_LESS)G_if_operat('<',*change);
+			case L_MORE://>
+				if(op2==L_MORE)G_if_operat('>',*change);
+			case L_LESS_EQ://M
+				if(op2==L_LESS_EQ)G_if_operat('M',*change);
+			case L_MORE_EQ://V
+				if(op2==L_MORE_EQ)G_if_operat('V',*change);
+			case L_EQUAL://=
+				if(op2==L_EQUAL)G_if_operat('=',*change);
+			case L_NOT_EQUAL://!
+				if(op2==L_NOT_EQUAL)G_if_operat('!',*change);
 
 				if (*rel_flag == true) {
 					return ERR_SEMAN_TYPE_COMPATIBILITY;
@@ -306,11 +321,11 @@ int expression(tType *change,bool *cond,BTreeStackPtr Local_trees) {
 }
 
 int sem_check_var(tType *change,BTreeStackPtr Local_trees){
-
 	if(token.type==T_ID){
 		if(strcmp(token.data->string,"_")==0) return ERR_SEMAN_OTHERS;
 		BTreePtr search = BTStack_searchbyname(&Local_trees,token.data); // vyhlada premennu
 		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; // ak nenajde neexistuje
+		G_expr_term(token,search->uniq_scope);
 		
 		if((*change)==T_UNKNOWN){
 			(*change)=search->item_type;
@@ -321,6 +336,7 @@ int sem_check_var(tType *change,BTreeStackPtr Local_trees){
 		}
 	}
 	else if(token.type==T_INT){
+		G_expr_term(token,0);
 		if((*change)==T_UNKNOWN){
 			(*change)=T_INT;
 		}else{
@@ -330,6 +346,7 @@ int sem_check_var(tType *change,BTreeStackPtr Local_trees){
 		}
 	}
 	else if(token.type==T_STRING){
+		G_expr_term(token,0);
 		if((*change)==T_UNKNOWN){
 			(*change)=T_STRING;
 		}else{
@@ -339,6 +356,7 @@ int sem_check_var(tType *change,BTreeStackPtr Local_trees){
 		}
 	}
 	else if(token.type==T_DOUBLE){
+		G_expr_term(token,0);
 		if((*change)==T_UNKNOWN){
 			(*change)=T_DOUBLE;
 		}else{

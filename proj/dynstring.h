@@ -21,6 +21,7 @@ typedef struct{
 	unsigned int allocated_size;
 }Nstring;
 
+bool Nstring_onlyinit(Nstring *s);
 /**
 *	@brief Inicializácia nafukovacieho stringu
 *
@@ -139,4 +140,12 @@ int nstring_2int(Nstring *s);
 * @return float
 **/
 double nstring_3float(Nstring *s);
+/**
+* @brief Koonvertuje string na escape string
+* @return Vráti či sa podarilo
+**/
+bool nstring_string_to_escape(Nstring *s);
+
+
+bool nstring_get_and_delete(Nstring *source,Nstring *new);
 #endif
