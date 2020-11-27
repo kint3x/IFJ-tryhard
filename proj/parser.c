@@ -349,6 +349,7 @@ int p_funclist() {
 		VALUE_CHECK();
 		ret_value = p_opteol();
 		VALUE_CHECK();
+		G_buildfun();
 		ret_value = p_funclist();
 		VALUE_CHECK();
 		break;
@@ -712,6 +713,7 @@ int p_stat() {
 		GET_TOKEN();
 		BOOL_IN_WFOR=true;
 		ret_value = p_defstat();
+		int temp_uniq_scope=uniq_scope;
 		VALUE_CHECK();
 		if (token.type == T_SEMI) {
 			GET_TOKEN();
@@ -720,8 +722,10 @@ int p_stat() {
 			ret_value = ERR_SYNAN;
 			VALUE_CHECK();
 		}
+		G_label_for_for(temp_uniq_scope); // zaciatok foru
 		ret_value = expression(&tmp_check,&tmp_cond,Local_trees);
 		VALUE_CHECK();
+		G_for_label_cond(temp_uniq_scope); // vyhodnotenie cond
 
 		if(!tmp_cond) return ERR_SEMAN_TYPE_COMPATIBILITY; // semanticka chyba ak nie je podmienka
 
@@ -732,10 +736,11 @@ int p_stat() {
 			ret_value = ERR_SYNAN;
 			VALUE_CHECK();
 		}
-
+		G_for_ass_start(temp_uniq_scope);
 		ret_value = p_assignstat();
 		VALUE_CHECK();
 
+		G_for_ass_end(temp_uniq_scope);
 		if (token.type == T_LEFTBRACET) {
 			GET_TOKEN();
 		}
@@ -756,6 +761,7 @@ int p_stat() {
 
 		ret_value = p_statlist();
 		VALUE_CHECK();
+		G_for_end(temp_uniq_scope);
 		;LOCAL_POP();
 
 		break;
@@ -814,6 +820,9 @@ int p_defstat() {
 				VALUE_CHECK();
 			}
 			else return ERR_SEMAN_OTHERS;
+			BTreePtr search = BTStack_searchbyname(&Act_scope,saved_ID); if(search==NULL) return ERR_INTERNAL;
+			G_defstat_var(saved_ID,search->uniq_scope);
+			
 			nstring_clear(saved_ID);
 		} 
 		break;

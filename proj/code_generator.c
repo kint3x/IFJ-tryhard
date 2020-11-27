@@ -1,9 +1,6 @@
 
 #include "code_generator.h"
 
-//#TODO generovanie unikatnych nazvov premennych
-//#TODO stack s pointerami na premenne
-
 
 
 //funkcie začínajú s $
@@ -179,9 +176,8 @@
 "\nLABEL $inputf$end"  \
 "\nMOVE LF@&ret1 LF@%char"  \
 "\nMOVE LF@&ret2 int@0"  \
-
 "\nPOPFRAME"  \
-"\nRETURN"   \
+"\nRETURN"   
 
 
 
@@ -197,45 +193,55 @@
 "\n#FUNCTION INPUTI" \
 
 
-#define GEN_END "\nLABEL END"
+#define GEN_END "\nLABEL end"
 
 Nstring generated_code;
 
-#define ADD_CODE(_code) if(!nstring_add_str(&generated_code,(_code))) return false;
+Nstring pre_function;
+Nstring def_vars;
+Nstring post_function;
 
+#define ADD_CODE(_code) if(!nstring_add_str(&post_function,(_code))) return false;
+#define ADD_HEADER_CODE(_code) if(!nstring_add_str(&pre_function,(_code))) return false;
+#define ADD_VARS_CODE(_code) if(!nstring_add_str(&def_vars,(_code))) return false;
+#define ADD_GLOBAL_CODE(_code) if(!nstring_add_str(&generated_code,(_code))) return false;
 
 bool generate_start(){
-	ADD_CODE(GEN_HEADER);
-	ADD_CODE("\n#BUILTIN FUNCTIONS ---------------");
-	ADD_CODE(FUN_INT2FLOAT);
-	ADD_CODE(FUN_FLOAT2INT);
-	ADD_CODE(FUN_LEN);
-	ADD_CODE(FUN_ORD);
-	ADD_CODE(FUN_SUBSTR);
-	ADD_CODE(FUN_CHR);
-	ADD_CODE("\n#---------------------------")
+	Nstring_onlyinit(&generated_code);
+	Nstring_onlyinit(&pre_function);
+	Nstring_onlyinit(&def_vars);
+	Nstring_onlyinit(&post_function);
+	ADD_GLOBAL_CODE(GEN_HEADER);
+	ADD_GLOBAL_CODE("\n#BUILTIN FUNCTIONS ---------------");
+	ADD_GLOBAL_CODE(FUN_INT2FLOAT);
+	ADD_GLOBAL_CODE(FUN_FLOAT2INT);
+	ADD_GLOBAL_CODE(FUN_LEN);
+	ADD_GLOBAL_CODE(FUN_ORD);
+	ADD_GLOBAL_CODE(FUN_SUBSTR);
+	ADD_GLOBAL_CODE(FUN_CHR);
+	ADD_GLOBAL_CODE("\n#---------------------------")
 	return true;
 }
 
 bool G_Fun_header(Nstring *name){
-	ADD_CODE("\n#FUNCTION "); ADD_CODE("$");ADD_CODE(name->string);
-	ADD_CODE("\nLABEL "); ADD_CODE("$");ADD_CODE(name->string);
-	ADD_CODE("\nPUSHFRAME");
-	ADD_CODE("\nDEFVAR LF@&bin");
-	ADD_CODE("\nDEFVAR LF@&concat1");
-	ADD_CODE("\nDEFVAR LF@&concat2");
-	ADD_CODE("\nDEFVAR LF@&concat3");
-	ADD_CODE("\nDEFVAR LF@&float1");
-	ADD_CODE("\nDEFVAR LF@&float2");
-	ADD_CODE("\nDEFVAR LF@&int1");
-	ADD_CODE("\nDEFVAR LF@&int2");
-	ADD_CODE("\nDEFVAR LF@&bool");
+	ADD_HEADER_CODE("\n#FUNCTION "); ADD_HEADER_CODE("$");ADD_HEADER_CODE(name->string);
+	ADD_HEADER_CODE("\nLABEL "); ADD_HEADER_CODE("$");ADD_HEADER_CODE(name->string);
+	ADD_HEADER_CODE("\nPUSHFRAME");
+	ADD_HEADER_CODE("\nDEFVAR LF@&bin");
+	ADD_HEADER_CODE("\nDEFVAR LF@&concat1");
+	ADD_HEADER_CODE("\nDEFVAR LF@&concat2");
+	ADD_HEADER_CODE("\nDEFVAR LF@&concat3");
+	ADD_HEADER_CODE("\nDEFVAR LF@&float1");
+	ADD_HEADER_CODE("\nDEFVAR LF@&float2");
+	ADD_HEADER_CODE("\nDEFVAR LF@&int1");
+	ADD_HEADER_CODE("\nDEFVAR LF@&int2");
+	ADD_HEADER_CODE("\nDEFVAR LF@&bool");
 	return true;
 }
 bool G_Fun_argument(Nstring *s,int poradie,int scope){
 	char buf[30];
 	sprintf(buf,"%d",scope);
-	ADD_CODE("\nDEFVAR LF@");ADD_CODE("%");ADD_CODE(s->string);ADD_CODE(buf);
+	ADD_VARS_CODE("\nDEFVAR LF@");ADD_VARS_CODE("%");ADD_VARS_CODE(s->string);ADD_VARS_CODE(buf);
 	sprintf(buf,"%d",scope);
 	ADD_CODE("\nMOVE LF@%");ADD_CODE(s->string);ADD_CODE(buf);
 	ADD_CODE(" LF@&arg")
@@ -247,7 +253,7 @@ bool G_Fun_argument(Nstring *s,int poradie,int scope){
 bool G_Fun_ret_value(int poradie){
 	char buf[30];
 	sprintf(buf,"%d",poradie);
-	ADD_CODE("\nDEFVAR LF@&ret");ADD_CODE(buf);
+	ADD_VARS_CODE("\nDEFVAR LF@&ret");ADD_VARS_CODE(buf);
 	return true;
 }
 bool G_Fun_pop_to_ret(int counter){
@@ -262,9 +268,14 @@ bool G_Fun_return(){
 	ADD_CODE("\nRETURN");
 	return true;
 }
-void G_PRINT(){
+bool G_PRINT(){
+	ADD_GLOBAL_CODE(GEN_END);
 	printf("%s\n",generated_code.string);
-	free(generated_code.string);
+	 free(generated_code.string);
+	 free(pre_function.string);
+	 free(post_function.string);
+	 free(def_vars.string);
+	 return true;
 }
 bool G_end(){
 	ADD_CODE("\nLABEL end");
@@ -295,8 +306,8 @@ bool G_expr_term(Token token,int uniq){
 bool G_declare_var(Nstring *s,int uniq){
 	char buf[30];
 	sprintf(buf,"%d",uniq);
-	ADD_CODE("\nDEFVAR LF@%");
-	ADD_CODE(s->string);ADD_CODE(buf);
+	ADD_VARS_CODE("\nDEFVAR LF@%");
+	ADD_VARS_CODE(s->string);ADD_VARS_CODE(buf);
 	return true;
 }
 
@@ -560,5 +571,68 @@ bool G_end_else(int l){
 	char buf[30];
 	sprintf(buf,"?end_else%d",l);
 	ADD_CODE("\nLABEL ");ADD_CODE(buf);
+	return true;
+}
+
+bool G_defstat_var(Nstring *s,int uniq){
+	char buf[30];
+	sprintf(buf,"%d",uniq);
+	ADD_VARS_CODE("\nDEFVAR LF@%");
+	ADD_VARS_CODE(s->string);ADD_VARS_CODE(buf);
+	ADD_CODE("\nPOPS LF@%");ADD_CODE(s->string);ADD_CODE(buf);
+	return true;
+}
+
+bool G_label_for_for(int uniq){
+	char buf[30];
+	sprintf(buf,"%d",uniq);
+	ADD_CODE("\n#START OF FOR");
+	ADD_CODE("\nLABEL !for_s");ADD_CODE(buf);
+	return true;
+}
+
+bool G_for_label_cond(int uniq){
+	char buf[30];
+	sprintf(buf,"!for_e%d",uniq);
+	ADD_CODE("\nJUMPIFNEQ ");ADD_CODE(buf);ADD_CODE(" LF@&bool bool@true");
+	sprintf(buf,"%d",uniq);
+	ADD_CODE("\nJUMP !for_ass_e");ADD_CODE(buf);
+	return true;
+}
+
+bool G_for_ass_start(int uniq){
+	char buf[30];
+	sprintf(buf,"%d",uniq);
+	ADD_CODE("\n#START OF ASS");
+	ADD_CODE("\nLABEL !for_ass_s");ADD_CODE(buf);
+	return true;
+}
+
+bool G_for_ass_end(int uniq){
+	char buf[30];
+	sprintf(buf,"%d",uniq);
+	ADD_CODE("\nJUMP !for_s");ADD_CODE(buf);
+	ADD_CODE("\n#END OF ASS");
+	ADD_CODE("\nLABEL !for_ass_e");ADD_CODE(buf);
+	return true;
+}
+
+bool G_for_end(int uniq){
+	char buf[30];
+	sprintf(buf,"%d",uniq);
+	ADD_CODE("\nJUMP !for_ass_s");ADD_CODE(buf);
+	ADD_CODE("\n#END OF FOR");
+	ADD_CODE("\nLABEL !for_e");ADD_CODE(buf);
+	return true;
+}
+
+bool G_buildfun(){
+	ADD_GLOBAL_CODE(pre_function.string);
+	ADD_GLOBAL_CODE(def_vars.string);
+	ADD_GLOBAL_CODE(post_function.string);
+	nstring_clear(&def_vars);
+	nstring_clear(&pre_function);
+	nstring_clear(&post_function);
+
 	return true;
 }
