@@ -55,15 +55,16 @@
 "\nJUMPIFEQ $ord$wrong LF@&cond_ret bool@true"\
 "\nGT LF@&cond_ret  LF@&arg2 LF@&length"\
 "\nJUMPIFEQ $ord$wrong LF@&cond_ret bool@true"\
-"\nWRITE LF@&arg1"\
-"\nWRITE LF@&arg2"\
-"\nSTRI2INT LF@&ret1 LF@&arg1 LF@&arg2"\
+"\n#WRITE LF@&arg1" /*ZAKOMENTOVANE*/ \
+"\n#WRITE LF@&arg2" /*ZAKOMENTOVANE*/ \
+"\nSTRI2INT LF@&ret1 LF@&arg1 LF@&arg2" \
+"\nMOVE LF@&ret2 int@0" /*DOPLNENE*/  \
 "\nJUMP $ord$end"\
 "\nLABEL $ord$wrong"\
 "\nMOVE LF@&ret2 int@1"\
 "\nLABEL $ord$end"\
 "\nPOPFRAME"\
-"\nRETURN"\
+"\nRETURN"
 
 
 
@@ -125,16 +126,21 @@
 "\nLABEL $chr"\
 "\nPUSHFRAME"\
 "\nDEFVAR LF@&ret1"\
+"\nDEFVAR LF@&ret2"/*DOPLNENE*/\
 "\nMOVE LF@&ret1 string@"\
 "\nDEFVAR  LF@&condition"\
 "\nLT LF@&condition LF@&arg1 int@0"\
-"\nJUMPIFEQ $chr$end LF@&condition bool@true"\
+"\nJUMPIFEQ $chr$err LF@&condition bool@true"\
 "\nGT LF@&condition LF@&arg1 int@255"\
+"\nJUMPIFEQ $chr$err LF@&condition bool@true"\
 "\nINT2CHAR LF@&ret1 LF@&arg1"\
-"\nJUMPIFEQ $chr$end LF@&condition bool@true"\
+"\nMOVE LF@&ret2 int@0"/*DOPLNENE*/\
+"\nJUMP $chr$end"/*DOPLNENE*/\
+"\nLABEL $chr$err"/*DOPLNENE*/\
+"\nMOVE LF@&ret2 int@1" /*DOPLNENE*/\
 "\nLABEL $chr$end"\
 "\nPOPFRAME"\
-"\nRETURN"\
+"\nRETURN" \
 
 #define  FUN_INPUTI \
 "\nLABEL $inputi"  \
