@@ -1,4 +1,10 @@
-
+/**
+ * Projekt: Implementácia prekladača pre jazyk IFJ20
+ *
+ * @brief Implementácia err stacku pre volané funkcie pred prečítaním ich hlavičky.
+ *
+ * @author Martin Matějka <xmatej55@vutbr.cz>
+ */
 
 #include "sem_estack.h"
 

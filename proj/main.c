@@ -1,7 +1,7 @@
 /**
- * Projekt: Implementácia riadiacej funkcie pre jazyk IFJ20
+ * Projekt: Implementace překladače imperativního jazyka IFJ20.
  *
- * @brief Implementácia stacku.
+ * @brief Spustenie programu
  *
  * @author Matej Kocman <xkocma07@vutbr.cz>
  * @author Martin Matějka <xmatej55@vutbr.cz>

@@ -1,5 +1,5 @@
 /**
- * Projekt: Implementácia generacie kodu pre jazyk IFJ20
+ * Projekt: Implementace překladače imperativního jazyka IFJ20.
  *
  * @brief Generácia kódu.
  *

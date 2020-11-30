@@ -1,7 +1,7 @@
 /**
- * Projekt: Implementácia stacku pre jazyk IFJ20
+ * Projekt: Implementace překladače imperativního jazyka IFJ20.
  *
- * @brief Implementácia stacku.
+ * @brief Implementácia stacku pre precedenčnú analýzu.
  *
  * @author Matej Kocman <xkocma07@vutbr.cz>
  */

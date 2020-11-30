@@ -1,9 +1,10 @@
-/*
-* autor:  Lubomír Závodský <xzavod14>	                *
-* rok vytvoření: 2020		                            	*
-* projekt ifj 2020/2021                             *
-*/
-//hlavicka pro lexikalni analyzator
+/**
+ * Projekt: Implementace překladače imperativního jazyka IFJ20.
+ *
+ * @brief Implementácia lexikálnej analýzy.
+ *
+ * @author Ľubomír Závodský <xzavod14@vutbr.cz>
+ */
 
 #pragma once
 #include <stdio.h>

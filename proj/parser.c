@@ -1,7 +1,7 @@
 /**
- * Projekt: Implementácia syntaktickej analýzy pre jazyk IFJ20
+ * Projekt: Implementace překladače imperativního jazyka IFJ20.
  *
- * @brief Implementácia stacku.
+ * @brief Implementácia syntaktickej a sémantickej analýzy.
  *
  * @author Matej Kocman <xkocma07@vutbr.cz>
  * @author Martin Matějka <xmatej55@vutbr.cz>
@@ -11,13 +11,7 @@
 // #TODO conditions, for 
 // #TODO vyhodnotenie funkcii do premenny -> spolu s expr
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include "parser.h"
-#include "scaner.h"
-#include <string.h>
-#include "code_generator.h"
 
 #define ADD_GLOBAL_FUNCTION() int res_add_gl= BTree_newnode(&Global_tree,T_WFUNC,token.data,&Act_func,0); if(res_add_gl!=ERR_RIGHT) return res_add_gl;
 #define LOCAL_TOP() int top_stack=BTStack_top(&Local_trees,&Act_scope); if(top_stack!=ERR_RIGHT) return top_stack; uniq_scope++;

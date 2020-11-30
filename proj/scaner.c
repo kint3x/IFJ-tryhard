@@ -1,9 +1,11 @@
-/*
-* autor:  Lubomír Závodský <xzavod14>									*
-* rok vytvorené: 2020		                            	*
-* projekt ifj 2020/2021                               *
-*/
-//
+/**
+ * Projekt: Implementace překladače imperativního jazyka IFJ20.
+ *
+ * @brief Implementácia lexikálnej analýzy.
+ *
+ * @author Ľubomír Závodský <xzavod14@vutbr.cz>
+ */
+
 // lexikalni analyzator
 //library
 #include <stdio.h>

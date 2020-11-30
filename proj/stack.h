@@ -1,5 +1,5 @@
 /**
- * Projekt: Implementácia stacku pre jazyk IFJ20
+ * Projekt: Implementace překladače imperativního jazyka IFJ20.
  *
  * @brief Implementácia stacku.
  *

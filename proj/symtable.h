@@ -1,5 +1,5 @@
 /**
- * Projekt: Implementácia tabulky symbolov pre jazyk IFJ20
+ * Projekt: Implementace překladače imperativního jazyka IFJ20.
  *
  * @brief Implementácia tabulky symbolov pomocou stacku s binárnym stromom.
  *
