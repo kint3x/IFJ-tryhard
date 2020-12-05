@@ -149,7 +149,7 @@ int reduce_stack(bool *rel_flag,tType *change) {
 
 			pop(3);
 			s.top->handle = false;
-			push(L_NON_TERMINAL,t_pomocny,d_pomocny);
+			push(L_NON_TERMINAL,t_pomocny,d_pomocny); //t_pomocny a d_pomocny kvoli uchovavaniu delenie nulou a semanticka analyza
 			return ERR_RIGHT;
 		}
 		
