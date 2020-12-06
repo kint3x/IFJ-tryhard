@@ -276,7 +276,7 @@ int parse(){
 	G_FREEALL();
 	if(token.type!=T_END_OF_FILE)nstring_free(token.data); // uvolnit nstring v token.data
 
-	//stderr_print(ret_value);
+	stderr_print(ret_value);
 	return ret_value;
 }
 
@@ -885,7 +885,6 @@ int p_idnext() {
 			nstring_add_str(saved_uniq,saved_ID->string);nstring_add_char(saved_uniq,'|');
 		}
 		GET_TOKEN();
-		//printf("SAVED_UNIQ:%s\n",saved_uniq->string);
 		if (token.type == T_ID) {
 			nstring_clear(saved_ID); nstring_add_str(saved_ID,(token.data)->string); // UCHOVAM ID
 			GET_TOKEN();
@@ -897,8 +896,6 @@ int p_idnext() {
 		break;
 
 	case T_ASSIGN:
-		//printf("ROBIM SEARCH AND PUSH %s",saved_ID->string);
-		//printf("PRED SEARCH A PUSH: %s \n",stack_left->string);
 		SEARCH_AND_PUSH();
 		if(nstring_str_cmp(saved_ID,"_")!=0){
 			temp = BTStack_searchbyname(&Local_trees,saved_ID);
@@ -910,8 +907,6 @@ int p_idnext() {
 			nstring_add_str(saved_uniq,saved_ID->string);
 		}
 
-		//printf("SAVED_UNIQ:%s\n",saved_uniq->string);
-		//printf("PO SEARCH A PUSH: %s \n",stack_left->string);
 		GET_TOKEN();
 
 		ret_value = ERR_RIGHT;
@@ -987,7 +982,6 @@ int p_expressionnext() {
 				if(!nstring_ret_cmp(stack_left,right_expr)) return ERR_SEMAN_PARAMETERS;  //kontrola ci priradzovanie premmenny
 			}
 			else{
-				//printf("POROVNAVAM CI %s a %s su rovnake\n",stack_left->string, right_expr->string);	
 				if(!nstring_ret_cmp(stack_left,right_expr)) return ERR_SEMAN_OTHERS;  //kontrola ci priradzovanie premmenny je spravny pocet/typ id,id2 = 5 , b
 			}
 			nstring_clear(stack_left);
@@ -1017,7 +1011,6 @@ int p_termlist() {
 
 	case T_RIGHTBR:
 		if(BOOL_DEFINED_FUN){ // ak bola funkcia definovaná zistíme, inak hádžeme na ERR Stack
-			;//printf("'%s' '%s'\n",stack_left->string,(BTree_findbyname(&Global_tree,saved_ID))->returns->string);
 			if((func_args->string)[termcount]!='\0') return ERR_SEMAN_PARAMETERS; // Mala mať funkcia argumenty ale nemala? Chyba!
 			if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
 				if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
@@ -1056,7 +1049,6 @@ int p_termnext() {
 
 	case T_RIGHTBR:
 		if(BOOL_DEFINED_FUN){ // ak bola funkcia definovaná zistíme, inak hádžeme na ERR Stack
-			//printf("'%s' '%s'\n",stack_left->string,(BTree_findbyname(&Global_tree,saved_ID))->returns->string);
 			if(!nstring_is_clear(stack_left)){ // ak na lavo máme premenné, musíme ich porovnať s return types funkcie
 				if(!nstring_ret_cmp(stack_left,(BTree_findbyname(&Global_tree,saved_ID))->returns)) return ERR_SEMAN_PARAMETERS;
 			}else {//ak na lavo nemáme premenné, musíme zistiť, či funkcia má návratové hodnoty, inak vráti chybu
@@ -1119,7 +1111,6 @@ int p_term() {
 	   	if(!PRINT){
 		   	if(BOOL_DEFINED_FUN){
 		   		if('i'!=(func_args->string)[termcount]){ 
-		   			//printf("KURNA\n-----------------------------\n MAM : %s [%d]",func_args->string,termcount);
 		   			return ERR_SEMAN_PARAMETERS;
 		  		}
 		  		termcount++;

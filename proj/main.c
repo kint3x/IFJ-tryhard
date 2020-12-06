@@ -12,12 +12,11 @@
 #include "parser.h"
 
 int main(){
+	//implementacia na tri riadky, ez 
+	
 	int ERR=0;
 
 	ERR=parse();
-
-
-	//printf("%d\n",ERR);
 
 	return ERR;
 }

@@ -165,7 +165,6 @@ void BTStack_dispose(BTreeStackPtr *root){
 
 
 int BTStack_top(BTreeStackPtr *root,BTreeStackPtr *change){
-	//printf("TOP\n");
 	while((*root)!=NULL){
 		root=&((*root)->next);
 	}
@@ -179,7 +178,6 @@ int BTStack_top(BTreeStackPtr *root,BTreeStackPtr *change){
 }
 
 void BTStack_pop(BTreeStackPtr *root,BTreeStackPtr *change){
-	//printf("POP\n");
 	BTreeStackPtr prechod=(*root);
 	BTreeStackPtr prev;
 

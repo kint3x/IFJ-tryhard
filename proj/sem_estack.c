@@ -33,7 +33,7 @@ int EStack_solveproblems(EStackPtr *root,BTreePtr global_tree){
 	BTreePtr search;
 	while((*root)!=NULL){
 		search = BTree_findbyname(&global_tree,(*root)->called_name); //zistime či funkcia už existuje
-		//printf("ZISTUJEM CI %s existuje \n",(*root)->called_name->string);
+
 		if(search == NULL) return ERR_SEMAN_NOT_DEFINED; 	//ak nie voláme chybu
 
 		if(nstring_len((*root)->left) > 0){	// ak sme volali a priradzovali musíme porovnať návratové typy
