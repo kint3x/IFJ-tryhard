@@ -36,9 +36,37 @@ typedef enum {
 
 } expr_lexem;
 
+/*
+*	@brief Konvertuje token zo scanneru na token pre analyzu
+*
+*	@return Novy typ tokenu
+*/
 expr_lexem token_convert();
+/*
+*	@brief Spočíta itemy nad handle
+*
+*	@return Vráti počet itemov nad handle
+*/
 int items_above_handle();
+
+/*
+*	@brief Redukuje stack 
+*
+*	@return Vráti ERR_RIGHT či nejakú z syntaktických alebo semantických chýb
+*/
 int reduce_stack(bool *rel_flag,tType *change);
+
+/*
+*	@brief Hlavná funkcia precedenčnej analýzy
+*
+*	@return Vráti ERR_RIGHT či nejakú z syntaktických alebo semantických chýb
+*/
 int expression(tType *change,bool *cond,BTreeStackPtr Local_trees);
+
+/*
+*	@brief Kontroluje, či premenné sú správneho typu, semantická kontrola
+*
+*	@return Vráti ERR_RIGHT či nejakú zo semantických chýb
+*/
 int sem_check_var(tType *change,BTreeStackPtr Local_trees);
 #endif

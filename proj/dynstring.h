@@ -146,6 +146,9 @@ double nstring_3float(Nstring *s);
 **/
 bool nstring_string_to_escape(Nstring *s);
 
-
+/**
+* @brief Zoberie string zo source kde sú uložené unikatne id premenných a zapercentuje prvé ID a vráti ho v Nstringu new
+* @return bool pri alokácii
+*/
 bool nstring_get_and_delete(Nstring *source,Nstring *new);
 #endif

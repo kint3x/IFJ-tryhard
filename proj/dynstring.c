@@ -13,7 +13,7 @@
 
 #define PRE_STRING_ALLOC_SIZE 10 // kolko si má string predalokovať
 
-bool Nstring_onlyinit(Nstring *s){
+bool Nstring_onlyinit(Nstring *s){ // Tento druhy init sa používa na globálne premenné pre code gen
 	s->string=(char *)malloc(PRE_STRING_ALLOC_SIZE*sizeof(char));
 	if(s->string==NULL){
 		free(s);
@@ -194,7 +194,9 @@ bool nstring_string_to_escape(Nstring *s){
 	return true;
 }
 
-bool nstring_get_and_delete(Nstring *source,Nstring *new){
+bool nstring_get_and_delete(Nstring *source,Nstring *new){ //používame v generácii kodu na priradovanie premenny, zmaze typ 
+	// id1 | id2 | id3   --> %%%%% id2 | id3 
+	// v new vráti id1
 	Nstring *tmp=nstring_init();
 	int c,i=0;
 	nstring_clear(new);
